@@ -22,12 +22,9 @@ namespace MultiplayerExtensions.HarmonyPatches
     public class SongPackMasksModel_Constructor
     {
         /// <summary>
-        /// This code is run before the original code in MethodToPatch is run.
+        /// Adds a level pack selection to Quick Play's picker. Unfortunately, the server doesn't allow custom songs to be played in Quick Play.
+        /// Left here for testing.
         /// </summary>
-        /// <param name="__instance">The instance of ClassToPatch</param>
-        /// <param name="arg1">The Parameter1Type arg1 that was passed to MethodToPatch</param>
-        /// <param name="____privateFieldInClassToPatch">Reference to the private field in ClassToPatch named '_privateFieldInClassToPatch', 
-        ///     added three _ to the beginning to reference it in the patch. Adding ref means we can change it.</param>
         static void Postfix(SongPackMasksModel __instance, ref BeatmapLevelsModel beatmapLevelsModel, ref List<Tuple<SongPackMask, string>> ____songPackMaskData)
         {
             SongPackMask customs = new SongPackMask("custom_levelpack_CustomLevels");
@@ -41,12 +38,8 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         public static bool Enabled;
         /// <summary>
-        /// This code is run before the original code in MethodToPatch is run.
+        /// Overrides getter for <see cref="MultiplayerLevelSelectionFlowCoordinator.enableCustomLevels"/>
         /// </summary>
-        /// <param name="__instance">The instance of ClassToPatch</param>
-        /// <param name="arg1">The Parameter1Type arg1 that was passed to MethodToPatch</param>
-        /// <param name="____privateFieldInClassToPatch">Reference to the private field in ClassToPatch named '_privateFieldInClassToPatch', 
-        ///     added three _ to the beginning to reference it in the patch. Adding ref means we can change it.</param>
         static bool Prefix(ref bool __result)
         {
             Plugin.Log?.Debug($"CustomLevels are {(Enabled ? "enabled" : "disabled")}.");
@@ -60,6 +53,9 @@ namespace MultiplayerExtensions.HarmonyPatches
         typeof(bool), typeof(bool), typeof(bool) })]
     public class GameServerLobbyFlowCoordinator_DidActivate
     {
+        /// <summary>
+        /// Enables custom levels if GameServerLobbyFlowCoordinator.DidActivate is called.
+        /// </summary>
         static void Prefix()
         {
             Plugin.Log?.Debug("Enabling CustomLevels");
@@ -72,6 +68,9 @@ namespace MultiplayerExtensions.HarmonyPatches
         typeof(bool), typeof(bool), typeof(bool) })]
     public class QuickPlayLobbyFlowCoordinator_DidActivate
     {
+        /// <summary>
+        /// Disables custom levels if QuickPlayLobbyFlowCoordinator.DidActivate is called.
+        /// </summary>
         static void Prefix()
         {
             Plugin.Log?.Debug("Disabling CustomLevels");
