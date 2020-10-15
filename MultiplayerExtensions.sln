@@ -5,6 +5,13 @@ VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiplayerExtensions", "MultiplayerExtensions\MultiplayerExtensions.csproj", "{4641BE95-C3F7-4636-BA24-67188A38D94C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{1F1D8B7D-8AD5-4BBE-99A9-07AF7BB0867E}"
+	ProjectSection(SolutionItems) = preProject
+		Refs\refs.txt = Refs\refs.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectDependencies", "BS-Plugin-BuildTools\CollectDependencies\CollectDependencies.csproj", "{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +22,14 @@ Global
 		{4641BE95-C3F7-4636-BA24-67188A38D94C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4641BE95-C3F7-4636-BA24-67188A38D94C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4641BE95-C3F7-4636-BA24-67188A38D94C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5F33B310-DC8D-4C0D-877E-BAC3908DE10F} = {1F1D8B7D-8AD5-4BBE-99A9-07AF7BB0867E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8F0586B-E2CD-47E7-B61F-73A798A37ADA}

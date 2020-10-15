@@ -1,0 +1,31 @@
+::from ./bsinstalldir.txt
+"Beat Saber_Data/Managed/
+""GameplayCore.dll?virt?alias=Beat Saber_Data\Managed\GameplayCore.dll
+""HMLib.dll?virt?alias=Beat Saber_Data\Managed\HMLib.dll
+""HMUI.dll?virt?alias=Beat Saber_Data\Managed\HMUI.dll
+""Main.dll?virt?alias=Beat Saber_Data\Managed\Main.dll
+""netstandard.dll?alias=Beat Saber_Data\Managed\netstandard.dll
+""Unity.TextMeshPro.dll?alias=Beat Saber_Data\Managed\Unity.TextMeshPro.dll
+""UnityEngine.
+"""dll?alias=Beat Saber_Data\Managed\UnityEngine.dll
+"""AudioModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.AudioModule.dll
+"""CoreModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.CoreModule.dll
+"""ImageConversionModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll
+"""UI.dll?alias=Beat Saber_Data\Managed\UnityEngine.UI.dll
+"""UIElementsModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll
+"""UIModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.UIModule.dll
+"""VRModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.VRModule.dll
+
+"Plugins/
+""SongCore.dll?alias=Plugins\SongCore.dll
+
+"Libs/
+""0Harmony.dll?alias=Libs\0Harmony.dll
+""BeatSaverSharp.dll?alias=Libs\BeatSaverSharp.dll
+
+::startopt
+"::resolveInHere Libs/
+""SemVer.dll?alias=Libs\SemVer.dll
+""Newtonsoft.Json.dll?alias=Libs\Newtonsoft.Json.dll
+"::resolveInHere Beat Saber_Data/Managed/
+""IPA.Loader.dll?alias=Beat Saber_Data\Managed\IPA.Loader.dll
