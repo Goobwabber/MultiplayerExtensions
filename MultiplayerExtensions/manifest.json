@@ -8,7 +8,7 @@
   "gameVersion": "1.12.1",
   "dependsOn": {
     "BSIPA": "^4.0.5",
-    "SongCore": "^2.10.0"
-  },
-  "features": []
+    "SongCore": "^2.10.0",
+    "BeatSaverSharp": "^1.6.0"
+  }
 }
