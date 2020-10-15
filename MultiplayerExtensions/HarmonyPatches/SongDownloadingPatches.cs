@@ -15,75 +15,6 @@ using IPA.Utilities;
 /// </summary>
 namespace MultiplayerExtensions.HarmonyPatches
 {
-#if DEBUG
-    [HarmonyPatch(typeof(SongPackMasksModel), MethodType.Constructor,
-        new Type[] { // List the Types of the method's parameters.
-        typeof(BeatmapLevelsModel) })]
-    public class SongPackMasksModel_Constructor
-    {
-        /// <summary>
-        /// This code is run before the original code in MethodToPatch is run.
-        /// </summary>
-        /// <param name="__instance">The instance of ClassToPatch</param>
-        /// <param name="arg1">The Parameter1Type arg1 that was passed to MethodToPatch</param>
-        /// <param name="____privateFieldInClassToPatch">Reference to the private field in ClassToPatch named '_privateFieldInClassToPatch', 
-        ///     added three _ to the beginning to reference it in the patch. Adding ref means we can change it.</param>
-        static void Postfix(SongPackMasksModel __instance, ref BeatmapLevelsModel beatmapLevelsModel, ref List<Tuple<SongPackMask, string>> ____songPackMaskData)
-        {
-            SongPackMask customs = new SongPackMask("custom_levelpack_CustomLevels");
-            var allSongs = customs & SongPackMask.all;
-            Plugin.Log?.Critical($"---Song Masks---");
-            Plugin.Log?.Critical(customs.ToString());
-            Plugin.Log?.Critical(SongPackMask.all.ToString());
-            Plugin.Log?.Critical(allSongs.ToString());
-
-            ____songPackMaskData.Add(customs, "Custom");
-        }
-    }
-#endif
-
-    [HarmonyPatch(typeof(MultiplayerLevelSelectionFlowCoordinator), "enableCustomLevels", MethodType.Getter)]
-    public class EnableCustomLevelsPatch
-    {
-        public static bool Enabled;
-        /// <summary>
-        /// This code is run before the original code in MethodToPatch is run.
-        /// </summary>
-        /// <param name="__instance">The instance of ClassToPatch</param>
-        /// <param name="arg1">The Parameter1Type arg1 that was passed to MethodToPatch</param>
-        /// <param name="____privateFieldInClassToPatch">Reference to the private field in ClassToPatch named '_privateFieldInClassToPatch', 
-        ///     added three _ to the beginning to reference it in the patch. Adding ref means we can change it.</param>
-        static bool Prefix(ref bool __result)
-        {
-            Plugin.Log?.Debug($"CustomLevels are {(Enabled ? "enabled" : "disabled")}.");
-            __result = Enabled;
-            return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "DidActivate",
-        new Type[] { // List the Types of the method's parameters.
-        typeof(bool), typeof(bool), typeof(bool) })]
-    public class GameServerLobbyFlowCoordinator_DidActivate
-    {
-        static void Prefix()
-        {
-            Plugin.Log?.Debug("Enabling CustomLevels");
-            EnableCustomLevelsPatch.Enabled = true;
-        }
-    }
-
-    [HarmonyPatch(typeof(QuickPlayLobbyFlowCoordinator), "DidActivate",
-        new Type[] { // List the Types of the method's parameters.
-        typeof(bool), typeof(bool), typeof(bool) })]
-    public class GameServerLobbyFlowCoordinator_DidDeactivate
-    {
-        static void Prefix()
-        {
-            Plugin.Log?.Debug("Disabling CustomLevels");
-            EnableCustomLevelsPatch.Enabled = false;
-        }
-    }
 
     [HarmonyPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.HandleMenuRpcManagerStartedLevel),
         new Type[] { // List the Types of the method's parameters.
@@ -115,6 +46,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         static bool Prefix(ref BeatmapIdentifierNetSerializable beatmapId, ref GameplayModifiers gameplayModifiers, ref float initialStartTime, MultiplayerLevelLoader __instance)
         {
+            // Loading here doesn't work
             return true;
             MultiplayerLevelLoader = __instance;
             string levelId = beatmapId?.levelID;

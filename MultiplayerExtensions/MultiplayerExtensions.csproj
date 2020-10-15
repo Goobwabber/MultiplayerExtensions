@@ -124,7 +124,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Downloader.cs" />
-    <Compile Include="HarmonyPatches\SongPackMasksModel_Constructor.cs" />
+    <Compile Include="HarmonyPatches\EnableCustomSongsPatches.cs" />
+    <Compile Include="HarmonyPatches\SongDownloadingPatches.cs" />
     <Compile Include="OverrideClasses\PreviewBeatmapLevelStub.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
