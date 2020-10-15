@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'MultiplayerExtensions/**'
+      - '.github/workflows/Build.yml'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'MultiplayerExtensions/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: GetStrippedRefs
+      env:
+        FILES_URL: ${{ secrets.BSFILES_URL }}
+      run: wget --no-check-certificate "$FILES_URL" -q -O bsfiles.zip
+    - name: ExtractRefs
+      run: unzip -q -n bsfiles.zip -d ./Refs
+    - name: Build
+      id: Build
+      env: 
+        FrameworkPathOverride: /usr/lib/mono/4.8-api
+      run: dotnet build --configuration Release
+    - name: Echo Filename
+      run: echo $BUILDTEXT \($ASSEMBLYNAME\)
+      env:
+        BUILDTEXT: Filename=${{ steps.Build.outputs.filename }}
+        ASSEMBLYNAME: AssemblyName=${{ steps.Build.outputs.assemblyname }}
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.Build.outputs.filename }}
+        path: ${{ steps.Build.outputs.artifactpath }}
