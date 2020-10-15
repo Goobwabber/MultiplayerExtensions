@@ -5,3 +5,7 @@ A Beat Saber mod that expands multiplayer functionality.
 * Allows custom levels to be selected in private lobbies.
 * Attempts to download missing songs from Beat Saver.
   * Does not update the UI if a song is downloaded successfully (yet), but it should allow it to be played.
+
+## Requirements
+* SongCore v2.10.0+
+* BeatSaverSharp v1.6.0+
