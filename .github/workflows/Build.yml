@@ -6,6 +6,7 @@ on:
     paths:
       - 'MultiplayerExtensions/**'
       - '.github/workflows/Build.yml'
+      - 'Refs/**'
   pull_request:
     branches: [ master ]
     paths:
