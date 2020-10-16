@@ -9,6 +9,8 @@ using HarmonyLib;
 using HMUI;
 using IPA.Logging;
 using IPA.Utilities;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
@@ -124,8 +126,8 @@ namespace MultiplayerExtensions.HarmonyPatches
                 {
                     Plugin.Log?.Debug($"Download was successful.");
                     IBeatmapLevel beatmapLevel = await CustomLevelLoader(ref beatmapLevelsModel).LoadCustomBeatmapLevelAsync(customLevel, cancellationToken);
+                    UIHelper.RefreshUI();
                     tcs.TrySetResult(new BeatmapLevelsModel.GetBeatmapLevelResult(false, beatmapLevel));
-                    return;
                 }
                 else
                     Plugin.Log?.Error($"beatmap:{beatmap?.GetType().Name} is not an CustomPreviewBeatmapLevel");
@@ -173,4 +175,11 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 #endif
+}
+public class UIHelper : MonoBehaviour // This is needed because a static class cannot inherit from Monobehaviour
+{
+    public static void RefreshUI()
+    {
+        Resources.FindObjectsOfTypeAll<LevelFilteringNavigationController>().FirstOrDefault().UpdateCustomSongs();
+    }
 }
