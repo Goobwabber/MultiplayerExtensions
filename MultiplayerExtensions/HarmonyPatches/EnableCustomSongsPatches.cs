@@ -11,7 +11,6 @@ using UnityEngine;
 using HMUI;
 using IPA.Logging;
 using IPA.Utilities;
-using System.Windows.Forms;
 
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
