@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MultiplayerExtensions.Utilities;
+using System.Collections.Concurrent;
 #nullable enable
 
 namespace MultiplayerExtensions
@@ -40,7 +41,7 @@ namespace MultiplayerExtensions
             }
             Plugin.Log.Info($"Downloaded song to '{folderPath}'");
 
-            using (var awaiter = new EventAwaiter<SongCore.Loader, Dictionary<string, CustomPreviewBeatmapLevel>>(cancellationToken))
+            using (var awaiter = new EventAwaiter<SongCore.Loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel>>(cancellationToken))
             {
                 try
                 {
