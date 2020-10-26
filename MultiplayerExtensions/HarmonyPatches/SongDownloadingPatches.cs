@@ -29,6 +29,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static bool Prefix(ref string userId, ref BeatmapIdentifierNetSerializable beatmapId, ref GameplayModifiers gameplayModifiers, ref float startTime, LobbyGameStateController __instance)
         {
             Plugin.Log?.Debug($"LobbyGameStateController.HandleMenuRpcManagerStartedLevel");
+
             if (SongCore.Loader.GetLevelById(beatmapId.levelID) != null)
                 Plugin.Log.Debug($"Level is loaded.");
             LobbyGameStateController = __instance;
@@ -48,8 +49,8 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         static bool Prefix(ref BeatmapIdentifierNetSerializable beatmapId, ref GameplayModifiers gameplayModifiers, ref float initialStartTime, MultiplayerLevelLoader __instance)
         {
-            // Loading here doesn't work
-            return true;
+            if (!beatmapId.levelID.StartsWith(CustomLevelPrefix) || SongCore.Loader.GetLevelById(beatmapId.levelID) != null)
+                return true;
             MultiplayerLevelLoader = __instance;
             string levelId = beatmapId?.levelID;
             BeatmapIdentifierNetSerializable bmId = beatmapId;
@@ -69,12 +70,12 @@ namespace MultiplayerExtensions.HarmonyPatches
                     {
                         if (r)
                         {
-                            Plugin.Log?.Debug($"Triggering 'LobbyGameStateController.HandleMenuRpcManagerStartedLevel' after level download.");
-                            LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LobbyGameStateController.HandleMenuRpcManagerStartedLevel(LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LastUserId, bmId, modifiers, startTime);
+                            //Plugin.Log?.Debug($"Triggering 'LobbyGameStateController.HandleMenuRpcManagerStartedLevel' after level download.");
+                            //LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LobbyGameStateController.HandleMenuRpcManagerStartedLevel(LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LastUserId, bmId, modifiers, startTime);
                         }
                         else
                             Plugin.Log?.Warn($"TryDownloadSong was unsuccessful.");
-                        //MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
+                        MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
                         LoadingLevelId = null;
                     });
                     return false;
@@ -84,6 +85,37 @@ namespace MultiplayerExtensions.HarmonyPatches
             return true;
         }
 
+    }
+
+    [HarmonyPatch(typeof(LobbyPlayersDataModel), "HandleMenuRpcManagerSelectedBeatmap", MethodType.Normal)]
+    class SetPlayerLevelPatch
+    {
+        public static List<string> downloadedSongs = new List<string>();
+
+        static bool Prefix(string userId, BeatmapIdentifierNetSerializable beatmapId, LobbyPlayersDataModel __instance)
+        {
+            if (beatmapId != null)
+            {
+                if (beatmapId.levelID.StartsWith("custom_level_"))
+                {
+                    Plugin.Log?.Debug($"'{userId}' selected song '{beatmapId.levelID}'");
+                    if (SongCore.Loader.GetLevelById(beatmapId.levelID) != null)
+                    {
+                        Plugin.Log?.Debug($"Custom song '{beatmapId.levelID}' loaded.");
+                        return true;
+                    }
+
+                    Plugin.Log?.Debug("getting characteristics");
+                    var beatmapCharacteristicCollection = __instance.GetField<BeatmapCharacteristicCollectionSO, LobbyPlayersDataModel>("_beatmapCharacteristicCollection");
+                    Plugin.Log?.Debug("setting preview");
+                    __instance.SetPlayerBeatmapLevel(userId, new OverrideClasses.PreviewBeatmapLevelStub(beatmapId.levelID), beatmapId.difficulty, 
+                        beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName));
+
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     [HarmonyPatch(typeof(BeatmapLevelsModel), nameof(BeatmapLevelsModel.GetBeatmapLevelAsync),
@@ -97,7 +129,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         static bool Prefix(ref string levelID, ref CancellationToken cancellationToken, ref Task<BeatmapLevelsModel.GetBeatmapLevelResult> __result, BeatmapLevelsModel __instance)
         {
-            //return true;
+            return true;
             if (!levelID.StartsWith("custom_level_") || SongCore.Loader.GetLevelById(levelID) != null)
                 return true;
             Plugin.Log?.Info($"Attempting to download custom level...");
@@ -164,12 +196,12 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             var con = ____levelFilterCategoryIconSegmentedControl;
             var col = ____levelCategoryInfos;
-            Plugin.Log?.Warn($"Selected cell: {con.selectedCellNumber} / {col.Length} ({con.NumberOfCells()})");
+            Plugin.Log?.Debug($"Selected cell: {con.selectedCellNumber} / {col.Length} ({con.NumberOfCells()})");
             if (con.selectedCellNumber < 0 || con.selectedCellNumber > col.Length)
                 con.SelectCellWithNumber(0);
             foreach (var item in col)
             {
-                Plugin.Log?.Warn($"{item.levelCategory}");
+                Plugin.Log?.Debug($"{item.levelCategory}");
             }
             return true;
         }

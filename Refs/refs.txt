@@ -18,6 +18,7 @@
 
 "Plugins/
 ""SongCore.dll?alias=Plugins\SongCore.dll
+""BSML.dll?alias=Plugins\BSML.dll
 
 "Libs/
 ""0Harmony.dll?alias=Libs\0Harmony.dll

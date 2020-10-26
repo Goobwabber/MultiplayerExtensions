@@ -1,5 +1,8 @@
 ﻿using HarmonyLib;
 using IPA;
+using IPA.Config;
+using IPA.Config.Stores;
+using MultiplayerExtensions.UI;
 using System.Reflection;
 using IPALogger = IPA.Logging.Logger;
 
@@ -22,12 +25,17 @@ namespace MultiplayerExtensions
         /// Use to send log messages through BSIPA.
         /// </summary>
         internal static IPALogger Log { get; private set; }
+        internal static PluginConfig Config;
+
+        internal static MultiplayerSessionManager MultiplayerSessionManager;
 
         [Init]
-        public Plugin(IPALogger logger)
+        public Plugin(IPALogger logger, Config conf)
         {
             Instance = this;
             Log = logger;
+            Config = conf.Generated<PluginConfig>();
+            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
         }
 
         [OnStart]
@@ -42,6 +50,5 @@ namespace MultiplayerExtensions
         {
 
         }
-
     }
 }

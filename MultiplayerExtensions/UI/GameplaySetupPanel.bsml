@@ -1,0 +1,15 @@
+<bg>
+  <vertical>
+    <text text='Gameplay' italics='true' font-size='6.5' align='Center'/>
+    <modifier-container>
+      <toggle-setting id="VerticalHUDToggle" value='VerticalHUD' on-change='SetVerticalHUD' text='Vertical HUD' interactable='false' ></toggle-setting>
+      <toggle-setting id="DefaultHUDToggle" value='DefaultHUD' on-change='SetDefaultHUD' text='Singleplayer HUD' interactable='false' ></toggle-setting>
+      <toggle-setting id="HologramToggle" value='Hologram' on-change='SetHologram' text='Hologram' interactable='false' ></toggle-setting>
+    </modifier-container>
+    <text text='Host Options' italics='true' font-size='6.5' align='Center'/>
+    <modifier-container>
+      <toggle-setting id="CustomSongsToggle" value='CustomSongs' on-change='SetCustomSongs' text='Custom Songs' interactable='false' ></toggle-setting>
+      <toggle-setting id="EnforceModsToggle" value='EnforceMods' on-change='SetEnforceMods' text='Enforce Mods' interactable='false' ></toggle-setting>
+    </modifier-container>
+  </vertical>
+</bg>

@@ -44,7 +44,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static bool Prefix(ref bool __result)
         {
             Plugin.Log?.Debug($"CustomLevels are {(LobbyJoinPatch.IsPrivate ? "enabled" : "disabled")}.");
-            __result = LobbyJoinPatch.IsPrivate;
+            __result = LobbyJoinPatch.IsPrivate && UI.GameplaySetupPanel.instance.CustomSongs;
             return false;
         }
     }
@@ -54,8 +54,9 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         public static MultiplayerLobbyConnectionController.LobbyConnectionType ConnectionType;
 
-        public static bool IsPrivate { get { return ConnectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.QuickPlay; } }
-        public static bool IsMultiplayer { get { return ConnectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.None; } }
+        public static bool IsPrivate { get { return ConnectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.QuickPlay || false; } }
+        public static bool IsHost { get { return ConnectionType == MultiplayerLobbyConnectionController.LobbyConnectionType.PartyHost || false; } }
+        public static bool IsMultiplayer { get { return ConnectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.None || false; } }
 
         /// <summary>
         /// Gets the current lobby type.
@@ -63,6 +64,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Prefix(MultiplayerLobbyConnectionController __instance)
         {
             ConnectionType = __instance.GetProperty<MultiplayerLobbyConnectionController.LobbyConnectionType, MultiplayerLobbyConnectionController>("connectionType");
+            UI.GameplaySetupPanel.instance.UpdatePanel();
             Plugin.Log?.Debug($"Joining a {ConnectionType} lobby.");
         }
     }
