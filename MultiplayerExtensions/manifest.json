@@ -2,13 +2,14 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "MultiplayerExtensions",
   "name": "MultiplayerExtensions",
-  "author": "Zingabopp",
-  "version": "0.1.1",
+  "author": "Zingabopp and Goobwabber",
+  "version": "0.1.2",
   "description": "Expands the functionality of Beat Saber Multiplayer.",
   "gameVersion": "1.12.2",
   "dependsOn": {
     "BSIPA": "^4.0.5",
     "SongCore": "^3.0.0",
-    "BeatSaverSharp": "^1.6.0"
+    "BeatSaverSharp": "^1.6.0",
+    "BeatSaberMarkupLanguage":  "^1.4.0"
   }
 }
