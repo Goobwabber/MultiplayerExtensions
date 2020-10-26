@@ -9,6 +9,7 @@
   "dependsOn": {
     "BSIPA": "^4.0.5",
     "SongCore": "^3.0.0",
-    "BeatSaverSharp": "^1.6.0"
+    "BeatSaverSharp": "^1.6.0",
+    "BeatSaberMarkupLanguage":  "^1.4.0"
   }
 }
