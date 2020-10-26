@@ -51,8 +51,8 @@ namespace MultiplayerExtensions.UI
         public void SetVerticalHUD(bool value)
         {
             VerticalHUD = value;
+            verticalHUDToggle.Value = value;
             SetDefaultHUD(!(!DefaultHUD || !value));
-            defaultHUDToggle.interactable = value;
         }
 
         [UIComponent("DefaultHUDToggle")]
@@ -70,6 +70,8 @@ namespace MultiplayerExtensions.UI
         public void SetDefaultHUD(bool value)
         {
             DefaultHUD = value;
+            defaultHUDToggle.Value = value;
+            defaultHUDToggle.interactable = VerticalHUD;
         }
 
         [UIComponent("HologramToggle")]
@@ -87,6 +89,7 @@ namespace MultiplayerExtensions.UI
         public void SetHologram(bool value)
         {
             Hologram = value;
+            hologramToggle.Value = value;
         }
 
         [UIComponent("CustomSongsToggle")]
@@ -104,8 +107,9 @@ namespace MultiplayerExtensions.UI
         public void SetCustomSongs(bool value)
         {
             CustomSongs = value;
+            customSongsToggle.Value = value;
+
             SetEnforceMods(EnforceMods || value);
-            enforceModsToggle.interactable = !value && LobbyJoinPatch.IsHost;
             UpdateStates();
         }
 
@@ -124,6 +128,8 @@ namespace MultiplayerExtensions.UI
         public void SetEnforceMods(bool value)
         {
             EnforceMods = value;
+            enforceModsToggle.Value = value;
+            enforceModsToggle.interactable = !CustomSongs && LobbyJoinPatch.IsHost;
             UpdateStates();
         }
     }
