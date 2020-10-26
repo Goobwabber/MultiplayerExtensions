@@ -7,5 +7,6 @@ A Beat Saber mod that expands multiplayer functionality. **This is a work in pro
   * Does not update the UI if a song is downloaded successfully (yet), but it should allow it to be played.
 
 ## Requirements
-* SongCore v2.10.0+
+* SongCore v3.0.0+
 * BeatSaverSharp v1.6.0+
+* BeatSaberMarkupLanguage v1.4.0+
