@@ -21,7 +21,7 @@ namespace MultiplayerExtensions.UI
         public void UpdatePanel()
         {
             var isMultiplayer = LobbyJoinPatch.IsMultiplayer;
-            var isHost = LobbyJoinPatch.IsMultiplayer;
+            var isHost = LobbyJoinPatch.IsHost;
             sessionManager = Resources.FindObjectsOfTypeAll<MultiplayerSessionManager>().First();
             verticalHUDToggle.interactable = isMultiplayer;
             defaultHUDToggle.interactable = isMultiplayer;
@@ -105,7 +105,7 @@ namespace MultiplayerExtensions.UI
         {
             CustomSongs = value;
             SetEnforceMods(EnforceMods || value);
-            enforceModsToggle.interactable = !value;
+            enforceModsToggle.interactable = !value && LobbyJoinPatch.IsHost;
             UpdateStates();
         }
 

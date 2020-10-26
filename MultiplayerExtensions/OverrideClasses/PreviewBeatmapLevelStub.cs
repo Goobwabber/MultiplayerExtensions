@@ -46,12 +46,19 @@ namespace MultiplayerExtensions.OverrideClasses
 
         private void Populate(Beatmap beatmap)
         {
-            songName = beatmap.Metadata.SongName;
-            songSubName = beatmap.Metadata.SongSubName;
-            songAuthorName = beatmap.Metadata.SongAuthorName;
-            levelAuthorName = beatmap.Metadata.LevelAuthorName;
-            beatsPerMinute = beatmap.Metadata.BPM;
-            songDuration = beatmap.Metadata.Duration;
+            if (beatmap != null)
+            {
+                songName = beatmap.Metadata.SongName;
+                songSubName = beatmap.Metadata.SongSubName;
+                songAuthorName = beatmap.Metadata.SongAuthorName;
+                levelAuthorName = beatmap.Metadata.LevelAuthorName;
+                beatsPerMinute = beatmap.Metadata.BPM;
+                songDuration = beatmap.Metadata.Duration;
+            }
+            else
+            {
+                songName = "Not found!";
+            }
         }
 
         public string levelID { get; private set; }
@@ -87,8 +94,15 @@ namespace MultiplayerExtensions.OverrideClasses
         public async Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken)
         {
             Beatmap bm = await GetBeatmap;
-            var img = await bm.FetchCoverImage(cancellationToken);
-            return Utilities.Utilities.GetSprite(img);
+            if (bm != null)
+            {
+                var img = await bm.FetchCoverImage(cancellationToken);
+                return Utilities.Utilities.GetSprite(img);
+            }
+            else
+            {
+                return Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
+            }
         }
 
         public Task<UnityEngine.AudioClip> GetPreviewAudioClipAsync(CancellationToken cancellationToken)
