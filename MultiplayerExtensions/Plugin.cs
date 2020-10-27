@@ -41,7 +41,7 @@ namespace MultiplayerExtensions
         [OnStart]
         public void OnApplicationStart()
         {
-            Plugin.Log.Info("OnApplicationStart");
+            Plugin.Log.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
             Harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
