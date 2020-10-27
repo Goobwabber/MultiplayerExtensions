@@ -11,7 +11,8 @@ A Beat Saber mod that expands multiplayer functionality. **This is a work in pro
 ## Installation
 MultiplayerExtensions has not been released yet, but you can grab the latest build from [Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster) (pick the topmost successful build). You must be logged into GitHub to download builds from GitHub Actions.
 1. Download `MultiplayerExtensions` file listed under `Artifacts`.
-2. Extract the zip file to your Beat Saber game directory (the `MultiplayerExtensions.dll` should end up in your `Plugins` folder)
+2. Extract the zip file to your Beat Saber game directory.
+   * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder.
 
 ## Requirements
 * SongCore v3.0.0+
