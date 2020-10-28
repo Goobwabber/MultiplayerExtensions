@@ -12,8 +12,8 @@ namespace MultiplayerExtensions
     public class Plugin
     {
         public static readonly string HarmonyId = "com.github.Zingabopp.MultiplayerExtensions";
-        internal static Plugin Instance { get; private set; }
-        internal static Harmony _harmony;
+        internal static Plugin Instance { get; private set; } = null!;
+        internal static Harmony? _harmony;
         internal static Harmony Harmony
         {
             get
@@ -24,10 +24,8 @@ namespace MultiplayerExtensions
         /// <summary>
         /// Use to send log messages through BSIPA.
         /// </summary>
-        internal static IPALogger Log { get; private set; }
-        internal static PluginConfig Config;
-
-        internal static MultiplayerSessionManager MultiplayerSessionManager;
+        internal static IPALogger Log { get; private set; } = null!;
+        internal static PluginConfig Config = null!;
 
         [Init]
         public Plugin(IPALogger logger, Config conf)
@@ -41,7 +39,7 @@ namespace MultiplayerExtensions
         [OnStart]
         public void OnApplicationStart()
         {
-            Plugin.Log.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
+            Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
             Harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 

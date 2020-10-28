@@ -18,7 +18,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(LevelCollectionViewController), "HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
     public class LevelCollectionViewController_DidSelectLevel
     {
-        private static GameObject beatSaverWarning;
+        private static GameObject? beatSaverWarning;
         private static List<string> songsNotFound = new List<string>();
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static bool Prefix(IPreviewBeatmapLevel level)
         {
-            if (!beatSaverWarning)
+            if (beatSaverWarning == null)
             {
                 var levelDetail = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First();
                 beatSaverWarning = new GameObject("BeatSaverWarning", typeof(CurvedTextMeshPro));
