@@ -78,7 +78,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Postfix(MultiplayerBigAvatarAnimator __instance)
         {
             Plugin.Log?.Debug($"{(Plugin.Config.Hologram ? "Enabled" : "Disabled")} hologram.");
-            __instance.gameObject.SetActive(false);
+            __instance.gameObject.SetActive(Plugin.Config.Hologram);
         }
     }
 
