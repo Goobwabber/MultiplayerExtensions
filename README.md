@@ -16,6 +16,7 @@ MultiplayerExtensions has not been released yet, but you can grab the latest bui
    * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder.
 
 ## Requirements
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they will not work**
 * SongCore v3.0.0+
 * BeatSaverSharp v1.6.0+
 * BeatSaberMarkupLanguage v1.4.0+
