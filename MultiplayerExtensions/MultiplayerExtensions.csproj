@@ -6,6 +6,7 @@
     <AssemblyName>MultiplayerExtensions</AssemblyName>
     <AssemblyVersion>0.1.2</AssemblyVersion>
     <TargetFramework>net472</TargetFramework>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
