@@ -22,7 +22,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 {
                     if (_getBeatmap == null)
                     {
-                        _getBeatmap = BeatSaver.Client.Hash(levelID.Replace("custom_level_", ""));
+                        _getBeatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(levelID));
                         _getBeatmap.ContinueWith(b =>
                         {
                             if (b.Result != null)
@@ -47,6 +47,17 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             this.songName = songName;
             this.levelAuthorName = levelAuthorName;
+        }
+
+        public PreviewBeatmapLevelStub(string levelId, Beatmap beatmap)
+        {
+            levelID = levelId;
+            if (beatmap != null)
+                Populate(beatmap);
+            else
+            {
+                songName = "Not Found";
+            }
         }
 
         private void Populate(Beatmap beatmap)
