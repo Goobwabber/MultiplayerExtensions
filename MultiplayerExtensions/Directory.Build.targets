@@ -19,11 +19,17 @@
   </Target>
   <!--Runs a build task to get info about the project used by later targets.-->
   <Target Name="GetProjectInfo" AfterTargets="CheckBSMTInstalled" DependsOnTargets="CheckBSMTInstalled" Condition="'$(BSMTTaskAssembly)' != ''">
-    <GetManifestInfo KnownAssemblyVersion="$(AssemblyVersion)" ErrorOnMismatch="False">
+    <GetManifestInfo FailOnError="$(ErrorOnMismatchedVersions)">
       <Output TaskParameter="PluginVersion" PropertyName="PluginVersion" />
       <Output TaskParameter="GameVersion" PropertyName="GameVersion" />
-      <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion" />
     </GetManifestInfo>
+    <PropertyGroup>
+      <AssemblyVersion>$(PluginVersion)</AssemblyVersion>
+    </PropertyGroup>
+    <!--<GetAssemblyInfo FailOnError="$(ErrorOnMismatchedVersions)" Condition="'$(AssemblyVersion)' == ''">
+      <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion" />
+    </GetAssemblyInfo>-->
+    <CompareVersions PluginVersion="$(PluginVersion)" AssemblyVersion="$(AssemblyVersion)" ErrorOnMismatch="$(ErrorOnMismatchedVersions)" />
     <GetCommitInfo ProjectDir="$(ProjectDir)">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="Branch" />
