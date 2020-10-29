@@ -18,9 +18,8 @@ namespace MultiplayerExtensions
         public const int MaxFileSystemPathLength = 259;
         public static readonly string CustomLevelsFolder = Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
 
-        public static async Task<IPreviewBeatmapLevel?> DownloadSong(string levelId, CancellationToken cancellationToken)
+        public static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, CancellationToken cancellationToken)
         {
-            string hash = levelId.Replace("custom_level_", "");
             var bm = await BeatSaverSharp.BeatSaver.Client.Hash(hash, cancellationToken);
 
             string folderPath = GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
@@ -74,7 +73,14 @@ namespace MultiplayerExtensions
         {
             try
             {
-                IPreviewBeatmapLevel? beatmap = await DownloadSong(levelId, cancellationToken);
+                string? hash = Utilities.Utilities.LevelIdToHash(levelId);
+                if(hash == null)
+                {
+                    Plugin.Log?.Error($"Cannot parse a hash from level id '{levelId}'.");
+                    callback(false);
+                    return;
+                }
+                IPreviewBeatmapLevel? beatmap = await DownloadSong(hash, cancellationToken);
                 if (beatmap is CustomPreviewBeatmapLevel customLevel)
                 {
                     Plugin.Log?.Debug($"Download was successful.");
