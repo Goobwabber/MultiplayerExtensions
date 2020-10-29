@@ -172,6 +172,7 @@
       <Output TaskParameter="Modified" PropertyName="GitModified" />
       <Output TaskParameter="GitUser" PropertyName="GitUser" />
     </GetCommitInfo>
+    <Message Text="GetCommitInfo: $(GitUser)|$(GitBranch)|$(GitModified)|$(CommitHash)" Importance="high" />
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp'">
       <VersionType>Official</VersionType>
     </PropertyGroup>
