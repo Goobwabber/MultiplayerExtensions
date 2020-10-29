@@ -6,6 +6,9 @@
     <DisableCopyToPlugins>true</DisableCopyToPlugins>
     <DisableZipRelease>true</DisableZipRelease>
   </PropertyGroup>
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+  </ItemGroup>
   <PropertyGroup Condition="'$(NCrunch)' == '1'">
     <ContinuousIntegrationBuild>false</ContinuousIntegrationBuild>
     <DisableCopyToPlugins>true</DisableCopyToPlugins>

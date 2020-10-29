@@ -1,16 +1,18 @@
-name: Build
+name: Test
 
 on:
   push:
     branches: [ master ]
     paths:
       - 'MultiplayerExtensions/**'
-      - '.github/workflows/Build.yml'
+      - 'MultiplayerExtensionsTests/**'
+      - '.github/workflows/Test.yml'
       - 'Refs/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'MultiplayerExtensions/**'
+      - 'MultiplayerExtensionsTests/**'
 
 jobs:
   Test:
@@ -29,4 +31,6 @@ jobs:
       run: unzip -q -n bsfiles.zip -d ./Refs
     - name: Test
       id: Test
+      env: 
+        FrameworkPathOverride: /usr/lib/mono/4.8-api
       run: dotnet test --logger GitHubActions

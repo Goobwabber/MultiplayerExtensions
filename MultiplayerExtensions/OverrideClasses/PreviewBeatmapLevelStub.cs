@@ -13,8 +13,8 @@ namespace MultiplayerExtensions.OverrideClasses
     public class PreviewBeatmapLevelStub : IPreviewBeatmapLevel
     {
         private object _getlock = new object();
-        private Task<Beatmap> _getBeatmap;
-        public Task<Beatmap> GetBeatmap
+        private Task<Beatmap?>? _getBeatmap;
+        public Task<Beatmap?> GetBeatmap
         {
             get
             {
@@ -25,7 +25,12 @@ namespace MultiplayerExtensions.OverrideClasses
                         _getBeatmap = BeatSaver.Client.Hash(levelID.Replace("custom_level_", ""));
                         _getBeatmap.ContinueWith(b =>
                         {
-                            Populate(b.Result);
+                            if (b.Result != null)
+                                Populate(b.Result);
+                            else
+                            {
+                                songName = "Not Found";
+                            }
                         });
                     }
                 }
@@ -34,7 +39,7 @@ namespace MultiplayerExtensions.OverrideClasses
         }
         public PreviewBeatmapLevelStub(string levelId)
         {
-            levelID = levelId;    
+            levelID = levelId;
         }
 
         public PreviewBeatmapLevelStub(string levelId, string songName, string levelAuthorName)
@@ -63,37 +68,37 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public string levelID { get; private set; }
 
-        public string songName  { get; private set; }
+        public string? songName { get; private set; }
 
-        public string songSubName  { get; private set; }
+        public string? songSubName { get; private set; }
 
-        public string songAuthorName  { get; private set; }
+        public string? songAuthorName { get; private set; }
 
-        public string levelAuthorName  { get; private set; }
+        public string? levelAuthorName { get; private set; }
 
-        public float beatsPerMinute  { get; private set; }
+        public float beatsPerMinute { get; private set; }
 
-        public float songTimeOffset  { get; private set; }
+        public float songTimeOffset { get; private set; }
 
-        public float shuffle  { get; private set; }
+        public float shuffle { get; private set; }
 
-        public float shufflePeriod  { get; private set; }
+        public float shufflePeriod { get; private set; }
 
-        public float previewStartTime  { get; private set; }
+        public float previewStartTime { get; private set; }
 
-        public float previewDuration  { get; private set; }
+        public float previewDuration { get; private set; }
 
-        public float songDuration  { get; private set; }
+        public float songDuration { get; private set; }
 
-        public EnvironmentInfoSO environmentInfo  { get; private set; }
+        public EnvironmentInfoSO? environmentInfo { get; private set; }
 
-        public EnvironmentInfoSO allDirectionsEnvironmentInfo  { get; private set; }
+        public EnvironmentInfoSO? allDirectionsEnvironmentInfo { get; private set; }
 
-        public PreviewDifficultyBeatmapSet[] previewDifficultyBeatmapSets  { get; private set; }
+        public PreviewDifficultyBeatmapSet[]? previewDifficultyBeatmapSets { get; private set; }
 
-        public async Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken)
+        public async Task<Sprite?> GetCoverImageAsync(CancellationToken cancellationToken)
         {
-            Beatmap bm = await GetBeatmap;
+            Beatmap? bm = await GetBeatmap;
             if (bm != null)
             {
                 var img = await bm.FetchCoverImage(cancellationToken);
@@ -105,14 +110,14 @@ namespace MultiplayerExtensions.OverrideClasses
             }
         }
 
-        public Task<UnityEngine.AudioClip> GetPreviewAudioClipAsync(CancellationToken cancellationToken)
+        public Task<AudioClip?> GetPreviewAudioClipAsync(CancellationToken cancellationToken)
         {
             var bm = SongCore.Loader.GetLevelById(levelID);
-            if(bm != null)
+            if (bm != null)
             {
                 return bm.GetPreviewAudioClipAsync(cancellationToken);
             }
-            return Task.FromResult<AudioClip>(null);
+            return Task.FromResult<AudioClip?>(null);
         }
     }
 }
