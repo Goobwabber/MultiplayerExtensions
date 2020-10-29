@@ -33,7 +33,7 @@ namespace MultiplayerExtensions
             Instance = this;
             Log = logger;
             Config = conf.Generated<PluginConfig>();
-            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
+            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", new GameplaySetupPanel());
         }
 
         [OnStart]

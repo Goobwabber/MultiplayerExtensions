@@ -38,8 +38,8 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (player.isConnectionOwner)
             {
-                UI.GameplaySetupPanel.instance.SetCustomSongs(player.HasState("customsongs"));
-                UI.GameplaySetupPanel.instance.SetEnforceMods(player.HasState("enforcemods"));
+                UI.GameplaySetupPanel.instance?.SetCustomSongs(player.HasState("customsongs"));
+                UI.GameplaySetupPanel.instance?.SetEnforceMods(player.HasState("enforcemods"));
             }
         }
     }

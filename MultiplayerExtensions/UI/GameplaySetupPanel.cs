@@ -11,11 +11,20 @@ using MultiplayerExtensions.HarmonyPatches;
 using HMUI;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Parser;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace MultiplayerExtensions.UI
 {
-    internal class GameplaySetupPanel : NotifiableSingleton<GameplaySetupPanel>
+    internal class GameplaySetupPanel : INotifyPropertyChanged
     {
+        public static GameplaySetupPanel? instance;
+
+        public GameplaySetupPanel()
+        {
+            instance = this;
+        }
+
         MultiplayerSessionManager? sessionManager;
         #region UIComponents
         [UIComponent("VerticalHUDToggle")]
@@ -143,6 +152,14 @@ namespace MultiplayerExtensions.UI
         {
             sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
             sessionManager?.SetLocalPlayerState("enforcemods", EnforceMods);
+        }
+
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
