@@ -164,17 +164,16 @@
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(NCRUNCH)' != '1'">
     <Error Text="The BeatSaberModdingTools.Tasks nuget package doesn't seem to be installed." Condition="'$(BSMTTaskAssembly)' == ''" />
-    <Message Text="SolutionDir: $(SolutionDir)" Importance="high" />
-    <Message Text="ProjectDir: $(ProjectDir)" Importance="high" />
-    <GetCommitInfo ProjectDir="$(ProjectDir)..">
+    <GetCommitInfo ProjectDir="$(ProjectDir)">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="GitBranch" />
       <Output TaskParameter="Modified" PropertyName="GitModified" />
       <Output TaskParameter="GitUser" PropertyName="GitUser" />
     </GetCommitInfo>
-    <Message Text="GetCommitInfo: $(GitUser)|$(GitBranch)|$(GitModified)|$(CommitHash)" Importance="high" />
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp'">
       <VersionType>Official</VersionType>
+      <!--Apparently this detection is broken in GitHub Actions...-->
+      <GitModified>Unmodified</GitModified>
     </PropertyGroup>
     <PropertyGroup Condition="'$(GitModified)' != 'Modified'">
       <InformationalVersion>$(VersionType)-$(GitBranch)-$(CommitHash)</InformationalVersion>
