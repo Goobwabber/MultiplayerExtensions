@@ -22,15 +22,10 @@ namespace MultiplayerExtensions.OverrideClasses
                 {
                     if (_getBeatmap == null)
                     {
-                        _getBeatmap = BeatSaver.Client.Hash(levelID.Replace("custom_level_", ""));
+                        _getBeatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(levelID));
                         _getBeatmap.ContinueWith(b =>
                         {
-                            if (b.Result != null)
-                                Populate(b.Result);
-                            else
-                            {
-                                songName = "Not Found";
-                            }
+                            Populate(b.Result);
                         });
                     }
                 }
@@ -49,7 +44,13 @@ namespace MultiplayerExtensions.OverrideClasses
             this.levelAuthorName = levelAuthorName;
         }
 
-        private void Populate(Beatmap beatmap)
+        public PreviewBeatmapLevelStub(string levelId, Beatmap beatmap)
+        {
+            levelID = levelId;
+            Populate(beatmap);
+        }
+
+        private void Populate(Beatmap? beatmap)
         {
             if (beatmap != null)
             {
@@ -62,7 +63,8 @@ namespace MultiplayerExtensions.OverrideClasses
             }
             else
             {
-                songName = "Not found!";
+                songName = "Not Found On BeatSaver!";
+                levelID = "";
             }
         }
 
