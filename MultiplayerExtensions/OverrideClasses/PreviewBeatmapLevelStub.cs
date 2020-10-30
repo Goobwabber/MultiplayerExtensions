@@ -25,12 +25,7 @@ namespace MultiplayerExtensions.OverrideClasses
                         _getBeatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(levelID));
                         _getBeatmap.ContinueWith(b =>
                         {
-                            if (b.Result != null)
-                                Populate(b.Result);
-                            else
-                            {
-                                songName = "Not Found";
-                            }
+                            Populate(b.Result);
                         });
                     }
                 }
@@ -52,15 +47,10 @@ namespace MultiplayerExtensions.OverrideClasses
         public PreviewBeatmapLevelStub(string levelId, Beatmap beatmap)
         {
             levelID = levelId;
-            if (beatmap != null)
-                Populate(beatmap);
-            else
-            {
-                songName = "Not Found";
-            }
+            Populate(beatmap);
         }
 
-        private void Populate(Beatmap beatmap)
+        private void Populate(Beatmap? beatmap)
         {
             if (beatmap != null)
             {
@@ -73,7 +63,8 @@ namespace MultiplayerExtensions.OverrideClasses
             }
             else
             {
-                songName = "Not found!";
+                songName = "Not Found On BeatSaver!";
+                levelID = "";
             }
         }
 

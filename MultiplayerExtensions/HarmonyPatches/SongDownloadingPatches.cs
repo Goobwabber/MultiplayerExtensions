@@ -10,6 +10,7 @@ using HarmonyLib;
 using HMUI;
 using IPA.Logging;
 using IPA.Utilities;
+using MultiplayerExtensions.OverrideClasses;
 using MultiplayerExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -107,23 +108,28 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (beatmapId != null)
             {
-                if (Utilities.Utilities.LevelIdToHash(beatmapId.levelID) != null)
+                var hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
+                if (hash != null)
                 {
-                    Plugin.Log?.Debug($"'{userId}' selected song '{beatmapId.levelID}'.");
-                    if (SongCore.Loader.GetLevelById(beatmapId.levelID) != null)
+                    Plugin.Log?.Debug($"'{userId}' selected song '{hash}'.");
+                    if (SongCore.Loader.GetLevelById(hash) != null)
                     {
-                        Plugin.Log?.Debug($"Custom song '{beatmapId.levelID}' loaded.");
+                        Plugin.Log?.Debug($"Custom song '{hash}' loaded.");
                         return true;
                     }
 
                     Plugin.Log?.Debug("Getting song characteristics");
-                    var beatmapCharacteristicCollection = __instance.GetField<BeatmapCharacteristicCollectionSO, LobbyPlayersDataModel>("_beatmapCharacteristicCollection");
-                    
+                    var characteristicCollection = __instance.GetField<BeatmapCharacteristicCollectionSO, LobbyPlayersDataModel>("_beatmapCharacteristicCollection");
+                    var characteristic = characteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
+
                     Plugin.Log?.Debug("Setting song preview");
-                    BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID)).ContinueWith(r =>
+                    var beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID));
+                    beatmap.ContinueWith(r =>
                     {
-                        __instance.SetPlayerBeatmapLevel(userId, new OverrideClasses.PreviewBeatmapLevelStub(beatmapId.levelID, r.Result), beatmapId.difficulty,
-                        beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName));
+                        HMMainThreadDispatcher.instance.Enqueue(() =>
+                        {
+                            __instance.SetPlayerBeatmapLevel(userId, new PreviewBeatmapLevelStub(beatmapId.levelID, r.Result), beatmapId.difficulty, characteristic);
+                        });
                     });
 
                     return false;
@@ -152,7 +158,14 @@ namespace MultiplayerExtensions.HarmonyPatches
                 menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
 
                 Plugin.Log?.Debug("Setting song preview");
-                __instance.SetPlayerBeatmapLevel(__instance.localUserId, new OverrideClasses.PreviewBeatmapLevelStub(levelId), beatmapDifficulty, characteristic);
+                var beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(levelId));
+                beatmap.ContinueWith(r =>
+                {
+                    HMMainThreadDispatcher.instance.Enqueue(() =>
+                    {
+                        __instance.SetPlayerBeatmapLevel(__instance.localUserId, new PreviewBeatmapLevelStub(levelId, r.Result), beatmapDifficulty, characteristic);
+                    });
+                });
 
                 return false;
             }
