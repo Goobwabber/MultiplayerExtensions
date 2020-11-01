@@ -20,3 +20,6 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 * SongCore v3.0.0+
 * BeatSaverSharp v1.6.0+
 * BeatSaberMarkupLanguage v1.4.0+
+
+## Related Mods
+* [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
