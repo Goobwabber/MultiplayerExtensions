@@ -126,6 +126,16 @@ namespace MultiplayerExtensions.HarmonyPatches
                     var beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID));
                     beatmap.ContinueWith(r =>
                     {
+                        if(r.IsCanceled)
+                        {
+                            Plugin.Log?.Debug($"Metadata retrieval for {beatmapId.levelID} was canceled.");
+                            return;
+                        }
+                        else if (r.IsFaulted)
+                        {
+                            Plugin.Log?.Error($"Error retrieving metadata for {beatmapId.levelID}: {r.Exception.Message}");
+                            Plugin.Log?.Debug(r.Exception);
+                        }
                         HMMainThreadDispatcher.instance.Enqueue(() =>
                         {
                             __instance.SetPlayerBeatmapLevel(userId, new PreviewBeatmapLevelStub(beatmapId.levelID, r.Result), beatmapId.difficulty, characteristic);
