@@ -44,10 +44,10 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(MultiplayerSessionManager), "Start", MethodType.Normal)]
-    class MultiplayerSessionManager_HandleConnected
+    [HarmonyPatch(typeof(ConnectedPlayerManager), "ResetLocalState", MethodType.Normal)]
+    class ConnectedPlayerManager_ResetLocalState
     {
-        static void Prefix(MultiplayerSessionManager __instance)
+        static void Postfix(ConnectedPlayerManager __instance)
         {
             __instance.SetLocalPlayerState("modded", true);
             __instance.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
