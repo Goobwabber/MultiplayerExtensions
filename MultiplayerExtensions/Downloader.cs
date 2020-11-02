@@ -17,6 +17,7 @@ namespace MultiplayerExtensions
     {
         public const int MaxFileSystemPathLength = 259;
         public static readonly string CustomLevelsFolder = Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
+        internal static ConcurrentDictionary<string, Task> CurrentDownloads = new ConcurrentDictionary<string, Task>();
 
         public static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, CancellationToken cancellationToken)
         {
@@ -68,8 +69,14 @@ namespace MultiplayerExtensions
             return beatmap;
         }
 
+        public static Task TryDownloadSong(string levelId, CancellationToken cancellationToken, Action<bool> callback)
+        {
+            Task task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, cancellationToken, callback));
+            return task;
 
-        public static async Task TryDownloadSong(string levelId, CancellationToken cancellationToken, Action<bool> callback)
+        }
+
+        private static async Task TryDownloadSongInternal(string levelId, CancellationToken cancellationToken, Action<bool> callback)
         {
             try
             {
