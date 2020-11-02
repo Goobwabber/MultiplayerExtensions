@@ -10,13 +10,13 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 
 ## Installation
 MultiplayerExtensions has not been released yet, but you can grab the latest build which is automagically generated. 
-1. Download `MultiplayerExtensions` file listed under `Artifacts` [Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster) (pick the topmost successful build). 
+1. Download the `MultiplayerExtensions` file listed under `Artifacts` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build). 
    * You must be logged into GitHub to download builds from GitHub Actions.
 2. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
    * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder.
    
 ## Requirements
-These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they will not work**
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
 * SongCore v3.0.0+
 * BeatSaverSharp v1.6.0+
 * BeatSaberMarkupLanguage v1.4.0+
@@ -30,7 +30,7 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 * If you ask for help on Discord, at least include your `_latest.log` file in your help request.
 
 ## Contributing
-Anyone can feel free to contribute bug fixes or enhancements to MultiplayerExtensions. Please keep in mind that this mod's purpose is to expand the functionality of official multiplayer, so we will likely not be accepting enhancements that require 3rd party servers.
+Anyone can feel free to contribute bug fixes or enhancements to MultiplayerExtensions. Please keep in mind that this mod's purpose is to expand the functionality of official multiplayer, so we will likely not be accepting enhancements that require 3rd party servers. GitHub Actions for Pull Requests made from GitHub accounts that don't have direct access to the repository will fail. This is normal because the Action requires a `Secret` to download dependencies.
 ### Building
 Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp/BeatSaberModdingTools) extension is the recommended development environment.
 1. Check out the repository
