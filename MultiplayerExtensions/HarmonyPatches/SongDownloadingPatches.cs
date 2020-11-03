@@ -54,7 +54,10 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             string? levelId = beatmapId.levelID;
             if (SongCore.Loader.GetLevelById(levelId) != null)
+            {
+                Plugin.Log?.Debug($"Level with ID '{levelId}' already exists.");
                 return true;
+            }
             string? hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
             if (hash == null)
             {
@@ -70,12 +73,15 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (LoadingLevelId == null || LoadingLevelId != levelId)
             {
                 LoadingLevelId = levelId;
+
+                Plugin.Log?.Debug($"Attempting to download level with ID '{levelId}'...");
                 var downloadTask = Downloaders.SongDownloader.TryDownloadSong(levelId, CancellationToken.None, success =>
                 {
                     try
                     {
                         if (success)
                         {
+                            Plugin.Log?.Debug($"Level with ID '{levelId}' was downloaded successfully.");
                             //Plugin.Log?.Debug($"Triggering 'LobbyGameStateController.HandleMenuRpcManagerStartedLevel' after level download.");
                             //LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LobbyGameStateController.HandleMenuRpcManagerStartedLevel(LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LastUserId, bmId, modifiers, startTime);
                         }
@@ -90,12 +96,11 @@ namespace MultiplayerExtensions.HarmonyPatches
                     }
                     finally
                     {
-                        LoadingLevelId = null;
+                            LoadingLevelId = null;
                     }
                 });
                 return false;
             }
-            // LoadingLevelId = null;
             return true;
         }
 
@@ -126,6 +131,16 @@ namespace MultiplayerExtensions.HarmonyPatches
                     var beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID));
                     beatmap.ContinueWith(r =>
                     {
+                        if (r.IsCanceled)
+                        {
+                            Plugin.Log?.Debug($"Metadata retrieval for {beatmapId.levelID} was canceled.");
+                            return;
+                        }
+                        else if (r.IsFaulted)
+                        {
+                            Plugin.Log?.Error($"Error retrieving metadata for {beatmapId.levelID}: {r.Exception.Message}");
+                            Plugin.Log?.Debug(r.Exception);
+                        }
                         HMMainThreadDispatcher.instance.Enqueue(() =>
                         {
                             __instance.SetPlayerBeatmapLevel(userId, new PreviewBeatmapLevelStub(beatmapId.levelID, r.Result), beatmapId.difficulty, characteristic);
@@ -144,7 +159,8 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static bool Prefix(string levelId, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO characteristic, LobbyPlayersDataModel __instance)
         {
-            if (Utilities.Utilities.LevelIdToHash(levelId) != null)
+            string? hash = Utilities.Utilities.LevelIdToHash(levelId);
+            if (hash != null)
             {
                 Plugin.Log?.Debug($"Local user selected song '{levelId}'.");
                 if (SongCore.Loader.GetLevelById(levelId) != null)
@@ -158,7 +174,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
 
                 Plugin.Log?.Debug("Setting song preview");
-                var beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(levelId));
+                var beatmap = BeatSaver.Client.Hash(hash);
                 beatmap.ContinueWith(r =>
                 {
                     HMMainThreadDispatcher.instance.Enqueue(() =>
