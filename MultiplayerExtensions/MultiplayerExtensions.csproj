@@ -35,18 +35,8 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="BeatmapCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="BeatSaverSharp">
-      <HintPath>$(BeatSaberDir)\Libs\BeatSaverSharp.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -55,26 +45,13 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="BSML">
-      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="BS_Utils">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CustomAvatar">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Plugins\CustomAvatar.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="GameplayCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="LiteNetLib">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\LiteNetLib.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\LiteNetLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MediaLoader">
@@ -84,19 +61,6 @@
     </Reference>
     <Reference Include="netstandard">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SiraUtil">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Plugins\SiraUtil.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SongCore">
-      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -156,12 +120,56 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.VRModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Zenject">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Zenject-usage">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="BeatSaverSharp">
+      <HintPath>$(BeatSaberDir)\Libs\BeatSaverSharp.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BSML">
+      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="CustomAvatar">
+      <HintPath>$(BeatSaberDir)\Plugins\CustomAvatar.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SongCore">
+      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -169,14 +177,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Zenject">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Zenject-usage">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="UI\GameplaySetupPanel.bsml" />

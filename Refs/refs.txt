@@ -19,6 +19,7 @@
 "Plugins/
 ""SongCore.dll?alias=Plugins\SongCore.dll
 ""BSML.dll?alias=Plugins\BSML.dll
+""CustomAvatar.dll?alias=Plugins\CustomAvatar.dll
 
 "Libs/
 ""0Harmony.dll?alias=Libs\0Harmony.dll
