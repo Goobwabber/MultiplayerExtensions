@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
+﻿using HarmonyLib;
 using IPA.Utilities;
-using UnityEngine;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
@@ -24,7 +18,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 if (LobbyJoinPatch.IsHost && Plugin.Config.EnforceMods)
                 {
                     Plugin.Log?.Debug("Kicking player due to missing 'modded' state.");
-                    var connectedPlayerManager = __instance.GetField<ConnectedPlayerManager, MultiplayerSessionManager>("_connectedPlayerManager");
+                    ConnectedPlayerManager? connectedPlayerManager = __instance.GetField<ConnectedPlayerManager, MultiplayerSessionManager>("_connectedPlayerManager");
                     connectedPlayerManager.KickPlayer(player.userId, DisconnectedReason.Kicked);
                 }
             }

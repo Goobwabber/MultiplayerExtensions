@@ -2,6 +2,7 @@
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
+using MultiplayerExtensions.HarmonyPatches;
 using MultiplayerExtensions.UI;
 using System.Reflection;
 using IPALogger = IPA.Logging.Logger;
@@ -29,7 +30,7 @@ namespace MultiplayerExtensions
         /// </summary>
         internal static IPALogger Log { get; private set; } = null!;
         internal static PluginConfig Config = null!;
-
+        public Plugin(IPALogger logger) { }
         [Init]
         public Plugin(IPALogger logger, Config conf, Zenjector zenjector)
         {
@@ -45,7 +46,7 @@ namespace MultiplayerExtensions
         public void OnApplicationStart()
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
-            Harmony.PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyManager.ApplyDefaultPatches();
         }
 
         [OnExit]

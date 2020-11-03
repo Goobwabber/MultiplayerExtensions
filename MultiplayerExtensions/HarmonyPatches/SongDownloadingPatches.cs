@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using BeatSaverSharp;
+﻿using BeatSaverSharp;
 using HarmonyLib;
-using HMUI;
-using IPA.Logging;
 using IPA.Utilities;
 using MultiplayerExtensions.OverrideClasses;
-using MultiplayerExtensions.Utilities;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
@@ -22,8 +15,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 {
 
     [HarmonyPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.HandleMenuRpcManagerStartedLevel),
-        new Type[] { // List the Types of the method's parameters.
-        typeof(string), typeof(BeatmapIdentifierNetSerializable), typeof(GameplayModifiers), typeof(float) })]
+        new Type[] { typeof(string), typeof(BeatmapIdentifierNetSerializable), typeof(GameplayModifiers), typeof(float) })]
     public class LobbyGameStateController_HandleMenuRpcManagerStartedLevel
     {
         public static LobbyGameStateController? LobbyGameStateController;
@@ -42,8 +34,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(MultiplayerLevelLoader), nameof(MultiplayerLevelLoader.LoadLevel),
-    new Type[] { // List the Types of the method's parameters.
-        typeof(BeatmapIdentifierNetSerializable), typeof(GameplayModifiers), typeof(float) })]
+    new Type[] { typeof(BeatmapIdentifierNetSerializable), typeof(GameplayModifiers), typeof(float) })]
     public class MultiplayerLevelLoader_LoadLevel
     {
         public static MultiplayerLevelLoader? MultiplayerLevelLoader;
@@ -75,7 +66,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 LoadingLevelId = levelId;
 
                 Plugin.Log?.Debug($"Attempting to download level with ID '{levelId}'...");
-                var downloadTask = Downloaders.SongDownloader.TryDownloadSong(levelId, CancellationToken.None, success =>
+                Task? downloadTask = Downloader.TryDownloadSong(levelId, CancellationToken.None, success =>
                 {
                     try
                     {
@@ -96,7 +87,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                     }
                     finally
                     {
-                            LoadingLevelId = null;
+                        LoadingLevelId = null;
                     }
                 });
                 return false;
@@ -113,7 +104,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (beatmapId != null)
             {
-                var hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
+                string? hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
                 if (hash != null)
                 {
                     Plugin.Log?.Debug($"'{userId}' selected song '{hash}'.");
@@ -124,11 +115,11 @@ namespace MultiplayerExtensions.HarmonyPatches
                     }
 
                     Plugin.Log?.Debug("Getting song characteristics");
-                    var characteristicCollection = __instance.GetField<BeatmapCharacteristicCollectionSO, LobbyPlayersDataModel>("_beatmapCharacteristicCollection");
-                    var characteristic = characteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
+                    BeatmapCharacteristicCollectionSO? characteristicCollection = __instance.GetField<BeatmapCharacteristicCollectionSO, LobbyPlayersDataModel>("_beatmapCharacteristicCollection");
+                    BeatmapCharacteristicSO? characteristic = characteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
 
                     Plugin.Log?.Debug("Setting song preview");
-                    var beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID));
+                    Task<Beatmap>? beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID));
                     beatmap.ContinueWith(r =>
                     {
                         if (r.IsCanceled)
@@ -170,11 +161,11 @@ namespace MultiplayerExtensions.HarmonyPatches
                 }
 
                 Plugin.Log?.Debug("Updating RPC");
-                var menuRpcManager = __instance.GetField<IMenuRpcManager, LobbyPlayersDataModel>("_menuRpcManager");
+                IMenuRpcManager? menuRpcManager = __instance.GetField<IMenuRpcManager, LobbyPlayersDataModel>("_menuRpcManager");
                 menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
 
                 Plugin.Log?.Debug("Setting song preview");
-                var beatmap = BeatSaver.Client.Hash(hash);
+                Task<Beatmap>? beatmap = BeatSaver.Client.Hash(hash);
                 beatmap.ContinueWith(r =>
                 {
                     HMMainThreadDispatcher.instance.Enqueue(() =>
