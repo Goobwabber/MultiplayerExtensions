@@ -26,15 +26,19 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         static HarmonyManager()
         {
+            // EnableCustomSongsPatches.cs
             AddDefaultPatch<EnableCustomLevelsPatch>();
             AddDefaultPatch<LobbyJoinPatch>();
+            // InterfacePatches.cs
             AddDefaultPatch<LevelCollectionViewController_DidSelectLevel>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
+            // PlayerPatches.cs
             // TODO: Wasn't being applied before?
             // AddDefaultPatch<MultiplayerSessionManager_HandlePlayerConnected>();
             AddDefaultPatch<MultiplayerSessionManager_PlayerStateChanged>();
-            AddDefaultPatch<MultiplayerSessionManager_HandleConnected>();
+            AddDefaultPatch<ConnectedPlayerManager_ResetLocalState>();
+            // SongDownloadingPatches.cs
             AddDefaultPatch<LobbyGameStateController_HandleMenuRpcManagerStartedLevel>();
             AddDefaultPatch<MultiplayerLevelLoader_LoadLevel>();
             AddDefaultPatch<SetPlayerLevelPatch>();

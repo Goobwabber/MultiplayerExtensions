@@ -1,6 +1,7 @@
 ﻿using BeatSaverSharp;
 using HarmonyLib;
 using IPA.Utilities;
+using MultiplayerExtensions.Downloaders;
 using MultiplayerExtensions.OverrideClasses;
 using System;
 using System.Linq;
@@ -66,7 +67,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 LoadingLevelId = levelId;
 
                 Plugin.Log?.Debug($"Attempting to download level with ID '{levelId}'...");
-                Task? downloadTask = Downloader.TryDownloadSong(levelId, CancellationToken.None, success =>
+                Task? downloadTask = SongDownloader.TryDownloadSong(levelId, CancellationToken.None, success =>
                 {
                     try
                     {

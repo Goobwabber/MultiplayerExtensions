@@ -159,7 +159,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="CustomAvatar">
-      <HintPath>$(BeatSaberDir)\Plugins\CustomAvatar.dll</HintPath>
+      <HintPath>$(LocalRefsDir)\Plugins\CustomAvatar.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SiraUtil">
