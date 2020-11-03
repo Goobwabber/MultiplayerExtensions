@@ -1,17 +1,9 @@
-﻿using System;
+﻿using HarmonyLib;
+using HMUI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using BeatSaberMarkupLanguage;
-using HarmonyLib;
-using HMUI;
-using IPA.Utilities;
-using MultiplayerExtensions.UI;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
@@ -28,7 +20,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (beatSaverWarning == null)
             {
-                var levelDetail = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First();
+                StandardLevelDetailView? levelDetail = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First();
                 beatSaverWarning = new GameObject("BeatSaverWarning", typeof(CurvedTextMeshPro));
                 beatSaverWarning.transform.SetParent(levelDetail.transform, false);
                 beatSaverWarning.GetComponent<CurvedTextMeshPro>().text = "Song not found on BeatSaver.com!";
@@ -131,7 +123,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                         multiplierCanvas.transform.SetParent(__instance.transform, true);
                         songProgressCanvas.transform.SetParent(__instance.transform, true);
 
-                        var scorePanels = scoreCanvas.GetComponentsInChildren<CurvedTextMeshPro>();
+                        CurvedTextMeshPro[]? scorePanels = scoreCanvas.GetComponentsInChildren<CurvedTextMeshPro>();
                         foreach (CurvedTextMeshPro panel in scorePanels)
                         {
                             panel.enabled = true;
