@@ -1,4 +1,5 @@
 ﻿using MultiplayerExtensions.Avatars;
+using MultiplayerExtensions.Downloaders;
 using Zenject;
 
 namespace MultiplayerExtensions.Zenject

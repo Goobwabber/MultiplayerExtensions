@@ -17,9 +17,11 @@
 """VRModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.VRModule.dll
 
 "Plugins/
-""SongCore.dll?alias=Plugins\SongCore.dll
+""BS_Utils.dll?alias=Plugins\BS_Utils.dll
 ""BSML.dll?alias=Plugins\BSML.dll
 ""CustomAvatar.dll?alias=Plugins\CustomAvatar.dll
+""SiraUtil.dll?alias=Plugins\SiraUtil.dll
+""SongCore.dll?alias=Plugins\SongCore.dll
 
 "Libs/
 ""0Harmony.dll?alias=Libs\0Harmony.dll
