@@ -2,6 +2,7 @@
 using CustomAvatar.Avatar;
 using CustomAvatar.Player;
 using MultiplayerExtensions.Avatars;
+using MultiplayerExtensions.Downloaders;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -112,12 +113,28 @@ namespace MultiplayerExtensions.Avatars
                 this.player = player;
                 this.avatarData = player.customAvatar;
 
-                loadedAvatar = ModelSaber.cachedAvatars[player.customAvatar.hash];
-
                 _multiplayerPoseController = Array.Find(Resources.FindObjectsOfTypeAll<MultiplayerAvatarPoseController>(), x => x.GetField<IConnectedPlayer>("_connectedPlayer").userId == player.userId);
                 _poseController = _multiplayerPoseController.GetField<AvatarPoseController>("_avatarPoseController");
 
-                CreateAvatar();
+                ModelSaber.avatarDownloaded += OnAvatarDownload;
+                if (ModelSaber.cachedAvatars.ContainsKey(player.customAvatar.hash))
+                {
+                    loadedAvatar = ModelSaber.cachedAvatars[player.customAvatar.hash];
+                    CreateAvatar();
+                }
+                else
+                {
+                    AvatarDownloader.DownloadAvatar(player.customAvatar.hash);
+                }
+            }
+
+            private void OnAvatarDownload(string hash)
+            {
+                if (hash == player.customAvatar.hash)
+                {
+                    loadedAvatar = ModelSaber.cachedAvatars[hash];
+                    CreateAvatar();
+                }
             }
 
             public void CreateAvatar()

@@ -7,6 +7,7 @@ using System.Reflection;
 using IPALogger = IPA.Logging.Logger;
 using SiraUtil.Zenject;
 using MultiplayerExtensions.Zenject;
+using MultiplayerExtensions.Downloaders;
 
 namespace MultiplayerExtensions
 {
@@ -37,6 +38,7 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
             zenjector.OnMenu<MultiplayerInstaller>();
+            ModelSaber.HashAllAvatars();
         }
 
         [OnStart]

@@ -70,7 +70,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (LoadingLevelId == null || LoadingLevelId != levelId)
             {
                 LoadingLevelId = levelId;
-                var downloadTask = Downloader.TryDownloadSong(levelId, CancellationToken.None, success =>
+                var downloadTask = Downloaders.SongDownloader.TryDownloadSong(levelId, CancellationToken.None, success =>
                 {
                     try
                     {

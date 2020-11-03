@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MultiplayerExtensions.Utilities;
 using System.Collections.Concurrent;
+
 #nullable enable
 
-namespace MultiplayerExtensions
+namespace MultiplayerExtensions.Downloaders
 {
-    public static class Downloader
+    public static class SongDownloader
     {
         public const int MaxFileSystemPathLength = 259;
         public static readonly string CustomLevelsFolder = Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
