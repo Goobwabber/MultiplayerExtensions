@@ -18,40 +18,39 @@ namespace MultiplayerExtensions.HarmonyPatches
             }
         }
         internal static readonly BindingFlags allBindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        private static HarmonyPatchInfo? EnableCustomLevelsPatch;
-        private static HarmonyPatchInfo? LobbyJoinPatch;
-        private static HarmonyPatchInfo? LevelCollectionViewController_DidSelectLevel;
-        private static HarmonyPatchInfo? MultiplayerBigAvatarAnimator_Init;
-        private static HarmonyPatchInfo? CoreGameHUDController_Start;
-        private static HarmonyPatchInfo? MultiplayerSessionManager_HandlePlayerConnected;
-        private static HarmonyPatchInfo? MultiplayerSessionManager_PlayerStateChanged;
-        private static HarmonyPatchInfo? MultiplayerSessionManager_HandleConnected;
-        private static HarmonyPatchInfo? LobbyGameStateController_HandleMenuRpcManagerStartedLevel;
-        private static HarmonyPatchInfo? MultiplayerLevelLoader_LoadLevel;
-        private static HarmonyPatchInfo? SetPlayerLevelPatch;
-        private static HarmonyPatchInfo? SetLocalPlayerLevelPatch;
+        internal static readonly BindingFlags allInstanceBindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        internal static readonly BindingFlags allStaticBindingFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         internal static readonly HashSet<HarmonyPatchInfo> AppliedPatches = new HashSet<HarmonyPatchInfo>();
         internal static readonly HashSet<HarmonyPatchInfo> DefaultPatches = new HashSet<HarmonyPatchInfo>();
 
         static HarmonyManager()
         {
-            DefaultPatches.Add(GetEnableCustomLevelsPatch());
-            DefaultPatches.Add(GetLobbyJoinPatch());
-            DefaultPatches.Add(GetLevelCollectionViewController_DidSelectLevel());
-            DefaultPatches.Add(GetMultiplayerBigAvatarAnimator_Init());
-            DefaultPatches.Add(GetCoreGameHUDController_Start());
+            AddDefaultPatch<EnableCustomLevelsPatch>();
+            AddDefaultPatch<LobbyJoinPatch>();
+            AddDefaultPatch<LevelCollectionViewController_DidSelectLevel>();
+            AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
+            AddDefaultPatch<CoreGameHUDController_Start>();
             // TODO: Wasn't being applied before?
-            // DefaultPatches.Add(GetMultiplayerSessionManager_HandlePlayerConnected());
-            DefaultPatches.Add(GetMultiplayerSessionManager_PlayerStateChanged());
-            DefaultPatches.Add(GetMultiplayerSessionManager_HandleConnected());
-            DefaultPatches.Add(GetLobbyGameStateController_HandleMenuRpcManagerStartedLevel());
-            DefaultPatches.Add(GetMultiplayerLevelLoader_LoadLevel());
-            DefaultPatches.Add(GetSetPlayerLevelPatch());
-            DefaultPatches.Add(GetSetLocalPlayerLevelPatch());
+            // AddDefaultPatch<MultiplayerSessionManager_HandlePlayerConnected>();
+            AddDefaultPatch<MultiplayerSessionManager_PlayerStateChanged>();
+            AddDefaultPatch<MultiplayerSessionManager_HandleConnected>();
+            AddDefaultPatch<LobbyGameStateController_HandleMenuRpcManagerStartedLevel>();
+            AddDefaultPatch<MultiplayerLevelLoader_LoadLevel>();
+            AddDefaultPatch<SetPlayerLevelPatch>();
+            AddDefaultPatch<SetLocalPlayerLevelPatch>();
         }
 
-        public static bool ApplyPatch(HarmonyPatchInfo patchInfo)
+        private static void AddDefaultPatch<T>() where T : class
+        {
+            HarmonyPatchInfo? patch = GetPatch<T>();
+            if (patch != null)
+                DefaultPatches.Add(patch);
+            else
+                Plugin.Log?.Warn($"Could not add default patch '{typeof(T).Name}'");
+        }
+
+        internal static bool ApplyPatch(HarmonyPatchInfo patchInfo)
         {
             bool applied = patchInfo.ApplyPatch(Harmony);
             if (applied)
@@ -59,7 +58,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             return applied;
         }
 
-        public static bool RemovePatch(HarmonyPatchInfo patchInfo)
+        internal static bool RemovePatch(HarmonyPatchInfo patchInfo)
         {
             bool removed = patchInfo.RemovePatch(Harmony);
             if (removed)
@@ -67,7 +66,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             return removed;
         }
 
-        public static bool ApplyPatch(Harmony harmony, MethodInfo original, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null)
+        internal static bool ApplyPatch(Harmony harmony, MethodInfo original, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null)
         {
             try
             {
@@ -88,7 +87,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             }
         }
 
-        public static void ApplyDefaultPatches()
+        internal static void ApplyDefaultPatches()
         {
             HarmonyPatchInfo[] patches = DefaultPatches.ToArray();
             Plugin.Log?.Debug($"Applying {patches.Length} Harmony patches.");
@@ -96,7 +95,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 ApplyPatch(patches[i]);
         }
 
-        public static void UnpatchAll()
+        internal static void UnpatchAll()
         {
             foreach (HarmonyPatchInfo? patch in AppliedPatches.ToList())
             {
@@ -104,154 +103,103 @@ namespace MultiplayerExtensions.HarmonyPatches
             }
             Harmony.UnpatchAll(HarmonyId);
         }
-        #region EnableCustomSongsPatches
-        private static HarmonyPatchInfo GetEnableCustomLevelsPatch()
-        {
-            if (EnableCustomLevelsPatch == null)
-            {
-                MethodInfo original = typeof(MultiplayerLevelSelectionFlowCoordinator).GetProperty("enableCustomLevels", allBindingFlags).GetMethod;
-                HarmonyMethod prefix = new HarmonyMethod(typeof(EnableCustomLevelsPatch).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                EnableCustomLevelsPatch = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return EnableCustomLevelsPatch;
-        }
-        private static HarmonyPatchInfo GetLobbyJoinPatch()
-        {
-            if (LobbyJoinPatch == null)
-            {
-                MethodInfo original = typeof(MultiplayerLobbyConnectionController).GetProperty("connectionType", allBindingFlags).SetMethod;
-                HarmonyMethod? prefix = new HarmonyMethod(typeof(LobbyJoinPatch).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                LobbyJoinPatch = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return LobbyJoinPatch;
-        }
-        #endregion
-        #region InterfacePatches
-        private static HarmonyPatchInfo GetLevelCollectionViewController_DidSelectLevel()
-        {
-            if (LevelCollectionViewController_DidSelectLevel == null)
-            {
-                MethodInfo original = typeof(LevelCollectionViewController).GetMethod("HandleLevelCollectionTableViewDidSelectLevel", allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(LevelCollectionViewController_DidSelectLevel).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                LevelCollectionViewController_DidSelectLevel = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return LevelCollectionViewController_DidSelectLevel;
-        }
-
-        private static HarmonyPatchInfo GetMultiplayerBigAvatarAnimator_Init()
-        {
-            if (MultiplayerBigAvatarAnimator_Init == null)
-            {
-                MethodInfo original = typeof(MultiplayerBigAvatarAnimator).GetMethod("InitIfNeeded", allBindingFlags);
-                HarmonyMethod? prefix = null;
-                HarmonyMethod postfix = new HarmonyMethod(typeof(MultiplayerBigAvatarAnimator_Init).GetMethod("Postfix", allBindingFlags));
-                MultiplayerBigAvatarAnimator_Init = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return MultiplayerBigAvatarAnimator_Init;
-        }
-
-        private static HarmonyPatchInfo GetCoreGameHUDController_Start()
-        {
-            if (CoreGameHUDController_Start == null)
-            {
-                MethodInfo original = typeof(CoreGameHUDController).GetMethod("Start", allBindingFlags);
-                HarmonyMethod? prefix = null;
-                HarmonyMethod? postfix = new HarmonyMethod(typeof(CoreGameHUDController_Start).GetMethod("Postfix", allBindingFlags));
-                CoreGameHUDController_Start = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return CoreGameHUDController_Start;
-        }
-
-        #endregion
-
-        private static HarmonyPatchInfo GetMultiplayerSessionManager_HandlePlayerConnected()
-        {
-            if (MultiplayerSessionManager_HandlePlayerConnected == null)
-            {
-                MethodInfo original = typeof(MultiplayerSessionManager).GetMethod("HandlePlayerConnected", allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(MultiplayerSessionManager_HandlePlayerConnected).GetMethod("Postfix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                MultiplayerSessionManager_HandlePlayerConnected = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return MultiplayerSessionManager_HandlePlayerConnected;
-        }
-
-        private static HarmonyPatchInfo GetMultiplayerSessionManager_PlayerStateChanged()
-        {
-            if (MultiplayerSessionManager_PlayerStateChanged == null)
-            {
-                MethodInfo original = typeof(MultiplayerSessionManager).GetMethod("HandlePlayerStateChanged", allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(MultiplayerSessionManager_PlayerStateChanged).GetMethod("Postfix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                MultiplayerSessionManager_PlayerStateChanged = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return MultiplayerSessionManager_PlayerStateChanged;
-        }
-
-        private static HarmonyPatchInfo GetMultiplayerSessionManager_HandleConnected()
-        {
-            if (MultiplayerSessionManager_HandleConnected == null)
-            {
-                MethodInfo original = typeof(MultiplayerSessionManager).GetMethod("Start", allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(MultiplayerSessionManager_HandleConnected).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                MultiplayerSessionManager_HandleConnected = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return MultiplayerSessionManager_HandleConnected;
-        }
-
-        private static HarmonyPatchInfo GetLobbyGameStateController_HandleMenuRpcManagerStartedLevel()
-        {
-            if (LobbyGameStateController_HandleMenuRpcManagerStartedLevel == null)
-            {
-                MethodInfo original = typeof(LobbyGameStateController).GetMethod(nameof(LobbyGameStateController.HandleMenuRpcManagerStartedLevel), allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(LobbyGameStateController_HandleMenuRpcManagerStartedLevel).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                LobbyGameStateController_HandleMenuRpcManagerStartedLevel = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return LobbyGameStateController_HandleMenuRpcManagerStartedLevel;
-        }
 
 
-        private static HarmonyPatchInfo GetMultiplayerLevelLoader_LoadLevel()
+
+        public static HarmonyPatchInfo? GetPatch<T>() where T : class
         {
-            if (MultiplayerLevelLoader_LoadLevel == null)
-            {
-                Type[] parameters = new Type[] { typeof(BeatmapIdentifierNetSerializable), typeof(GameplayModifiers), typeof(float) };
-                MethodInfo original = typeof(MultiplayerLevelLoader)
-                    .GetMethod(nameof(MultiplayerLevelLoader.LoadLevel), allBindingFlags, null, parameters, Array.Empty<ParameterModifier>());
-                HarmonyMethod prefix = new HarmonyMethod(typeof(MultiplayerLevelLoader_LoadLevel).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                MultiplayerLevelLoader_LoadLevel = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return MultiplayerLevelLoader_LoadLevel;
+            return GetPatch(typeof(T));
         }
 
-        private static HarmonyPatchInfo GetSetPlayerLevelPatch()
+        /// <summary>
+        /// Attempts to create a <see cref="HarmonyPatchInfo"/> from a patch class annotated with <see cref="HarmonyPatch"/>.
+        /// Returns null after logging errors if it fails.
+        /// </summary>
+        /// <param name="patchClass"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patchClass"/> is null.</exception>
+        public static HarmonyPatchInfo? GetPatch(Type patchClass)
         {
-            if (SetPlayerLevelPatch == null)
+            if (patchClass == null) throw new ArgumentNullException(nameof(patchClass), "patchClass cannot be null.");
+            try
             {
-                MethodInfo original = typeof(LobbyPlayersDataModel).GetMethod("HandleMenuRpcManagerSelectedBeatmap", allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(SetPlayerLevelPatch).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                SetPlayerLevelPatch = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
+                Plugin.Log?.Debug($"Getting patch info for {patchClass.Name}");
+                HarmonyPatch[] patches = patchClass.GetCustomAttributes<HarmonyPatch>().ToArray() ?? Array.Empty<HarmonyPatch>();
+                if (patches.Length == 0)
+                    throw new ArgumentException($"Type '{patchClass.Name}' has no 'HarmonyPatch' annotations.");
+                Plugin.Log?.Debug($"  Found {patches.Length} HarmonyPatch annotations.");
+                Type? originalType = null;
+                string? originalMemberName = null;
+                MethodType methodType = MethodType.Normal;
+                Type[] parameters = Array.Empty<Type>();
+                for (int i = 0; i < patches.Length; i++)
+                {
+                    HarmonyMethod info = patches[i].info;
+                    if (info.declaringType != null)
+                    {
+                        originalType = info.declaringType;
+                    }
+                    if (!string.IsNullOrEmpty(info.methodName))
+                    {
+                        originalMemberName = info.methodName;
+                    }
+                    if (info.methodType.HasValue)
+                    {
+                        methodType = info.methodType.Value;
+                    }
+                    if ((info.argumentTypes?.Length ?? 0) > 0)
+                    {
+                        parameters = info.argumentTypes!;
+                    }
+                }
+                if (originalType == null)
+                    throw new ArgumentException($"Original type could not be determined.");
+                if (methodType == MethodType.Normal && (originalMemberName == null || originalMemberName.Length == 0))
+                    methodType = MethodType.Constructor;
+                Plugin.Log?.Debug($"  Attempting to create patch for {GetPatchedMethodString(originalType.Name, originalMemberName, methodType, parameters)}");
+                MethodBase originalMethod = methodType switch
+                {
+                    MethodType.Normal => GetMethod(originalType, originalMemberName!, parameters),
+                    MethodType.Getter => originalType.GetProperty(originalMemberName, allBindingFlags).GetMethod,
+                    MethodType.Setter => originalType.GetProperty(originalMemberName, allBindingFlags).SetMethod,
+                    MethodType.Constructor => originalType.GetConstructor(allInstanceBindingFlags, null, parameters, Array.Empty<ParameterModifier>()),
+                    MethodType.StaticConstructor => throw new NotImplementedException("Static constructor patches are not supported."),
+                    //originalType.GetConstructor(allStaticBindingFlags, null, parameters, Array.Empty<ParameterModifier>()),
+                    _ => throw new NotImplementedException($"MethodType '{methodType}' is unrecognized.")
+                };
+                if (originalMethod == null)
+                    throw new ArgumentException($"Could not find original method '{originalType.Name}.{originalMemberName}'.");
+                MethodInfo prefix = patchClass.GetMethod("Prefix", allBindingFlags);
+                MethodInfo postfix = patchClass.GetMethod("Postfix", allBindingFlags);
+                return new HarmonyPatchInfo(Harmony, originalMethod, prefix, postfix);
             }
-            return SetPlayerLevelPatch;
+            catch (Exception ex)
+            {
+                Plugin.Log.Error($"Error getting Harmony patch '{patchClass.Name}'");
+                Plugin.Log.Debug(ex);
+                return null;
+            }
         }
 
-        private static HarmonyPatchInfo GetSetLocalPlayerLevelPatch()
+        private static string GetPatchedMethodString(string originalTypeName, string? originalMemberName, MethodType methodType, Type[] parameters)
         {
-            if (SetLocalPlayerLevelPatch == null)
+            return methodType switch
             {
-                MethodInfo original = typeof(LobbyPlayersDataModel).GetMethod("SetLocalPlayerBeatmapLevel", allBindingFlags);
-                HarmonyMethod prefix = new HarmonyMethod(typeof(SetLocalPlayerLevelPatch).GetMethod("Prefix", allBindingFlags));
-                HarmonyMethod? postfix = null;
-                SetLocalPlayerLevelPatch = new HarmonyPatchInfo(Harmony, original, prefix, postfix);
-            }
-            return SetLocalPlayerLevelPatch;
+                MethodType.Normal => $"Method: '{originalTypeName}.{originalMemberName}({string.Join(", ", parameters.Select(p => p.Name))})'",
+                MethodType.Getter => $"Property Getter: '{originalTypeName}.{originalMemberName}'",
+                MethodType.Setter => $"Property Setter: '{originalTypeName}.{originalMemberName}'",
+                MethodType.Constructor => $"Constructor: '{originalTypeName}({string.Join(", ", parameters.Select(p => p.Name))})'",
+                MethodType.StaticConstructor => $"Static Constructor: '{originalTypeName}({string.Join(", ", parameters.Select(p => p.Name))})'",
+                _ => $"Unknown MethodType: '{methodType}'",
+            };
+        }
+
+        private static MethodInfo GetMethod(Type originalType, string name, Type[]? parameters)
+        {
+            if (parameters == null || parameters.Length == 0)
+                return originalType.GetMethod(name, allBindingFlags);
+            else
+                return originalType.GetMethod(name, allBindingFlags, null, parameters, Array.Empty<ParameterModifier>());
         }
     }
 }

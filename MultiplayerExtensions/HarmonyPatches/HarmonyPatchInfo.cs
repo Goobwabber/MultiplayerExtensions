@@ -11,12 +11,12 @@ namespace MultiplayerExtensions.HarmonyPatches
     public class HarmonyPatchInfo
     {
         public Harmony HarmonyInstance { get; set; }
-        public MethodInfo OriginalMethod { get; protected set; }
+        public MethodBase OriginalMethod { get; protected set; }
         public HarmonyMethod? PrefixMethod { get; protected set; }
         public HarmonyMethod? PostfixMethod { get; protected set; }
         public bool IsApplied { get; protected set; }
 
-        public HarmonyPatchInfo(Harmony harmony, MethodInfo original, HarmonyMethod? prefix, HarmonyMethod? postfix)
+        public HarmonyPatchInfo(Harmony harmony, MethodBase original, HarmonyMethod? prefix, HarmonyMethod? postfix)
         {
             HarmonyInstance = harmony;
             OriginalMethod = original ?? throw new ArgumentNullException(nameof(original), $"{nameof(original)} cannot be null when creating a HarmonyPatchInfo.");
@@ -24,6 +24,17 @@ namespace MultiplayerExtensions.HarmonyPatches
                 throw new ArgumentException("Prefix and postfix cannot both be null.");
             PrefixMethod = prefix;
             PostfixMethod = postfix;
+        }
+        public HarmonyPatchInfo(Harmony harmony, MethodBase original, MethodInfo? prefix, MethodInfo? postfix)
+        {
+            HarmonyInstance = harmony;
+            OriginalMethod = original ?? throw new ArgumentNullException(nameof(original), $"{nameof(original)} cannot be null when creating a HarmonyPatchInfo.");
+            if (prefix == null && postfix == null)
+                throw new ArgumentException("Prefix and Postfix cannot both be null.");
+            if(prefix != null)
+            PrefixMethod = new HarmonyMethod(prefix);
+            if (postfix != null)
+                PostfixMethod = new HarmonyMethod(postfix);
         }
 
         public bool ApplyPatch(Harmony? harmony = null)

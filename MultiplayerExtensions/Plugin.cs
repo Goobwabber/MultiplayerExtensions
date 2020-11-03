@@ -27,7 +27,7 @@ namespace MultiplayerExtensions
         /// </summary>
         internal static IPALogger Log { get; private set; } = null!;
         internal static PluginConfig Config = null!;
-
+        public Plugin(IPALogger logger) { }
         [Init]
         public Plugin(IPALogger logger, Config conf)
         {
