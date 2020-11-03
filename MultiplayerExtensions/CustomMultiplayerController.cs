@@ -1,7 +1,6 @@
 ﻿using BS_Utils.Utilities;
 using LiteNetLib.Utils;
 using MultiplayerExtensions.Avatars;
-using MultiplayerExtensions.Controllers;
 using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,9 @@ namespace MultiplayerExtensions
     internal class CustomMultiplayerController : IInitializable, IDisposable
     {
         public Action connectedEvent;
+        public Action disconnectedEvent;
+
+        public Dictionary<string, CustomPlayer> players = new Dictionary<string, CustomPlayer>();
 
         private MultiplayerSessionManager _multiplayerSessionManager;
         private NetworkPacketSerializer<CustomMultiplayerController.MessageType, IConnectedPlayer> _packetSerializer = new NetworkPacketSerializer<CustomMultiplayerController.MessageType, IConnectedPlayer>();
@@ -29,7 +31,9 @@ namespace MultiplayerExtensions
             Plugin.Log?.Info("Multiplayer Controller created.");
             _multiplayerSessionManager = Resources.FindObjectsOfTypeAll<MultiplayerSessionManager>().First();
 
+            connectedEvent += SendPlayerPacket;
             _multiplayerSessionManager.playerConnectedEvent += OnPlayerConnected;
+            _multiplayerSessionManager.playerDisconnectedEvent += OnPlayerDisconnected;
             _multiplayerSessionManager.RegisterSerializer((MultiplayerSessionManager.MessageType)4, _packetSerializer);
             RegisterCallback(CustomMultiplayerController.MessageType.PlayerUpdate, HandlePlayerPacket, new Func<CustomPlayerPacket>(CustomPlayerPacket.pool.Obtain));
 
@@ -42,6 +46,7 @@ namespace MultiplayerExtensions
             UnityEngine.Object.Destroy(_container);
 
             _multiplayerSessionManager.playerConnectedEvent -= OnPlayerConnected;
+            _multiplayerSessionManager.playerDisconnectedEvent -= OnPlayerDisconnected;
         }
 
         [Inject]
@@ -52,14 +57,28 @@ namespace MultiplayerExtensions
 
         private void OnPlayerConnected(IConnectedPlayer player)
         {
-            string platformId = BS_Utils.Gameplay.GetUserInfo.GetUserID() ?? "null";
-            Send(new CustomPlayerPacket().Init(platformId));
+            players[player.userId] = new CustomPlayer(player);
             connectedEvent();
+        }
+
+        private void OnPlayerDisconnected(IConnectedPlayer player)
+        {
+            disconnectedEvent();
+            players.Remove(player.userId);
+        }
+
+        private void SendPlayerPacket()
+        {
+            BS_Utils.Gameplay.GetUserInfo.GetUserAsync().ContinueWith(r =>
+            {
+                Send(new CustomPlayerPacket().Init(r.Result.platformUserId));
+            });
         }
 
         private void HandlePlayerPacket(CustomPlayerPacket packet, IConnectedPlayer player)
         {
-            Plugin.Log?.Info($"{player.userName} platform id: {packet.platformID}");
+            var customPlayer = players[player.userId];
+            customPlayer.platformID = packet.platformID;
         }
 
         public void Send<T>(T message) where T : INetSerializable
@@ -67,8 +86,8 @@ namespace MultiplayerExtensions
             string data = message switch
             {
                 CustomPlayerPacket cpp => (message as CustomPlayerPacket).platformID,
-                AvatarPacket ap => (message as AvatarPacket).avatarHash,
-                _ => "null",
+                CustomAvatarPacket cap => (message as CustomAvatarPacket).avatarHash,
+                _ => "unknown",
             };
 
             Plugin.Log?.Info($"Sending {message.GetType().Name} packet with {data}");
@@ -91,6 +110,30 @@ namespace MultiplayerExtensions
         {
             PlayerUpdate,
             AvatarUpdate
+        }
+
+        public class CustomPlayer : IConnectedPlayer
+        {
+            private IConnectedPlayer _connectedPlayer;
+            public string? platformID;
+            public CustomAvatarData customAvatar;
+
+            public CustomPlayer(IConnectedPlayer player)
+            {
+                _connectedPlayer = player;
+            }
+
+            public bool isMe => _connectedPlayer.isMe;
+            public string userId => _connectedPlayer.userId;
+            public string userName => _connectedPlayer.userName;
+            public float currentLatency => _connectedPlayer.currentLatency;
+            public bool isConnected => _connectedPlayer.isConnected;
+            public bool isConnectionOwner => _connectedPlayer.isConnectionOwner;
+            public float offsetSyncTime => _connectedPlayer.offsetSyncTime;
+            public int sortIndex => _connectedPlayer.sortIndex;
+            public bool isKicked => _connectedPlayer.isKicked;
+            public MultiplayerAvatarData multiplayerAvatarData => _connectedPlayer.multiplayerAvatarData;
+            public bool HasState(string state) => _connectedPlayer.HasState(state);
         }
     }
 }

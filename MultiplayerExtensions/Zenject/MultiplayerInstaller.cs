@@ -1,4 +1,4 @@
-﻿using MultiplayerExtensions.Controllers;
+﻿using MultiplayerExtensions.Avatars;
 using Zenject;
 
 namespace MultiplayerExtensions.Zenject
@@ -14,6 +14,7 @@ namespace MultiplayerExtensions.Zenject
             {
                 Plugin.Log?.Info("Found CustomAvatar");
                 Container.Bind(typeof(IInitializable), typeof(AvatarController)).To<AvatarController>().AsSingle();
+                Container.QueueForInject(typeof(ModelSaber));
             }
         }
     }

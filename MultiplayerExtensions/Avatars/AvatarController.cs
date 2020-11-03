@@ -1,25 +1,27 @@
-﻿using CustomAvatar.Avatar;
+﻿using BS_Utils.Utilities;
+using CustomAvatar.Avatar;
 using CustomAvatar.Player;
 using MultiplayerExtensions.Avatars;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-namespace MultiplayerExtensions.Controllers
+namespace MultiplayerExtensions.Avatars
 {
     internal class AvatarController : IInitializable, IDisposable
     {
         private CustomMultiplayerController _multiplayerController;
+        private AvatarSpawner _avatarSpawner;
         private PlayerAvatarManager _avatarManager;
         private VRPlayerInput _playerInput;
         private FloorController _floorController;
 
         private Transform _container;
 
-        public string avatarHash { get; private set; }
-        public float avatarScale { get; private set; }
-        public float avatarFloor { get; private set; }
+        private Dictionary<string, MultiplayerAvatar> playerPoseControllers = new Dictionary<string, MultiplayerAvatar>();
+
+        public CustomAvatarData localAvatar = new CustomAvatarData();
 
         public PlayerAvatarManager avatarManager { get { return _avatarManager; } }
 
@@ -30,7 +32,7 @@ namespace MultiplayerExtensions.Controllers
             UnityEngine.Object.DontDestroyOnLoad(_container);
 
             _multiplayerController.connectedEvent += HandleLocalAvatarUpdate;
-            _multiplayerController.RegisterCallback<AvatarPacket>(CustomMultiplayerController.MessageType.AvatarUpdate, HandlePlayerAvatarUpdate, new Func<AvatarPacket>(AvatarPacket.pool.Obtain));
+            _multiplayerController.RegisterCallback<CustomAvatarPacket>(CustomMultiplayerController.MessageType.AvatarUpdate, HandlePlayerAvatarUpdate, new Func<CustomAvatarPacket>(CustomAvatarPacket.pool.Obtain));
 
             _avatarManager.avatarChanged += OnAvatarChanged;
             _avatarManager.avatarScaleChanged += OnAvatarScaleChanged;
@@ -48,9 +50,10 @@ namespace MultiplayerExtensions.Controllers
         }
         
         [Inject]
-        internal void Inject(CustomMultiplayerController multiplayerController, PlayerAvatarManager playerAvatarManager, VRPlayerInput playerInput, FloorController floorController)
+        internal void Inject(CustomMultiplayerController multiplayerController, AvatarSpawner avatarSpawner, PlayerAvatarManager playerAvatarManager, VRPlayerInput playerInput, FloorController floorController)
         {
             _multiplayerController = multiplayerController;
+            _avatarSpawner = avatarSpawner;
             _avatarManager = playerAvatarManager;
             _playerInput = playerInput;
             _floorController = floorController;
@@ -58,36 +61,84 @@ namespace MultiplayerExtensions.Controllers
 
         private void HandleLocalAvatarUpdate()
         {
-            _multiplayerController.Send<AvatarPacket>(new AvatarPacket().Init(avatarHash, avatarScale, avatarFloor));
+            localAvatar.pelvis = _playerInput.allowMaintainPelvisPosition;
+            _multiplayerController.Send(localAvatar.GetAvatarPacket());
         }
 
-        private void HandlePlayerAvatarUpdate(AvatarPacket packet, IConnectedPlayer player)
+        private void HandlePlayerAvatarUpdate(CustomAvatarPacket packet, IConnectedPlayer player)
         {
-            Plugin.Log?.Info($"{player.userName} avatar: {packet.avatarHash}");
+            _multiplayerController.players[player.userId].customAvatar = new CustomAvatarData(packet);
+            playerPoseControllers[player.userId] = new MultiplayerAvatar(this, _multiplayerController.players[player.userId]);
         }
 
         private void OnAvatarChanged(SpawnedAvatar avatar)
         {
-            avatarHash ??= "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+            localAvatar.hash ??= "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
             if (!avatar) return;
 
             ModelSaber.HashAvatar(avatar.avatar).ContinueWith(r =>
             {
-                avatarHash = r.Result;
+                localAvatar.hash = r.Result;
                 HandleLocalAvatarUpdate();
             });
         }
 
         private void OnAvatarScaleChanged(float scale)
         {
-            avatarScale = scale;
+            localAvatar.scale = scale;
             HandleLocalAvatarUpdate();
         }
 
         private void OnFloorPositionChanged(float verticalPosition)
         {
-            avatarFloor = verticalPosition;
+            localAvatar.floor = verticalPosition;
             HandleLocalAvatarUpdate();
+        }
+
+        class MultiplayerAvatar
+        {
+            public AvatarController avatarController { get; private set; }
+            public LoadedAvatar loadedAvatar { get; private set; }
+            public CustomMultiplayerController.CustomPlayer player { get; private set; }
+            public CustomAvatarData avatarData { get; private set; }
+
+            private MultiplayerAvatarPoseController _multiplayerPoseController;
+            private AvatarPoseController _poseController;
+            private SpawnedAvatar _spawnedAvatar;
+
+            public MultiplayerAvatar(AvatarController avatarController, CustomMultiplayerController.CustomPlayer player)
+            {
+                this.avatarController = avatarController;
+                this.player = player;
+                this.avatarData = player.customAvatar;
+
+                loadedAvatar = ModelSaber.cachedAvatars[player.customAvatar.hash];
+
+                _multiplayerPoseController = Array.Find(Resources.FindObjectsOfTypeAll<MultiplayerAvatarPoseController>(), x => x.GetField<IConnectedPlayer>("_connectedPlayer").userId == player.userId);
+                _poseController = _multiplayerPoseController.GetField<AvatarPoseController>("_avatarPoseController");
+
+                CreateAvatar();
+            }
+
+            public void CreateAvatar()
+            {
+                DestroyAvatar();
+
+                _spawnedAvatar = avatarController._avatarSpawner.SpawnAvatar(loadedAvatar, new MultiplayerInput(_poseController), _poseController.transform);
+                _spawnedAvatar.scale = avatarData.scale;
+            }
+
+            public void UpdateAvatar(LoadedAvatar avatar)
+            {
+                loadedAvatar = avatar;
+                CreateAvatar();
+            }
+
+            public void DestroyAvatar()
+            {
+                if (_spawnedAvatar != null)
+                    UnityEngine.Object.Destroy(_spawnedAvatar);
+            }
         }
     }
 }

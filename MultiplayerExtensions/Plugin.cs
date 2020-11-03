@@ -44,7 +44,6 @@ namespace MultiplayerExtensions
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
             Harmony.PatchAll(Assembly.GetExecutingAssembly());
-            BS_Utils.Gameplay.GetUserInfo.UpdateUserInfo();
         }
 
         [OnExit]
