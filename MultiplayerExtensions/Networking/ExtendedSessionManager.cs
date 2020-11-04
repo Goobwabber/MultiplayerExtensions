@@ -13,6 +13,9 @@ namespace MultiplayerExtensions.Networking
         [Inject]
         private IMultiplayerSessionManager _multiplayerSessionManager;
 
+        [Inject]
+        private ILobbyStateDataModel _lobbyStateDataModel;
+
         private NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer> _packetSerializer = new NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer>();
         public Dictionary<string, ExtendedPlayer> players = new Dictionary<string, ExtendedPlayer>();
 
@@ -30,8 +33,8 @@ namespace MultiplayerExtensions.Networking
             _multiplayerSessionManager.connectionFailedEvent += connectionFailedEvent;
             _multiplayerSessionManager.disconnectedEvent += disconnectedEvent;
 
-            _multiplayerSessionManager.playerConnectedEvent += HandlePlayerConnected;
-            _multiplayerSessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
+            _lobbyStateDataModel.playerConnectedEvent += HandlePlayerConnected;
+            _lobbyStateDataModel.playerDisconnectedEvent += HandlePlayerDisconnected;
             _multiplayerSessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
 
@@ -42,22 +45,27 @@ namespace MultiplayerExtensions.Networking
 
         private void HandlePlayerConnected(IConnectedPlayer player)
         {
+            Plugin.Log?.Info($"Player '{player.userId}' joined");
             var extendedPlayer = new ExtendedPlayer(player);
             players[player.userId] = extendedPlayer;
-            playerConnectedEvent(extendedPlayer);
+            playerConnectedEvent?.Invoke(extendedPlayer);
         }
 
         private void HandlePlayerDisconnected(IConnectedPlayer player)
         {
+            Plugin.Log?.Info($"Player '{player.userId}' disconnected");
             var extendedPlayer = players[player.userId];
-            playerDisconnectedEvent(extendedPlayer);
+            playerDisconnectedEvent?.Invoke(extendedPlayer);
             players.Remove(player.userId);
         }
 
         private void HandlePlayerStateChanged(IConnectedPlayer player)
         {
-            var extendedPlayer = players[player.userId];
-            playerStateChangedEvent(extendedPlayer);
+            if (player.userId != _multiplayerSessionManager.localPlayer.userId)
+            {
+                var extendedPlayer = players[player.userId];
+                playerStateChangedEvent?.Invoke(extendedPlayer);
+            }
         }
 
         public void RegisterCallback<T>(ExtendedSessionManager.MessageType serializerType, Action<T, ExtendedPlayer> callback, Func<T> constructor) where T : INetSerializable
