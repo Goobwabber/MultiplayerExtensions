@@ -13,6 +13,10 @@ namespace MultiplayerExtensions.Avatars
     {
         private readonly AvatarPoseController _poseController;
 
+        private Transform headTransform;
+        private Transform rightHandTransform;
+        private Transform leftHandTransform;
+
         private Pose head = new Pose();
         private Pose rightHand = new Pose();
         private Pose leftHand = new Pose();
@@ -22,14 +26,13 @@ namespace MultiplayerExtensions.Avatars
             _poseController = poseController;
 
             _poseController.didUpdatePoseEvent += (Vector3 headPosition) => inputChanged?.Invoke();
+            headTransform = _poseController.GetField<Transform>("_headTransform");
+            rightHandTransform = _poseController.GetField<Transform>("_rightHandTransform");
+            leftHandTransform = _poseController.GetField<Transform>("_leftHandTransform");
         }
 
         private void OnInputChanged(Vector3 newHeadPosition)
         {
-            Transform headTransform = _poseController.GetField<Transform>("_headTransform");
-            Transform rightHandTransform = _poseController.GetField<Transform>("_rightHandTransform");
-            Transform leftHandTransform = _poseController.GetField<Transform>("_leftHandTransform");
-
             head.position = newHeadPosition;
             head.rotation = headTransform.rotation;
             rightHand.position = rightHandTransform.position;

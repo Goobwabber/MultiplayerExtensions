@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MultiplayerExtensions.Avatars;
 
 namespace MultiplayerExtensions.Networking
 {
@@ -10,6 +6,7 @@ namespace MultiplayerExtensions.Networking
     {
         private IConnectedPlayer _connectedPlayer;
         public string? platformID;
+        public CustomAvatarData? avatar;
 
         public ExtendedPlayer(IConnectedPlayer player)
         {

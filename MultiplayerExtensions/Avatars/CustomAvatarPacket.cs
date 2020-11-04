@@ -19,18 +19,16 @@ namespace MultiplayerExtensions.Avatars
 
         public void Serialize(NetDataWriter writer)
         {
-            writer.Put(avatarHash);
-            writer.Put(avatarScale);
-            writer.Put(avatarFloor);
-            writer.Put(avatarPelvis);
+            writer.Put(hash);
+            writer.Put(scale);
+            writer.Put(floor);
         }
 
         public void Deserialize(NetDataReader reader)
         {
-            avatarHash = reader.GetString();
-            avatarScale = reader.GetFloat();
-            avatarFloor = reader.GetFloat();
-            avatarPelvis = reader.GetBool();
+            hash = reader.GetString();
+            scale = reader.GetFloat();
+            floor = reader.GetFloat();
         }
 
         public void Release()
@@ -38,19 +36,17 @@ namespace MultiplayerExtensions.Avatars
             CustomAvatarPacket.pool.Release(this);
         }
 
-        public CustomAvatarPacket Init(string avatarHash, float avatarScale, float avatarFloor, bool avatarPelvis)
+        public CustomAvatarPacket Init(string avatarHash, float avatarScale, float avatarFloor)
         {
-            this.avatarHash = avatarHash;
-            this.avatarScale = avatarScale;
-            this.avatarFloor = avatarFloor;
-            this.avatarPelvis = avatarPelvis;
+            this.hash = avatarHash;
+            this.scale = avatarScale;
+            this.floor = avatarFloor;
 
             return this;
         }
 
-        public string avatarHash;
-        public float avatarScale;
-        public float avatarFloor;
-        public bool avatarPelvis;
+        public string hash;
+        public float scale;
+        public float floor;
     }
 }

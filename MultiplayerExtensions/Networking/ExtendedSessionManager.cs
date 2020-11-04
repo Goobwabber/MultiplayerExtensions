@@ -115,7 +115,8 @@ namespace MultiplayerExtensions.Networking
 
         public enum MessageType : Byte
         {
-            PlayerUpdate
+            PlayerUpdate,
+            AvatarUpdate
         }
     }
 }

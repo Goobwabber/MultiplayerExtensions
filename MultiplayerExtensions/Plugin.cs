@@ -9,6 +9,7 @@ using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 using MultiplayerExtensions.Downloaders;
 using MultiplayerExtensions.Avatars;
+using System.Reflection;
 
 namespace MultiplayerExtensions
 {
