@@ -22,6 +22,8 @@ namespace MultiplayerExtensions.Networking
 
         public void Initialize()
         {
+            Plugin.Log?.Info("Setting up SessionManager");
+
             _multiplayerSessionManager.RegisterSerializer((MultiplayerSessionManager.MessageType)4, _packetSerializer);
 
             _multiplayerSessionManager.connectedEvent += connectedEvent;

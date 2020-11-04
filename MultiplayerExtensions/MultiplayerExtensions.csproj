@@ -83,6 +83,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>R:\Steam\steamapps\common\Beat Saber\Plugins\SiraUtil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="SongCore">
       <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
       <Private>False</Private>

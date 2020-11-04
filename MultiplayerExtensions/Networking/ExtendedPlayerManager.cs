@@ -16,6 +16,9 @@ namespace MultiplayerExtensions.Networking
 
         public void Initialize()
         {
+            Plugin.Log?.Info("Setting up PlayerManager");
+
+            _sessionManager.connectedEvent += SendLocalPlayerPacket;
             _sessionManager.playerConnectedEvent += OnPlayerConnected;
             _sessionManager.RegisterCallback(ExtendedSessionManager.MessageType.PlayerUpdate, HandlePlayerPacket, new Func<ExtendedPlayerPacket>(ExtendedPlayerPacket.pool.Obtain));
 
@@ -27,15 +30,22 @@ namespace MultiplayerExtensions.Networking
 
         private void OnPlayerConnected(ExtendedPlayer player)
         {
+            SendLocalPlayerPacket();
+        }
+
+        private void SendLocalPlayerPacket()
+        {
             if (localPlatformID != null)
             {
                 ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID);
+                Plugin.Log?.Info($"Sending 'ExtendedPlayerPacket' with {localPlatformID}");
                 _sessionManager.Send(localPlayerPacket);
             }
         }
 
         private void HandlePlayerPacket(ExtendedPlayerPacket packet, ExtendedPlayer player)
         {
+            Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with '{packet.platformID}'");
             player.platformID = packet.platformID;
         }
     }
