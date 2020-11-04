@@ -3,11 +3,10 @@ using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using MultiplayerExtensions.HarmonyPatches;
+using MultiplayerExtensions.Installers;
 using MultiplayerExtensions.UI;
-using System.Reflection;
-using IPALogger = IPA.Logging.Logger;
 using SiraUtil.Zenject;
-using MultiplayerExtensions.Zenject;
+using IPALogger = IPA.Logging.Logger;
 using MultiplayerExtensions.Downloaders;
 using MultiplayerExtensions.Avatars;
 
