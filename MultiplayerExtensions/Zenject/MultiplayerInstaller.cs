@@ -1,4 +1,5 @@
-﻿using MultiplayerExtensions.Avatars;
+﻿using CustomAvatar.Avatar;
+using MultiplayerExtensions.Avatars;
 using MultiplayerExtensions.Downloaders;
 using Zenject;
 
@@ -13,10 +14,18 @@ namespace MultiplayerExtensions.Zenject
 
             if (IPA.Loader.PluginManager.GetPluginFromId("CustomAvatar") != null)
             {
-                Plugin.Log?.Info("Found CustomAvatar");
-                Container.Bind(typeof(IInitializable), typeof(AvatarController)).To<AvatarController>().AsSingle();
-                Container.QueueForInject(typeof(ModelSaber));
+                BindCustomAvatars(Container);
             }
+        }
+
+        private void BindCustomAvatars(DiContainer Container)
+        {
+            Plugin.Log?.Info("Found CustomAvatar");
+            Container.Bind<IAvatarProvider<LoadedAvatar>>()
+                .To<ModelSaber>()
+                .AsSingle();
+            Container.Bind(typeof(IInitializable), typeof(AvatarController)).To<AvatarController>().AsSingle();
+            Container.QueueForInject(typeof(ModelSaber));
         }
     }
 }

@@ -5,6 +5,7 @@ using MultiplayerExtensions.Avatars;
 using MultiplayerExtensions.Downloaders;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using Zenject;
 
@@ -17,10 +18,11 @@ namespace MultiplayerExtensions.Avatars
         private PlayerAvatarManager _avatarManager;
         private VRPlayerInput _playerInput;
         private FloorController _floorController;
+        private IAvatarProvider<LoadedAvatar> _avatarProvider;
 
         private Transform _container;
 
-        private Dictionary<string, MultiplayerAvatar> playerPoseControllers = new Dictionary<string, MultiplayerAvatar>();
+        private readonly Dictionary<string, MultiplayerAvatar> playerPoseControllers = new Dictionary<string, MultiplayerAvatar>();
 
         public CustomAvatarData localAvatar = new CustomAvatarData();
 
@@ -51,13 +53,19 @@ namespace MultiplayerExtensions.Avatars
         }
         
         [Inject]
-        internal void Inject(CustomMultiplayerController multiplayerController, AvatarSpawner avatarSpawner, PlayerAvatarManager playerAvatarManager, VRPlayerInput playerInput, FloorController floorController)
+        internal AvatarController(CustomMultiplayerController multiplayerController, AvatarSpawner avatarSpawner, PlayerAvatarManager playerAvatarManager, VRPlayerInput playerInput, FloorController floorController, IAvatarProvider<LoadedAvatar> avatarProvider)
         {
             _multiplayerController = multiplayerController;
             _avatarSpawner = avatarSpawner;
             _avatarManager = playerAvatarManager;
             _playerInput = playerInput;
             _floorController = floorController;
+            _avatarProvider = avatarProvider;
+            _container = null!;
+            if (_avatarProvider == null)
+                Plugin.Log?.Warn("_avatarProvider is null!");
+            else
+                Plugin.Log?.Info("_avatarProvider is not null!");
         }
 
         private void HandleLocalAvatarUpdate()
@@ -69,7 +77,7 @@ namespace MultiplayerExtensions.Avatars
         private void HandlePlayerAvatarUpdate(CustomAvatarPacket packet, IConnectedPlayer player)
         {
             _multiplayerController.players[player.userId].customAvatar = new CustomAvatarData(packet);
-            playerPoseControllers[player.userId] = new MultiplayerAvatar(this, _multiplayerController.players[player.userId]);
+            playerPoseControllers[player.userId] = new MultiplayerAvatar(this, _multiplayerController.players[player.userId], _avatarProvider);
         }
 
         private void OnAvatarChanged(SpawnedAvatar avatar)
@@ -77,7 +85,7 @@ namespace MultiplayerExtensions.Avatars
             localAvatar.hash ??= "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
             if (!avatar) return;
 
-            ModelSaber.HashAvatar(avatar.avatar).ContinueWith(r =>
+            _avatarProvider.HashAvatar(avatar.avatar).ContinueWith(r =>
             {
                 localAvatar.hash = r.Result;
                 HandleLocalAvatarUpdate();
@@ -99,41 +107,62 @@ namespace MultiplayerExtensions.Avatars
         class MultiplayerAvatar
         {
             public AvatarController avatarController { get; private set; }
-            public LoadedAvatar loadedAvatar { get; private set; }
+            public LoadedAvatar? loadedAvatar { get; private set; }
             public CustomMultiplayerController.CustomPlayer player { get; private set; }
-            public CustomAvatarData avatarData { get; private set; }
+            public CustomAvatarData? avatarData { get; private set; }
 
             private MultiplayerAvatarPoseController _multiplayerPoseController;
             private AvatarPoseController _poseController;
-            private SpawnedAvatar _spawnedAvatar;
+            private SpawnedAvatar? _spawnedAvatar;
+            private readonly IAvatarProvider<LoadedAvatar> _avatarProvider;
 
-            public MultiplayerAvatar(AvatarController avatarController, CustomMultiplayerController.CustomPlayer player)
+            public MultiplayerAvatar(AvatarController avatarController, CustomMultiplayerController.CustomPlayer player, IAvatarProvider<LoadedAvatar> avatarProvider)
             {
                 this.avatarController = avatarController;
                 this.player = player;
                 this.avatarData = player.customAvatar;
+                this._avatarProvider = avatarProvider;
 
                 _multiplayerPoseController = Array.Find(Resources.FindObjectsOfTypeAll<MultiplayerAvatarPoseController>(), x => x.GetField<IConnectedPlayer>("_connectedPlayer").userId == player.userId);
                 _poseController = _multiplayerPoseController.GetField<AvatarPoseController>("_avatarPoseController");
 
-                ModelSaber.avatarDownloaded += OnAvatarDownload;
-                if (ModelSaber.cachedAvatars.ContainsKey(player.customAvatar.hash))
+                //_avatarProvider.avatarDownloaded += OnAvatarDownloaded;
+
+                if (_avatarProvider.TryGetCachedAvatar(player.customAvatar.hash, out LoadedAvatar? avatar))
                 {
-                    loadedAvatar = ModelSaber.cachedAvatars[player.customAvatar.hash];
+                    loadedAvatar = avatar;
                     CreateAvatar();
                 }
                 else
                 {
-                    AvatarDownloader.DownloadAvatar(player.customAvatar.hash);
+                    _avatarProvider.FetchAvatarInfoByHash(player.customAvatar.hash, CancellationToken.None).ContinueWith(async i =>
+                    {
+                        if(!i.IsFaulted && i.Result is AvatarInfo avatarInfo)
+                        {
+                            var path = await avatarInfo.DownloadAvatar(CancellationToken.None);
+                            if (path != null)
+                            {
+                                LoadedAvatar? avatar = await _avatarProvider.LoadAvatar(path);
+                                if (avatar != null)
+                                {
+                                    loadedAvatar = avatar;
+                                    CreateAvatar();
+                                }
+                            }
+                        }
+                    });
                 }
             }
 
-            private void OnAvatarDownload(string hash)
+            private void OnAvatarDownloaded(object sender, AvatarDownloadedEventArgs e)
             {
-                if (hash == player.customAvatar.hash)
+                if (e.Hash == player.customAvatar.hash && sender is IAvatarProvider<LoadedAvatar> provider)
                 {
-                    loadedAvatar = ModelSaber.cachedAvatars[hash];
-                    CreateAvatar();
+                    if (provider.TryGetCachedAvatar(e.Hash, out LoadedAvatar cachedAvatar))
+                    {
+                        loadedAvatar = cachedAvatar;
+                        CreateAvatar();
+                    }
                 }
             }
 

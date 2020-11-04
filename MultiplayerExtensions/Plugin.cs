@@ -9,6 +9,7 @@ using IPALogger = IPA.Logging.Logger;
 using SiraUtil.Zenject;
 using MultiplayerExtensions.Zenject;
 using MultiplayerExtensions.Downloaders;
+using MultiplayerExtensions.Avatars;
 
 namespace MultiplayerExtensions
 {
@@ -16,6 +17,7 @@ namespace MultiplayerExtensions
     public class Plugin
     {
         public static readonly string HarmonyId = "com.github.Zingabopp.MultiplayerExtensions";
+        public static readonly string UserAgent = $"MultiplayerExtensions/{Assembly.GetExecutingAssembly().GetName().Version} {VersionInfo.Description}";
         internal static Plugin Instance { get; private set; } = null!;
         internal static Harmony? _harmony;
         internal static Harmony Harmony
@@ -30,7 +32,9 @@ namespace MultiplayerExtensions
         /// </summary>
         internal static IPALogger Log { get; private set; } = null!;
         internal static PluginConfig Config = null!;
-        public Plugin(IPALogger logger) { }
+        internal static IAvatarProvider? AvatarProvider = null;
+        internal static Zenjector Zenjector = null!;
+
         [Init]
         public Plugin(IPALogger logger, Config conf, Zenjector zenjector)
         {
@@ -38,16 +42,30 @@ namespace MultiplayerExtensions
             Log = logger;
             Config = conf.Generated<PluginConfig>();
             BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
-            zenjector.OnMenu<MultiplayerInstaller>();
-            ModelSaber.HashAllAvatars();
+            Zenjector = zenjector;
+            Plugin.Log?.Debug("Init finished.");
         }
 
         [OnStart]
         public void OnApplicationStart()
         {
-            Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
+            Plugin.Log?.Info(UserAgent);
             HarmonyManager.ApplyDefaultPatches();
+            Plugin.Log?.Debug("Installing bindings.");
+            Zenjector.OnMenu<MultiplayerInstaller>();
+            if (IPA.Loader.PluginManager.GetPluginFromId("CustomAvatar") != null)
+            {
+                Plugin.Log?.Debug("CustomAvatar mod detected.");
+                SetupAvatars();
+            }
         }
+
+        private void SetupAvatars()
+        {
+            AvatarProvider = new ModelSaber();
+            AvatarProvider?.HashAllAvatars(AvatarProvider.AvatarDirectory);
+        }
+
 
         [OnExit]
         public void OnApplicationQuit()

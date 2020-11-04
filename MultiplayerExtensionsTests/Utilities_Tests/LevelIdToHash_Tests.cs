@@ -13,7 +13,7 @@ namespace MultiplayerExtensionsTests.Utilities_Tests
             string expectedHash = "D375405D047D6A2A4DD0F4D40D8DA77554F1F677";
             string levelId = $"custom_level_{expectedHash}";
 
-            string hash = Utilities.LevelIdToHash(levelId);
+            string hash = Util.LevelIdToHash(levelId);
 
             Assert.AreEqual(expectedHash, hash);
         }
@@ -24,7 +24,7 @@ namespace MultiplayerExtensionsTests.Utilities_Tests
             string expectedHash = "D375405D047D6A2A4DD0F4D40D8DA77554F1F677";
             string levelId = $"custom_level_{expectedHash}_SomeSongFolder";
 
-            string hash = Utilities.LevelIdToHash(levelId);
+            string hash = Util.LevelIdToHash(levelId);
 
             Assert.AreEqual(expectedHash, hash);
         }
@@ -35,7 +35,7 @@ namespace MultiplayerExtensionsTests.Utilities_Tests
             string expectedHash = "D375405D047D6A2A4DD0F4D40D8DA77554F1F677";
             string levelId = $"custom_level_{expectedHash} WIP";
 
-            string hash = Utilities.LevelIdToHash(levelId);
+            string hash = Util.LevelIdToHash(levelId);
 
             Assert.AreEqual(expectedHash, hash);
         }
@@ -46,7 +46,7 @@ namespace MultiplayerExtensionsTests.Utilities_Tests
             string expectedHash = null;
             string levelId = $"Some_song_folder_with_underscores";
 
-            string hash = Utilities.LevelIdToHash(levelId);
+            string hash = Util.LevelIdToHash(levelId);
 
             Assert.AreEqual(expectedHash, hash);
         }
@@ -57,7 +57,7 @@ namespace MultiplayerExtensionsTests.Utilities_Tests
             string expectedHash = null;
             string levelId = $"100bills";
 
-            string hash = Utilities.LevelIdToHash(levelId);
+            string hash = Util.LevelIdToHash(levelId);
 
             Assert.AreEqual(expectedHash, hash);
         }

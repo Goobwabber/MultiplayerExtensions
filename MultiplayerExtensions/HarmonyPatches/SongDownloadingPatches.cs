@@ -50,7 +50,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 Plugin.Log?.Debug($"Level with ID '{levelId}' already exists.");
                 return true;
             }
-            string? hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
+            string? hash = Utilities.Util.LevelIdToHash(beatmapId.levelID);
             if (hash == null)
             {
                 Plugin.Log?.Info($"Could not get a hash from beatmap with LevelId {beatmapId.levelID}");
@@ -105,7 +105,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (beatmapId != null)
             {
-                string? hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
+                string? hash = Utilities.Util.LevelIdToHash(beatmapId.levelID);
                 if (hash != null)
                 {
                     Plugin.Log?.Debug($"'{userId}' selected song '{hash}'.");
@@ -120,7 +120,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                     BeatmapCharacteristicSO? characteristic = characteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
 
                     Plugin.Log?.Debug("Setting song preview");
-                    Task<Beatmap>? beatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(beatmapId.levelID));
+                    Task<Beatmap>? beatmap = BeatSaver.Client.Hash(Utilities.Util.LevelIdToHash(beatmapId.levelID));
                     beatmap.ContinueWith(r =>
                     {
                         if (r.IsCanceled)
@@ -151,7 +151,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static bool Prefix(string levelId, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO characteristic, LobbyPlayersDataModel __instance)
         {
-            string? hash = Utilities.Utilities.LevelIdToHash(levelId);
+            string? hash = Utilities.Util.LevelIdToHash(levelId);
             if (hash != null)
             {
                 Plugin.Log?.Debug($"Local user selected song '{levelId}'.");

@@ -73,7 +73,7 @@ namespace MultiplayerExtensions.Downloaders
         {
             try
             {
-                string? hash = Utilities.Utilities.LevelIdToHash(levelId);
+                string? hash = Utilities.Util.LevelIdToHash(levelId);
                 if(hash == null)
                 {
                     Plugin.Log?.Error($"Cannot parse a hash from level id '{levelId}'.");

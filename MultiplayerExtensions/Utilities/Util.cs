@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,8 +11,26 @@ using UnityEngine;
 
 namespace MultiplayerExtensions.Utilities
 {
-    public static class Utilities
+    public static class Util
     {
+        private static HttpClient? _httpClient;
+
+        public static HttpClient HttpClient
+        {
+            get 
+            { 
+                if(_httpClient == null)
+                {
+                    _httpClient = new HttpClient();
+                    _httpClient.DefaultRequestHeaders.UserAgent
+                        .ParseAdd(Plugin.UserAgent);
+                }
+                return _httpClient; 
+            }
+        }
+
+
+
         /// <summary>
         /// Logger for debugging sprite loads.
         /// </summary>

@@ -1,5 +1,7 @@
 ﻿using CustomAvatar.Avatar;
 using CustomAvatar.Player;
+using MultiplayerExtensions.Avatars;
+using MultiplayerExtensions.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -8,6 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -15,178 +18,156 @@ using Zenject;
 
 namespace MultiplayerExtensions.Downloaders
 {
-    public static class ModelSaber
+    public class ModelSaber : IAvatarProvider<LoadedAvatar>
     {
-        public static event Action<string> avatarDownloaded;
-        public static Dictionary<string, LoadedAvatar> cachedAvatars = new Dictionary<string, LoadedAvatar>();
+        public event EventHandler<AvatarDownloadedEventArgs>? avatarDownloaded;
+        public event EventHandler? hashesCalculated;
+        public Type AvatarType => typeof(LoadedAvatar);
+        public bool isCalculatingHashes { get; protected set; }
+        public int cachedAvatarsCount => cachedAvatars.Count;
+        public string AvatarDirectory => PlayerAvatarManager.kCustomAvatarsPath;
 
-        public static event Action hashesCalculated;
+        private Dictionary<string, LoadedAvatar> cachedAvatars = new Dictionary<string, LoadedAvatar>();
 
-        public static bool isCalculatingHashes;
-        public static int calculatedHashesCount;
-        public static int totalAvatarsCount;
-
-        public class Avatar
+        public bool CacheAvatar(string avatarPath)
         {
-            public string[] tags;
-            public string type;
-            public string name;
-            public string author;
-            public string image;
-            public string hash;
-            public string bsaber;
-            public string download;
-            public string install_link;
-            public string date;
-
-            public IEnumerator DownloadAvatar(Action<string> callback)
-            {
-                UnityWebRequest www = UnityWebRequest.Get(download);
-                www.SetRequestHeader("User-Agent", UserAgent);
-                www.timeout = 0;
-
-                yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    Plugin.Log?.Error($"Unable to download avatar! {www.error}");
-                    yield break;
-                }
-
-                Plugin.Log.Debug("Received response from ModelSaber...");
-                string docPath = "";
-                string customAvatarPath = "";
-
-                byte[] data = www.downloadHandler.data;
-
-                try
-                {
-                    docPath = Application.dataPath;
-                    docPath = docPath.Substring(0, docPath.Length - 5);
-                    docPath = docPath.Substring(0, docPath.LastIndexOf("/"));
-                    customAvatarPath = docPath + "/CustomAvatars/" + name + ".avatar";
-
-                    Plugin.Log?.Debug($"Saving avatar to \"{customAvatarPath}\"...");
-
-                    File.WriteAllBytes(customAvatarPath, data);
-                    Plugin.Log?.Debug("Downloaded avatar!");
-
-                    callback(name);
-                }
-                catch (Exception e)
-                {
-                    Plugin.Log?.Critical(e);
-                    yield break;
-                }
-            }
+            return false;
         }
 
-        public static IEnumerator FetchAvatarByHash(string hash, Action<Avatar> callback)
+        public bool TryGetCachedAvatar(string hash, out LoadedAvatar avatar)
         {
-            UnityWebRequest www = UnityWebRequest.Get("https://modelsaber.com/api/v1/avatar/get.php?filter=hash:" + hash);
-            www.SetRequestHeader("User-Agent", UserAgent);
+            return cachedAvatars.TryGetValue(hash, out avatar);
+        }
 
-            www.timeout = 10;
-
-            yield return www.SendWebRequest();
-
-            if (www.isNetworkError || www.isHttpError)
+        public async Task<LoadedAvatar?> FetchAvatarByHash(string hash, CancellationToken cancellationToken)
+        {
+            if (cachedAvatars.TryGetValue(hash, out LoadedAvatar cachedAvatar))
+                return cachedAvatar;
+            var avatarInfo = await FetchAvatarInfoByHash(hash, cancellationToken);
+            if (avatarInfo == null)
             {
-                Plugin.Log?.Error($"Unable to fetch avatar! {www.error}");
-                yield break;
+                Plugin.Log?.Info($"Couldn't find avatar with hash '{hash}'");
+                return null;
             }
+            var path = await avatarInfo.DownloadAvatar(cancellationToken);
+            if (path != null)
+                return await LoadAvatar(path);
+            else
+                return null;
+        }
 
-            Plugin.Log.Debug("Received response from ModelSaber...");
-            Avatar avatar = JsonConvert.DeserializeObject<Dictionary<string, Avatar>>(www.downloadHandler.text).First().Value;
-            callback(avatar);
+        public async Task<AvatarInfo?> FetchAvatarInfoByHash(string hash, CancellationToken cancellationToken)
+        {
+            AvatarInfo? avatarInfo = null;
+            try
+            {
+                Uri uri = new Uri($"https://modelsaber.com/api/v1/avatar/get.php?filter=hash:{hash}");
+                var response = await Util.HttpClient.GetAsync(uri, cancellationToken);
+                if (response.IsSuccessStatusCode)
+                {
+                    Plugin.Log.Debug("Received response from ModelSaber...");
+                    string content = await response.Content.ReadAsStringAsync();
+                    avatarInfo = JsonConvert.DeserializeObject<Dictionary<string, AvatarInfo>>(content).First().Value;
+                }
+                else
+                {
+                    Plugin.Log?.Warn($"Unable to retrieve avatar info from ModelSaber: {response.StatusCode}|{response.ReasonPhrase}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Error($"Error retrieving avatar info for '{hash}': {ex.Message}");
+                Plugin.Log?.Debug(ex);
+            }
+            return avatarInfo;
         }
 
         [Inject]
-        private static AvatarLoader _avatarLoader;
+        private static AvatarLoader _avatarLoader = null!;
 
-        public static string UserAgent { get; private set; }
-
-        public static Task<string> HashAvatar(LoadedAvatar avatar)
+        public Task<string> HashAvatar(LoadedAvatar avatar)
         {
-            return HashAvatarPath(avatar.fullPath);
+            return HashAvatar(avatar?.fullPath ?? throw new ArgumentNullException(nameof(avatar)));
         }
 
-        public static Task<string> HashAvatarPath(string path)
+        public Task<string> HashAvatar(string path)
         {
-            return Task.Run(() => {
+            string fullPath = Path.Combine(Path.GetFullPath("CustomAvatars"), path);
+            if (!File.Exists(fullPath))
+                throw new ArgumentException($"File at {fullPath} does not exist.");
+            return Task.Run(() =>
+            {
+                string hash = null!;
                 Plugin.Log?.Debug($"Hashing avatar path {path}");
-                string hash = BitConverter.ToString(MD5.Create().ComputeHash(File.ReadAllBytes(Path.Combine(Path.GetFullPath("CustomAvatars"), path)))).Replace("-", "");
-                return hash;
+                using (var fs = File.OpenRead(fullPath))
+                {
+                    hash = BitConverter.ToString(MD5.Create().ComputeHash(fs)).Replace("-", "");
+                    return hash;
+                }
             });
         }
 
-        public static async void HashAllAvatars()
+        public async Task HashAllAvatars(string directory)
         {
-            var avatarFiles = Directory.GetFiles(PlayerAvatarManager.kCustomAvatarsPath, "*.avatar");
-            totalAvatarsCount = avatarFiles.Length;
-
-            if (totalAvatarsCount != cachedAvatars.Count && !isCalculatingHashes)
+            //var avatarFiles = Directory.GetFiles(PlayerAvatarManager.kCustomAvatarsPath, "*.avatar");
+            var avatarFiles = Directory.GetFiles(AvatarDirectory, "*.avatar");
+            Plugin.Log?.Debug($"Hashing avatars... {cachedAvatarsCount} possible avatars found");
+            cachedAvatars.Clear();
+            foreach (string avatarFile in avatarFiles)
             {
-                isCalculatingHashes = true;
-                Plugin.Log?.Debug($"Hashing avatars... {totalAvatarsCount} avatars found");
-                try
-                {
-                    cachedAvatars.Clear();
-                    calculatedHashesCount = 0;
-
-                    foreach(string avatarFile in avatarFiles)
-                    {
-                        LoadAvatar(avatarFile, false);
-                    }
-
-                    while (totalAvatarsCount != calculatedHashesCount)
-                    {
-                        await Task.Delay(11);
-                    }
-
-                    Plugin.Log?.Debug("All avatars hashed and loaded!");
-
-                    HMMainThreadDispatcher.instance.Enqueue(() =>
-                    {
-                        hashesCalculated?.Invoke();
-                    });
-                }
-                catch (Exception e)
-                {
-                    Plugin.Log?.Error($"Unable to hash and load avatars! Exception: {e}");
-                }
-                isCalculatingHashes = false;
+                await LoadAvatar(avatarFile);
             }
+            isCalculatingHashes = false;
+            Plugin.Log?.Debug("All avatars hashed and loaded!");
+            HMMainThreadDispatcher.instance.Enqueue(() =>
+            {
+                hashesCalculated?.Invoke(this, EventArgs.Empty);
+            });
         }
 
-        public static void LoadAvatar(string avatarFile, bool downloaded = true)
+        public async Task<LoadedAvatar?> LoadAvatar(string avatarFile)
         {
-            _avatarLoader.FromFileCoroutine(avatarFile, async (LoadedAvatar avatar) =>
+            TaskCompletionSource<LoadedAvatar?> tcs = new TaskCompletionSource<LoadedAvatar?>();
+            try
             {
+                var coroutine = _avatarLoader.FromFileCoroutine(avatarFile, (LoadedAvatar avatar) => tcs.TrySetResult(avatar), e => tcs.TrySetException(e));
+                await IPA.Utilities.Async.Coroutines.AsTask(coroutine);
+                if (!tcs.Task.IsCompleted)
+                {
+                    var timeout = Task.Delay(5000);
+                    var task = await Task.WhenAny(tcs.Task, timeout);
+                    if (task == timeout)
+                    {
+                        Plugin.Log?.Warn($"Timeout exceeded trying to load avatar '{avatarFile}'");
+                        tcs.TrySetCanceled();
+                        return null;
+                    }
+                }
+                LoadedAvatar? avatar = await tcs.Task;
+                if (avatar == null)
+                {
+                    Plugin.Log?.Warn($"Couldn't load avatar at '{avatarFile}'");
+                    return null;
+                }
                 try
                 {
                     string calculatedHash = await HashAvatar(avatar);
                     cachedAvatars.Add(calculatedHash, avatar);
                     Plugin.Log?.Debug($"Hashed avatar \"{avatar.descriptor.name}\"! Hash: {calculatedHash}");
-
-                    if (downloaded)
-                    {
-                        HMMainThreadDispatcher.instance.Enqueue(() =>
-                        {
-                            avatarDownloaded?.Invoke(calculatedHash);
-                        });
-                    }
                 }
                 catch (Exception ex)
                 {
                     Plugin.Log?.Error($"Unable to hash avatar \"{avatar.descriptor.name}\"! Exception: {ex}");
+                    Plugin.Log?.Debug(ex);
                 }
-                calculatedHashesCount++;
-            }, (Exception ex) =>
+                return avatar;
+            }
+            catch (Exception ex)
             {
-                Plugin.Log?.Error($"Unable to load avatar! Exception: {ex}");
-                calculatedHashesCount++;
-            });
+                Plugin.Log?.Error($"Unable to load avatar!");
+                Plugin.Log?.Debug(ex);
+            }
+            return null;
         }
     }
 }
