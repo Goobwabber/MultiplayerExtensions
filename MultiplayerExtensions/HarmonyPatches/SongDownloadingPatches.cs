@@ -8,6 +8,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+#if DEBUG
+using HMUI;
+#endif
 
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
