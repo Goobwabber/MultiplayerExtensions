@@ -13,8 +13,8 @@ namespace MultiplayerExtensions.Installers
         public override void InstallBindings()
         {
             Plugin.Log?.Info("Injecting Dependencies");
-            Container.BindInterfacesAndSelfTo<ExtendedSessionManager>();
-            Container.BindInterfacesAndSelfTo<ExtendedPlayerManager>();
+            Container.BindInterfacesAndSelfTo<ExtendedSessionManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ExtendedPlayerManager>().AsSingle();
         }
     }
 }
