@@ -60,6 +60,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>R:\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="GameplayCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
