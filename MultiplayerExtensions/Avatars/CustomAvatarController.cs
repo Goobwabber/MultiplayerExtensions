@@ -7,7 +7,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Avatars
 {
-    class CustomLobbyAvatarController : MonoBehaviour
+    class CustomAvatarController : MonoBehaviour
     {
         [Inject]
         private ExtendedSessionManager _sessionManager;
@@ -32,10 +32,27 @@ namespace MultiplayerExtensions.Avatars
         public virtual void Start()
         {
             _customAvatarManager.avatarReceived += OnAvatarReceived;
-            poseController = gameObject.GetComponentsInChildren<AvatarPoseController>().First();
 
-            ExtendedPlayer extendedPlayer = _sessionManager.GetExtendedPlayer(_connectedPlayer);
-            OnAvatarReceived(extendedPlayer);
+            TryGetPoseController();
+        }
+
+        public virtual void Update()
+        {
+            if (poseController == null)
+            {
+                TryGetPoseController();
+            }
+        }
+
+        public void TryGetPoseController()
+        {
+            var poseControllers = gameObject.GetComponentsInChildren<AvatarPoseController>();
+            if(poseControllers.Length != 0)
+            {
+                poseController = poseControllers.First();
+                ExtendedPlayer extendedPlayer = _sessionManager.GetExtendedPlayer(_connectedPlayer);
+                OnAvatarReceived(extendedPlayer);
+            }
         }
 
         private void OnAvatarReceived(ExtendedPlayer player)
@@ -66,7 +83,8 @@ namespace MultiplayerExtensions.Avatars
             if (spawnedAvatar != null)
                 UnityEngine.Object.Destroy(spawnedAvatar);
 
-            spawnedAvatar = _avatarSpawner.SpawnAvatar(avatar, new MultiplayerInput(poseController), poseController.transform);
+            poseController.gameObject.SetActive(false);
+            spawnedAvatar = _avatarSpawner.SpawnAvatar(avatar, new MultiplayerAvatarInput(poseController), transform);
             spawnedAvatar.SetLocomotionEnabled(true);
             spawnedAvatar.scale = avatarData.scale;
         }

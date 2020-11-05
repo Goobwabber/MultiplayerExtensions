@@ -13,9 +13,6 @@ namespace MultiplayerExtensions.Networking
         [Inject]
         private IMultiplayerSessionManager _multiplayerSessionManager;
 
-        [Inject]
-        private ILobbyStateDataModel _lobbyStateDataModel;
-
         private NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer> _packetSerializer = new NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer>();
         public Dictionary<string, ExtendedPlayer> players = new Dictionary<string, ExtendedPlayer>();
 
@@ -33,8 +30,8 @@ namespace MultiplayerExtensions.Networking
             _multiplayerSessionManager.connectionFailedEvent += connectionFailedEvent;
             _multiplayerSessionManager.disconnectedEvent += disconnectedEvent;
 
-            _lobbyStateDataModel.playerConnectedEvent += HandlePlayerConnected;
-            _lobbyStateDataModel.playerDisconnectedEvent += HandlePlayerDisconnected;
+            _multiplayerSessionManager.playerConnectedEvent += HandlePlayerConnected;
+            _multiplayerSessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
             _multiplayerSessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
 

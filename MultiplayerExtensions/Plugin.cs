@@ -43,6 +43,7 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
             Zenjector = zenjector;
+            Zenjector.OnApp<MultiplayerInstaller>();
             Plugin.Log?.Debug("Init finished.");
         }
 
@@ -52,7 +53,6 @@ namespace MultiplayerExtensions
             Plugin.Log?.Info(UserAgent);
             HarmonyManager.ApplyDefaultPatches();
             Plugin.Log?.Debug("Installing bindings.");
-            Zenjector.OnMenu<MultiplayerInstaller>();
         }
 
         [OnExit]

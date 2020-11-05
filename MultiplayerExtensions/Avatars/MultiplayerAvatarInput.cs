@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MultiplayerExtensions.Avatars
 {
-    class MultiplayerInput : IAvatarInput
+    class MultiplayerAvatarInput : IAvatarInput
     {
         private readonly AvatarPoseController _poseController;
 
@@ -21,7 +21,7 @@ namespace MultiplayerExtensions.Avatars
         private Pose rightHand = new Pose();
         private Pose leftHand = new Pose();
 
-        internal MultiplayerInput(AvatarPoseController poseController)
+        internal MultiplayerAvatarInput(AvatarPoseController poseController)
         {
             _poseController = poseController;
 
@@ -34,14 +34,14 @@ namespace MultiplayerExtensions.Avatars
         private void OnInputChanged(Vector3 newHeadPosition)
         {
             head.position = newHeadPosition;
-            head.rotation = headTransform.rotation;
-            rightHand.position = rightHandTransform.position;
-            rightHand.rotation = rightHandTransform.rotation;
-            leftHand.position = leftHandTransform.position;
-            leftHand.rotation = leftHandTransform.rotation;
+            head.rotation = headTransform.localRotation;
+            rightHand.position = rightHandTransform.localPosition;
+            rightHand.rotation = rightHandTransform.localRotation;
+            leftHand.position = leftHandTransform.localPosition;
+            leftHand.rotation = leftHandTransform.localRotation;
         }
 
-        public bool allowMaintainPelvisPosition => false;
+        public bool allowMaintainPelvisPosition => true;
 
         public event Action inputChanged;
 
@@ -65,7 +65,7 @@ namespace MultiplayerExtensions.Avatars
                     pose = leftHand;
                     return true;
                 default:
-                    pose = new Pose();
+                    pose = Pose.identity;
                     return false;
             }
         }
