@@ -14,8 +14,11 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Prefix(MenuInstaller __instance)
         {
-            MultiplayerLobbyAvatarController multiplayerLobbyAvatarController = __instance.GetField<MultiplayerLobbyAvatarController>("_multiplayerLobbyAvatarControllerPrefab");
-            multiplayerLobbyAvatarController.gameObject.AddComponent<CustomLobbyAvatarController>();
+            if (IPA.Loader.PluginManager.GetPluginFromId("CustomAvatar") != null)
+            {
+                MultiplayerLobbyAvatarController multiplayerLobbyAvatarController = __instance.GetField<MultiplayerLobbyAvatarController>("_multiplayerLobbyAvatarControllerPrefab");
+                multiplayerLobbyAvatarController.gameObject.AddComponent<CustomLobbyAvatarController>();
+            }
         }
     }
 }
