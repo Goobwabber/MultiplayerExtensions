@@ -26,6 +26,8 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         static HarmonyManager()
         {
+            // AvatarPatch.cs
+            AddDefaultPatch<AvatarPatch>();
             // EnableCustomSongsPatches.cs
             AddDefaultPatch<EnableCustomLevelsPatch>();
             AddDefaultPatch<LobbyJoinPatch>();

@@ -53,19 +53,7 @@ namespace MultiplayerExtensions
             HarmonyManager.ApplyDefaultPatches();
             Plugin.Log?.Debug("Installing bindings.");
             Zenjector.OnMenu<MultiplayerInstaller>();
-            if (IPA.Loader.PluginManager.GetPluginFromId("CustomAvatar") != null)
-            {
-                Plugin.Log?.Debug("CustomAvatar mod detected.");
-                SetupAvatars();
-            }
         }
-
-        private void SetupAvatars()
-        {
-            AvatarProvider = new ModelSaber();
-            AvatarProvider?.HashAllAvatars(AvatarProvider.AvatarDirectory);
-        }
-
 
         [OnExit]
         public void OnApplicationQuit()

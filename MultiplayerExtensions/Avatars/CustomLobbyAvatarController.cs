@@ -40,15 +40,22 @@ namespace MultiplayerExtensions.Avatars
 
         private void OnAvatarReceived(ExtendedPlayer player)
         {
-            avatarData = player.avatar;
-            if (avatarData.hash == new CustomAvatarData().hash)
+            if (player.avatar == null)
                 return;
+
+            if (player.avatar.hash == new CustomAvatarData().hash)
+                return;
+
+            avatarData = player.avatar;
 
             _avatarProvider.FetchAvatarByHash(avatarData.hash, CancellationToken.None).ContinueWith(a =>
             {
                 if (!a.IsFaulted && a.Result is LoadedAvatar)
                 {
-                    CreateAvatar(a.Result);
+                    HMMainThreadDispatcher.instance.Enqueue(() =>
+                    {
+                        CreateAvatar(a.Result);
+                    });
                 }
             });
         }
@@ -59,7 +66,9 @@ namespace MultiplayerExtensions.Avatars
             if (spawnedAvatar != null)
                 UnityEngine.Object.Destroy(spawnedAvatar);
 
-            _avatarSpawner.SpawnAvatar(avatar, new MultiplayerInput(poseController), poseController.transform);
+            spawnedAvatar = _avatarSpawner.SpawnAvatar(avatar, new MultiplayerInput(poseController), poseController.transform);
+            spawnedAvatar.SetLocomotionEnabled(true);
+            spawnedAvatar.scale = avatarData.scale;
         }
     }
 }

@@ -72,6 +72,7 @@ namespace MultiplayerExtensions.Avatars
         {
             Plugin.Log?.Info($"Received 'CustomAvatarPacket' from '{player.userId}' with '{packet.hash}'");
             player.avatar = new CustomAvatarData(packet);
+            avatarReceived?.Invoke(player);
         }
     }
 }

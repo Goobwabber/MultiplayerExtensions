@@ -25,7 +25,7 @@ namespace MultiplayerExtensions.Avatars
         {
             _poseController = poseController;
 
-            _poseController.didUpdatePoseEvent += (Vector3 headPosition) => inputChanged?.Invoke();
+            _poseController.didUpdatePoseEvent += OnInputChanged;
             headTransform = _poseController.GetField<Transform>("_headTransform");
             rightHandTransform = _poseController.GetField<Transform>("_rightHandTransform");
             leftHandTransform = _poseController.GetField<Transform>("_leftHandTransform");
@@ -39,11 +39,9 @@ namespace MultiplayerExtensions.Avatars
             rightHand.rotation = rightHandTransform.rotation;
             leftHand.position = leftHandTransform.position;
             leftHand.rotation = leftHandTransform.rotation;
-
-            inputChanged();
         }
 
-        public bool allowMaintainPelvisPosition => throw new NotImplementedException();
+        public bool allowMaintainPelvisPosition => false;
 
         public event Action inputChanged;
 

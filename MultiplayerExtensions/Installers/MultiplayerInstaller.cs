@@ -23,12 +23,8 @@ namespace MultiplayerExtensions.Installers
         private void BindCustomAvatars(DiContainer Container)
         {
             Plugin.Log?.Info("Found CustomAvatar");
-            Container.Bind<IAvatarProvider<LoadedAvatar>>()
-                .To<ModelSaber>()
-                .AsSingle();
+            Container.BindInterfacesAndSelfTo<ModelSaber>().AsSingle();
             Container.Bind(typeof(IInitializable), typeof(CustomAvatarManager)).To<CustomAvatarManager>().AsSingle();
-            Container.QueueForInject(typeof(ModelSaber));
-            Container.Resolve<MultiplayerLobbyAvatarController>().gameObject.AddComponent<CustomLobbyAvatarController>();
         }
     }
 }

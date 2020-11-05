@@ -18,8 +18,11 @@ using Zenject;
 
 namespace MultiplayerExtensions.Downloaders
 {
-    public class ModelSaber : IAvatarProvider<LoadedAvatar>
+    public class ModelSaber : IAvatarProvider<LoadedAvatar>, IInitializable
     {
+        [Inject]
+        private AvatarLoader _avatarLoader;
+
         public event EventHandler<AvatarDownloadedEventArgs>? avatarDownloaded;
         public event EventHandler? hashesCalculated;
         public Type AvatarType => typeof(LoadedAvatar);
@@ -81,9 +84,6 @@ namespace MultiplayerExtensions.Downloaders
             }
             return avatarInfo;
         }
-
-        [Inject]
-        private static AvatarLoader _avatarLoader = null!;
 
         public Task<string> HashAvatar(LoadedAvatar avatar)
         {
@@ -168,6 +168,11 @@ namespace MultiplayerExtensions.Downloaders
                 Plugin.Log?.Debug(ex);
             }
             return null;
+        }
+
+        public void Initialize()
+        {
+            HashAllAvatars(AvatarDirectory);
         }
     }
 }
