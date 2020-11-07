@@ -13,7 +13,7 @@ MultiplayerExtensions has not been released yet, but you can grab the latest bui
 1. Download the `MultiplayerExtensions` file listed under `Artifacts` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build). 
    * You must be logged into GitHub to download builds from GitHub Actions.
 2. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
-   * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder.
+   * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
    
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**

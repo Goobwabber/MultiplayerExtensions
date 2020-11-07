@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Management.Instrumentation;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using HarmonyLib;
-using UnityEngine;
-using HMUI;
-using IPA.Logging;
+﻿using HarmonyLib;
 using IPA.Utilities;
-
+#if DEBUG
+using System;
+using System.Collections.Generic;
+#endif
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
 /// </summary>
