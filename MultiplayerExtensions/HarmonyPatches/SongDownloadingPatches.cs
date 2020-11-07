@@ -49,24 +49,35 @@ namespace MultiplayerExtensions.HarmonyPatches
             string? levelId = beatmapId.levelID;
             if (SongCore.Loader.GetLevelById(levelId) != null)
             {
-                Plugin.Log?.Debug($"Level with ID '{levelId}' already exists.");
+                if (LoadingLevelId != levelId)
+                    Plugin.Log?.Debug($"Level with ID '{levelId}' already exists.");
+                LoadingLevelId = null;
                 return true;
             }
             string? hash = Utilities.Utilities.LevelIdToHash(beatmapId.levelID);
             if (hash == null)
             {
                 Plugin.Log?.Info($"Could not get a hash from beatmap with LevelId {beatmapId.levelID}");
+                LoadingLevelId = null;
                 return true;
             }
-
+            if(Downloader.TryGetDownload(levelId, out _))
+            {
+                Plugin.Log?.Debug($"Download for '{levelId}' is already in progress.");
+                return false;
+            }
             MultiplayerLevelLoader = __instance;
             BeatmapIdentifierNetSerializable bmId = beatmapId;
             GameplayModifiers modifiers = gameplayModifiers;
             float startTime = initialStartTime;
-            IProgress<double> progress = new Progress<double>(p =>
-            {
-                Plugin.Log?.Debug($"Progress for '{bmId.levelID}': {p:P}");
-            });
+            // TODO: Link to UI progress bar. Don't forget case where downloaded song may be switched back to a currently downloading one.
+            // Probably best to have a class containing a download that the IProgress updates with the current progress.
+            // Then that class can be hooked/unhooked from the UI progress bar.
+            IProgress<double>? progress = null;
+            //IProgress<double> progress = new Progress<double>(p =>
+            //{
+            //    Plugin.Log?.Debug($"Progress for '{bmId.levelID}': {p:P}");
+            //});
             if (LoadingLevelId == null || LoadingLevelId != levelId)
             {
                 LoadingLevelId = levelId;
@@ -76,19 +87,20 @@ namespace MultiplayerExtensions.HarmonyPatches
                 {
                     try
                     {
-                        if (b != null)
+                        IPreviewBeatmapLevel? level = b.Result;
+                        if (level != null)
                         {
                             Plugin.Log?.Debug($"Level with ID '{levelId}' was downloaded successfully.");
                             //Plugin.Log?.Debug($"Triggering 'LobbyGameStateController.HandleMenuRpcManagerStartedLevel' after level download.");
                             //LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LobbyGameStateController.HandleMenuRpcManagerStartedLevel(LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LastUserId, bmId, modifiers, startTime);
+                            MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
                         }
                         else
                             Plugin.Log?.Warn($"TryDownloadSong was unsuccessful.");
-                        MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
                     }
                     catch (Exception ex)
                     {
-                        Plugin.Log?.Warn($"Error in TryDownloadSong callback: {ex.Message}");
+                        Plugin.Log?.Warn($"Error in TryDownloadSong continuation: {ex.Message}");
                         Plugin.Log?.Debug(ex);
                     }
                     finally

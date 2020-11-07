@@ -18,9 +18,12 @@ namespace MultiplayerExtensions
         public const int MaxFileSystemPathLength = 259;
         public static readonly string CustomLevelsFolder = Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
         internal static ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>> CurrentDownloads 
-            = new ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>>();
+            = new ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>>(StringComparer.OrdinalIgnoreCase);
 
-        public static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double> progress, CancellationToken cancellationToken)
+        public static bool TryGetDownload(string levelId, out Task<IPreviewBeatmapLevel?> task) 
+            => CurrentDownloads.TryGetValue(levelId, out task);
+
+        private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
             var bm = await BeatSaverSharp.BeatSaver.Client.Hash(hash, cancellationToken);
 
@@ -74,14 +77,15 @@ namespace MultiplayerExtensions
             return beatmap;
         }
 
-        public static Task<IPreviewBeatmapLevel?> TryDownloadSong(string levelId, IProgress<double> progress, CancellationToken cancellationToken)
+        public static Task<IPreviewBeatmapLevel?> TryDownloadSong(string levelId, IProgress<double>? progress, CancellationToken cancellationToken)
         {
             Task<IPreviewBeatmapLevel?> task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, progress, cancellationToken));
+            Plugin.Log?.Debug($"Active downloads: {CurrentDownloads.Count}");
             return task;
 
         }
 
-        private static async Task<IPreviewBeatmapLevel?> TryDownloadSongInternal(string levelId, IProgress<double> progress, CancellationToken cancellationToken)
+        private static async Task<IPreviewBeatmapLevel?> TryDownloadSongInternal(string levelId, IProgress<double>? progress, CancellationToken cancellationToken)
         {
             try
             {
@@ -109,6 +113,10 @@ namespace MultiplayerExtensions
             {
                 Plugin.Log?.Error($"Error downloading beatmap '{levelId}': {ex.Message}");
                 Plugin.Log?.Debug(ex);
+            }
+            finally
+            {
+                CurrentDownloads.TryRemove(levelId, out _);
             }
             Plugin.Log?.Debug($"Download was unsuccessful.");
             return null;
