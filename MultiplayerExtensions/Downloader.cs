@@ -17,9 +17,10 @@ namespace MultiplayerExtensions
     {
         public const int MaxFileSystemPathLength = 259;
         public static readonly string CustomLevelsFolder = Path.Combine(UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
-        internal static ConcurrentDictionary<string, Task> CurrentDownloads = new ConcurrentDictionary<string, Task>();
+        internal static ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>> CurrentDownloads 
+            = new ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>>();
 
-        public static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, CancellationToken cancellationToken)
+        public static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double> progress, CancellationToken cancellationToken)
         {
             var bm = await BeatSaverSharp.BeatSaver.Client.Hash(hash, cancellationToken);
 
@@ -30,7 +31,7 @@ namespace MultiplayerExtensions
                 Plugin.Log?.Warn($"Could not find song '{hash}' on Beat Saver.");
                 return null;
             }
-            byte[] beatmapBytes = await bm.DownloadZip(false, cancellationToken);
+            byte[] beatmapBytes = await bm.DownloadZip(false, cancellationToken, progress);
             using (var ms = new MemoryStream(beatmapBytes))
             {
                 var result = await ExtractZip(ms, folderPath);
@@ -52,7 +53,9 @@ namespace MultiplayerExtensions
                     await awaiter.Task;
                 }
                 catch (OperationCanceledException)
-                { }
+                {
+                    return null;
+                }
                 catch (Exception e)
                 {
                     Plugin.Log?.Error($"Error waiting for songs to load: {e.Message}");
@@ -65,18 +68,20 @@ namespace MultiplayerExtensions
                 }
             }
 
-            CustomPreviewBeatmapLevel beatmap = SongCore.Loader.GetLevelByHash(hash);
+            CustomPreviewBeatmapLevel? beatmap = SongCore.Loader.GetLevelByHash(hash);
+            if (beatmap == null)
+                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{bm?.Name ?? hash}' from SongCore, this shouldn't happen.");
             return beatmap;
         }
 
-        public static Task TryDownloadSong(string levelId, CancellationToken cancellationToken, Action<bool> callback)
+        public static Task<IPreviewBeatmapLevel?> TryDownloadSong(string levelId, IProgress<double> progress, CancellationToken cancellationToken)
         {
-            Task task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, cancellationToken, callback));
+            Task<IPreviewBeatmapLevel?> task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, progress, cancellationToken));
             return task;
 
         }
 
-        private static async Task TryDownloadSongInternal(string levelId, CancellationToken cancellationToken, Action<bool> callback)
+        private static async Task<IPreviewBeatmapLevel?> TryDownloadSongInternal(string levelId, IProgress<double> progress, CancellationToken cancellationToken)
         {
             try
             {
@@ -84,15 +89,13 @@ namespace MultiplayerExtensions
                 if(hash == null)
                 {
                     Plugin.Log?.Error($"Cannot parse a hash from level id '{levelId}'.");
-                    callback(false);
-                    return;
+                    return null;
                 }
-                IPreviewBeatmapLevel? beatmap = await DownloadSong(hash, cancellationToken);
+                IPreviewBeatmapLevel? beatmap = await DownloadSong(hash, progress, cancellationToken);
                 if (beatmap is CustomPreviewBeatmapLevel customLevel)
                 {
                     Plugin.Log?.Debug($"Download was successful.");
-                    callback(true);
-                    return;
+                    return beatmap;
                 }
                 else
                     Plugin.Log?.Error($"beatmap:{beatmap?.GetType().Name} is not a CustomPreviewBeatmapLevel");
@@ -100,8 +103,7 @@ namespace MultiplayerExtensions
             catch (OperationCanceledException)
             {
                 Plugin.Log?.Debug($"Download was canceled.");
-                callback(false);
-                return;
+                return null;
             }
             catch (Exception ex)
             {
@@ -109,7 +111,7 @@ namespace MultiplayerExtensions
                 Plugin.Log?.Debug(ex);
             }
             Plugin.Log?.Debug($"Download was unsuccessful.");
-            callback(false);
+            return null;
         }
 
         /// <summary>

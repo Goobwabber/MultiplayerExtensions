@@ -63,17 +63,20 @@ namespace MultiplayerExtensions.HarmonyPatches
             BeatmapIdentifierNetSerializable bmId = beatmapId;
             GameplayModifiers modifiers = gameplayModifiers;
             float startTime = initialStartTime;
-
+            IProgress<double> progress = new Progress<double>(p =>
+            {
+                Plugin.Log?.Debug($"Progress for '{bmId.levelID}': {p:P}");
+            });
             if (LoadingLevelId == null || LoadingLevelId != levelId)
             {
                 LoadingLevelId = levelId;
 
                 Plugin.Log?.Debug($"Attempting to download level with ID '{levelId}'...");
-                Task? downloadTask = Downloader.TryDownloadSong(levelId, CancellationToken.None, success =>
+                Task? downloadTask = Downloader.TryDownloadSong(levelId, progress, CancellationToken.None).ContinueWith(b =>
                 {
                     try
                     {
-                        if (success)
+                        if (b != null)
                         {
                             Plugin.Log?.Debug($"Level with ID '{levelId}' was downloaded successfully.");
                             //Plugin.Log?.Debug($"Triggering 'LobbyGameStateController.HandleMenuRpcManagerStartedLevel' after level download.");
