@@ -22,7 +22,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 {
                     if (_getBeatmap == null)
                     {
-                        _getBeatmap = BeatSaver.Client.Hash(Utilities.Utilities.LevelIdToHash(levelID));
+                        _getBeatmap = BeatSaver.Client.Hash(Utilities.Utils.LevelIdToHash(levelID));
                         _getBeatmap.ContinueWith(b =>
                         {
                             Populate(b.Result);
@@ -104,7 +104,7 @@ namespace MultiplayerExtensions.OverrideClasses
             if (bm != null)
             {
                 var img = await bm.FetchCoverImage(cancellationToken);
-                return Utilities.Utilities.GetSprite(img);
+                return Utilities.Utils.GetSprite(img);
             }
             else
             {
