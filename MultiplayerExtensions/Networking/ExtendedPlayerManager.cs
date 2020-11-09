@@ -7,7 +7,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Networking
 {
-    class ExtendedPlayerManager : IInitializable
+    public class ExtendedPlayerManager : IInitializable
     {
         [Inject]
         private ExtendedSessionManager _sessionManager;

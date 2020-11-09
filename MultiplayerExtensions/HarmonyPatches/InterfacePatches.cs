@@ -1,12 +1,50 @@
-﻿using HarmonyLib;
+﻿using BS_Utils.Utilities;
+using HarmonyLib;
 using HMUI;
+using MultiplayerExtensions.Beatmaps;
+using MultiplayerExtensions.Networking;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
+    [HarmonyPatch(typeof(GameServerPlayerTableCell), "SetData", MethodType.Normal)]
+    public class GameServerPlayerTableCell_SetData
+    {
+        private static Color green = new Color(0f, 1f, 0f, 1f);
+        private static Color yellow = new Color(1f, 1f, 0f, 1f);
+        private static Color red = new Color(1f, 0f, 0f, 1f);
+        private static Color normal = new Color(0.125f, 0.75f, 1f, 0.25f);
+
+        static void Postfix(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
+        {
+            Image background = __instance.GetField<Image>("_localPlayerBackgroundImage");
+            if (playerDataModel.beatmapLevel != null)
+            {
+                background.enabled = true;
+                PreviewBeatmapManager.GetPopulatedPreview(playerDataModel.beatmapLevel.levelID).ContinueWith(r =>
+                {
+                    PreviewBeatmapStub preview = r.Result;
+                    float transparency = connectedPlayer.isMe ? 0.4f : 0.1f;
+                    Color color = connectedPlayer.HasState("custom-downloaded") ? green : connectedPlayer.HasState("custom-downloadable") ? yellow : red;
+                    color.a = transparency;
+
+                    HMMainThreadDispatcher.instance.Enqueue(() =>
+                    {
+                        background.color = color;
+                    });
+                });
+            }
+            else
+            {
+                background.color = normal;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(LevelCollectionViewController), "HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
     public class LevelCollectionViewController_DidSelectLevel
     {

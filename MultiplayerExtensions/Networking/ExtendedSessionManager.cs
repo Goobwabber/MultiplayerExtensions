@@ -1,4 +1,5 @@
 ﻿using LiteNetLib.Utils;
+using MultiplayerExtensions.HarmonyPatches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Networking
 {
-    class ExtendedSessionManager : IInitializable
+    public class ExtendedSessionManager : IInitializable
     {
         [Inject]
         private IMultiplayerSessionManager _multiplayerSessionManager;
@@ -116,6 +117,9 @@ namespace MultiplayerExtensions.Networking
         public bool isConnecting => _multiplayerSessionManager.isConnecting;
         public bool isSpectating => _multiplayerSessionManager.isSpectating;
         public IConnectedPlayer connectionOwner => _multiplayerSessionManager.connectionOwner;
+
+        public void SetLocalPlayerState(string state, bool hasState) => _multiplayerSessionManager.SetLocalPlayerState(state, hasState);
+        public IConnectedPlayer GetPlayer(string userId) => _multiplayerSessionManager.GetConnectedPlayerByUserId(userId);
 
         public void Send<T>(T message) where T : INetSerializable => _multiplayerSessionManager.Send(message);
         public void SendUnreliable<T>(T message) where T : INetSerializable => _multiplayerSessionManager.SendUnreliable(message);

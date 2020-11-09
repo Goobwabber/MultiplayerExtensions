@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiplayerExtensions.Networking
+namespace MultiplayerExtensions.Beatmaps
 {
     class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
@@ -58,7 +58,7 @@ namespace MultiplayerExtensions.Networking
             return this;
         }
 
-        public PreviewBeatmapPacket FromPreview(PreviewBeatmapLevelStub preview, string characteristic, BeatmapDifficulty difficulty)
+        public PreviewBeatmapPacket FromPreview(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
         {
             this.levelId = preview.levelID;
             this.songName = preview.songName;
@@ -69,11 +69,6 @@ namespace MultiplayerExtensions.Networking
             this.difficulty = difficulty;
 
             return this;
-        }
-
-        public PreviewBeatmapLevelStub getPreviewBeatmap()
-        {
-            return new PreviewBeatmapLevelStub(levelId, songName, songSubName, songAuthorName, levelAuthorName);
         }
 
         public string levelId;

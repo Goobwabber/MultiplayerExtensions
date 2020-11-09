@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MultiplayerExtensions.Networking
 {
-    class ExtendedPlayerPacket : INetSerializable, IPoolablePacket
+    public class ExtendedPlayerPacket : INetSerializable, IPoolablePacket
     {
         public static PacketPool<ExtendedPlayerPacket> pool
         {

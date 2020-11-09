@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultiplayerExtensions.Networking
 {
-    class ExtendedPlayer : IConnectedPlayer
+    public class ExtendedPlayer : IConnectedPlayer
     {
         private IConnectedPlayer _connectedPlayer;
         public string? platformID;

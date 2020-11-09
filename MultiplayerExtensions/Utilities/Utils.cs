@@ -44,7 +44,6 @@ namespace MultiplayerExtensions.Utilities
                 Logger?.Invoke($"Caught unhandled exception", ex);
                 return ReturnDefault(returnDefaultOnFail);
             }
-
         }
 
         public static string? LevelIdToHash(string levelId)
