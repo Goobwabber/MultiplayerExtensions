@@ -167,9 +167,13 @@
     <GetCommitInfo ProjectDir="$(ProjectDir)">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="GitBranch" />
+      <Output TaskParameter="IsPullRequest" PropertyName="IsPullRequest" />
       <Output TaskParameter="Modified" PropertyName="GitModified" />
       <Output TaskParameter="GitUser" PropertyName="GitUser" />
     </GetCommitInfo>
+    <PropertyGroup Condition="'$(IsPullRequest)' == 'true'">
+      <GitBranch>$(GitBranch)_(PR)</GitBranch>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp'">
       <VersionType>Official</VersionType>
     </PropertyGroup>
