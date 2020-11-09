@@ -37,10 +37,11 @@ namespace MultiplayerExtensions.OverrideClasses
             levelID = levelId;
         }
 
-        public PreviewBeatmapLevelStub(string levelId, string songName, string levelAuthorName)
-            : this(levelId)
+        public PreviewBeatmapLevelStub(string levelId, string songName, string songSubName, string songAuthorName, string levelAuthorName) : this(levelId)
         {
             this.songName = songName;
+            this.songSubName = songSubName;
+            this.songAuthorName = songAuthorName;
             this.levelAuthorName = levelAuthorName;
         }
 

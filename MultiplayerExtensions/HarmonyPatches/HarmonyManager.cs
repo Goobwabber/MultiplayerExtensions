@@ -31,14 +31,8 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<LevelCollectionViewController_DidSelectLevel>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
-            // TODO: Wasn't being applied before?
-            // AddDefaultPatch<MultiplayerSessionManager_HandlePlayerConnected>();
-            AddDefaultPatch<MultiplayerSessionManager_PlayerStateChanged>();
-            AddDefaultPatch<MultiplayerSessionManager_HandleConnected>();
-            AddDefaultPatch<LobbyGameStateController_HandleMenuRpcManagerStartedLevel>();
-            AddDefaultPatch<MultiplayerLevelLoader_LoadLevel>();
-            AddDefaultPatch<SetPlayerLevelPatch>();
-            AddDefaultPatch<SetLocalPlayerLevelPatch>();
+            AddDefaultPatch<LoadLevelPatch>();
+            AddDefaultPatch<LobbyPlayersDataModelPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
@@ -66,7 +60,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             return removed;
         }
 
-        internal static bool ApplyPatch(Harmony harmony, MethodInfo original, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null)
+        internal static bool ApplyPatch(Harmony harmony, MethodInfo original, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null, HarmonyMethod? transpiler = null)
         {
             try
             {
@@ -75,8 +69,10 @@ namespace MultiplayerExtensions.HarmonyPatches
                     patchTypeName = prefix.method.DeclaringType?.Name;
                 else if (postfix != null)
                     patchTypeName = postfix.method.DeclaringType?.Name;
+                else if (transpiler != null)
+                    patchTypeName = postfix.method.DeclaringType?.Name;
                 Plugin.Log?.Debug($"Harmony patching {original.Name} with {patchTypeName}");
-                harmony.Patch(original, prefix, postfix);
+                harmony.Patch(original, prefix, postfix, transpiler);
                 return true;
             }
             catch (Exception e)
@@ -171,7 +167,8 @@ namespace MultiplayerExtensions.HarmonyPatches
                     throw new ArgumentException($"Could not find original method '{originalType.Name}.{originalMemberName}'.");
                 MethodInfo prefix = patchClass.GetMethod("Prefix", allBindingFlags);
                 MethodInfo postfix = patchClass.GetMethod("Postfix", allBindingFlags);
-                return new HarmonyPatchInfo(Harmony, originalMethod, prefix, postfix);
+                MethodInfo transpiler = patchClass.GetMethod("Transpiler", allBindingFlags);
+                return new HarmonyPatchInfo(Harmony, originalMethod, prefix, postfix, transpiler);
             }
             catch (Exception ex)
             {

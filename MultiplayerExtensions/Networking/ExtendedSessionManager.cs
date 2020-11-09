@@ -13,9 +13,6 @@ namespace MultiplayerExtensions.Networking
         [Inject]
         private IMultiplayerSessionManager _multiplayerSessionManager;
 
-        [Inject]
-        private ILobbyStateDataModel _lobbyStateDataModel;
-
         private NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer> _packetSerializer = new NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer>();
         public Dictionary<string, ExtendedPlayer> players = new Dictionary<string, ExtendedPlayer>();
 
@@ -33,9 +30,13 @@ namespace MultiplayerExtensions.Networking
             _multiplayerSessionManager.connectionFailedEvent += connectionFailedEvent;
             _multiplayerSessionManager.disconnectedEvent += disconnectedEvent;
 
-            _lobbyStateDataModel.playerConnectedEvent += HandlePlayerConnected;
-            _lobbyStateDataModel.playerDisconnectedEvent += HandlePlayerDisconnected;
+            _multiplayerSessionManager.playerConnectedEvent += HandlePlayerConnected;
+            _multiplayerSessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
             _multiplayerSessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
+
+            _multiplayerSessionManager.SetLocalPlayerState("modded", true);
+            _multiplayerSessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
+            _multiplayerSessionManager.SetLocalPlayerState("enforcemods", Plugin.Config.EnforceMods);
         }
 
         public ExtendedPlayer GetExtendedPlayer(IConnectedPlayer player)
@@ -63,6 +64,12 @@ namespace MultiplayerExtensions.Networking
         {
             if (player.userId != _multiplayerSessionManager.localPlayer.userId)
             {
+                if (player.isConnectionOwner)
+                {
+                    UI.GameplaySetupPanel.instance.SetCustomSongs(player.HasState("customsongs"));
+                    UI.GameplaySetupPanel.instance.SetEnforceMods(player.HasState("enforcemods"));
+                }
+
                 var extendedPlayer = players[player.userId];
                 playerStateChangedEvent?.Invoke(extendedPlayer);
             }
@@ -115,7 +122,8 @@ namespace MultiplayerExtensions.Networking
 
         public enum MessageType : Byte
         {
-            PlayerUpdate
+            PlayerUpdate,
+            PreviewBeatmapUpdate
         }
     }
 }
