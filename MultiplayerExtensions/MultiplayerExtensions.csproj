@@ -171,10 +171,7 @@
       <Output TaskParameter="Modified" PropertyName="GitModified" />
       <Output TaskParameter="GitUser" PropertyName="GitUser" />
     </GetCommitInfo>
-    <PropertyGroup Condition="'$(IsPullRequest)' == 'true'">
-      <GitBranch>$(GitBranch)_(PR)</GitBranch>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp'">
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp' AND '$(IsPullRequest)' != 'true'">
       <VersionType>Official</VersionType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(GitModified)' != 'Modified'">
