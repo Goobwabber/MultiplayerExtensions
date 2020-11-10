@@ -31,6 +31,9 @@ namespace MultiplayerExtensions.OverrideClasses
             _sessionManager.RegisterCallback(ExtendedSessionManager.MessageType.PreviewBeatmapUpdate, HandlePreviewBeatmapPacket, new Func<PreviewBeatmapPacket>(PreviewBeatmapPacket.pool.Obtain));
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
             base.Activate();
+
+            _menuRpcManager.selectedBeatmapEvent -= base.HandleMenuRpcManagerSelectedBeatmap;
+            _menuRpcManager.selectedBeatmapEvent += this.HandleMenuRpcManagerSelectedBeatmap;
         }
 
         private void HandlePlayerStateChanged(ExtendedPlayer player)
@@ -74,6 +77,9 @@ namespace MultiplayerExtensions.OverrideClasses
                     {
                         PreviewBeatmapStub preview = r.Result;
 
+                        Plugin.Log?.Info($"user: {userId} | hostuser: {base.hostUserId}");
+                        Plugin.Log?.Info($"local: {preview.isDownloaded} | cloud: {preview.isDownloadable}");
+
                         if (userId == base.hostUserId)
                         {
                             _sessionManager.SetLocalPlayerState("bmlocal", preview.isDownloaded);
@@ -102,6 +108,9 @@ namespace MultiplayerExtensions.OverrideClasses
                 PreviewBeatmapManager.GetPopulatedPreview(levelId).ContinueWith(r =>
                 {
                     PreviewBeatmapStub preview = r.Result;
+
+                    Plugin.Log?.Info($"localuser: {base.localUserId} | hostuser: {base.hostUserId}");
+                    Plugin.Log?.Info($"local: {preview.isDownloaded} | cloud: {preview.isDownloadable}");
 
                     if (base.localUserId == base.hostUserId)
                     {

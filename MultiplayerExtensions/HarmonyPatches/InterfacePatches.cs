@@ -17,7 +17,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         private static Color green = new Color(0f, 1f, 0f, 1f);
         private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
         private static Color red = new Color(1f, 0f, 0f, 1f);
-        private static Color normal = new Color(0.125f, 0.75f, 1f, 0.4f);
+        private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
 
         private static Dictionary<string, GameServerPlayerTableCell> cells = new Dictionary<string, GameServerPlayerTableCell>();
         private static Dictionary<string, ILobbyPlayerDataModel> models = new Dictionary<string, ILobbyPlayerDataModel>();
@@ -38,7 +38,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 PreviewBeatmapManager.GetPopulatedPreview(playerDataModel.beatmapLevel.levelID).ContinueWith(r =>
                 {
                     PreviewBeatmapStub preview = r.Result;
-                    float transparency = connectedPlayer.isMe ? 0.4f : 0.2f;
+                    float transparency = connectedPlayer.isMe ? 0.4f : 0.1f;
                     Color color = connectedPlayer.HasState("bmlocal") ? green : connectedPlayer.HasState("bmcloud") ? yellow : red;
                     color.a = transparency;
 
