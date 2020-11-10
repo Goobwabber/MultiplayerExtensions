@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using IPA.Utilities;
-#if DEBUG
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#if DEBUG
+using System.Collections.Generic;
 #endif
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
