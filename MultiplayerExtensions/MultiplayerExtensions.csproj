@@ -64,6 +64,15 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="SemVer">
+      <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SongCore">
+      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System.IO.Compression">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.dll</HintPath>
       <Private>False</Private>
@@ -177,7 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks">
-      <Version>1.3.1</Version>
+      <Version>1.3.2</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -187,10 +196,11 @@
     <GetCommitInfo ProjectDir="$(ProjectDir)">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="GitBranch" />
+      <Output TaskParameter="IsPullRequest" PropertyName="IsPullRequest" />
       <Output TaskParameter="Modified" PropertyName="GitModified" />
       <Output TaskParameter="GitUser" PropertyName="GitUser" />
     </GetCommitInfo>
-    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp'">
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Zingabopp' AND '$(IsPullRequest)' != 'true'">
       <VersionType>Official</VersionType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(GitModified)' != 'Modified'">
