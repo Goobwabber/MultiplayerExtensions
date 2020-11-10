@@ -1,12 +1,67 @@
-﻿using HarmonyLib;
+﻿using BS_Utils.Utilities;
+using HarmonyLib;
 using HMUI;
+using MultiplayerExtensions.Beatmaps;
+using MultiplayerExtensions.Networking;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
+    [HarmonyPatch(typeof(GameServerPlayerTableCell), "SetData", MethodType.Normal)]
+    public class GameServerPlayerTableColor
+    {
+        private static Color green = new Color(0f, 1f, 0f, 1f);
+        private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
+        private static Color red = new Color(1f, 0f, 0f, 1f);
+        private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
+
+        private static Dictionary<string, GameServerPlayerTableCell> cells = new Dictionary<string, GameServerPlayerTableCell>();
+        private static Dictionary<string, ILobbyPlayerDataModel> models = new Dictionary<string, ILobbyPlayerDataModel>();
+
+        static void Postfix(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
+        {
+            cells[connectedPlayer.userId] = __instance;
+            models[connectedPlayer.userId] = playerDataModel;
+            UpdateColor(connectedPlayer, playerDataModel, __instance);
+        }
+
+        public static void UpdateColor(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
+        {
+            Image background = __instance.GetField<Image>("_localPlayerBackgroundImage");
+            if (playerDataModel.beatmapLevel != null)
+            {
+                background.enabled = true;
+                PreviewBeatmapManager.GetPopulatedPreview(playerDataModel.beatmapLevel.levelID).ContinueWith(r =>
+                {
+                    PreviewBeatmapStub preview = r.Result;
+                    float transparency = connectedPlayer.isMe ? 0.4f : 0.1f;
+                    Color color = connectedPlayer.HasState("bmlocal") ? green : connectedPlayer.HasState("bmcloud") ? yellow : red;
+                    color.a = transparency;
+
+                    HMMainThreadDispatcher.instance.Enqueue(() =>
+                    {
+                        background.color = color;
+                    });
+                });
+            }
+            else
+            {
+                background.color = normal;
+            }
+        }
+
+        public static void UpdateColor(IConnectedPlayer player)
+        {
+            GameServerPlayerTableCell cell = cells[player.userId];
+            ILobbyPlayerDataModel model = models[player.userId];
+            UpdateColor(player, model, cell);
+        }
+    }
+
     [HarmonyPatch(typeof(LevelCollectionViewController), "HandleLevelCollectionTableViewDidSelectLevel", MethodType.Normal)]
     public class LevelCollectionViewController_DidSelectLevel
     {

@@ -4,7 +4,9 @@ using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
 using MultiplayerExtensions.HarmonyPatches;
+using MultiplayerExtensions.Installers;
 using MultiplayerExtensions.UI;
+using SiraUtil.Zenject;
 using MultiplayerExtensions.Utilities;
 using System;
 using System.Reflection;
@@ -34,13 +36,14 @@ namespace MultiplayerExtensions
         internal static PluginConfig Config = null!;
 
         [Init]
-        public Plugin(IPALogger logger, Config conf, PluginMetadata pluginMetadata)
+        public Plugin(IPALogger logger, Config conf, Zenjector zenjector, PluginMetadata pluginMetadata)
         {
             Instance = this;
             PluginMetadata = pluginMetadata;
             Log = logger;
             Config = conf.Generated<PluginConfig>();
             BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
+            zenjector.OnApp<MultiplayerInstaller>();
         }
 
         [OnStart]

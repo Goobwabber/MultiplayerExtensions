@@ -1,9 +1,13 @@
 ::from ./bsinstalldir.txt
 "Beat Saber_Data/Managed/
+""BeatmapCore.dll?virt?alias=Beat Saber_Data\Managed\BeatmapCore.dll
+""BGNet.dll?virt?alias=Beat Saber_Data\Managed\BGNet.dll
 ""GameplayCore.dll?virt?alias=Beat Saber_Data\Managed\GameplayCore.dll
 ""HMLib.dll?virt?alias=Beat Saber_Data\Managed\HMLib.dll
 ""HMUI.dll?virt?alias=Beat Saber_Data\Managed\HMUI.dll
+""LiteNetLib.dll?virt?alias=Beat Saber_Data\Managed\LiteNetLib.dll
 ""Main.dll?virt?alias=Beat Saber_Data\Managed\Main.dll
+""MediaLoader.dll?virt?alias=Beat Saber_Data\Managed\MediaLoader.dll
 ""netstandard.dll?alias=Beat Saber_Data\Managed\netstandard.dll
 ""Unity.TextMeshPro.dll?alias=Beat Saber_Data\Managed\Unity.TextMeshPro.dll
 ""UnityEngine.
@@ -15,10 +19,15 @@
 """UIElementsModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll
 """UIModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.UIModule.dll
 """VRModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.VRModule.dll
+""Zenject.dll?alias=Beat Saber_Data\Managed\Zenject.dll
+""Zenject-usage.dll?alias=Beat Saber_Data\Managed\Zenject-usage.dll
 
 "Plugins/
-""SongCore.dll?alias=Plugins\SongCore.dll
+""BS_Utils.dll?alias=Plugins\BS_Utils.dll
 ""BSML.dll?alias=Plugins\BSML.dll
+""CustomAvatar.dll?alias=Plugins\CustomAvatar.dll
+""SiraUtil.dll?alias=Plugins\SiraUtil.dll
+""SongCore.dll?alias=Plugins\SongCore.dll
 
 "Libs/
 ""0Harmony.dll?alias=Libs\0Harmony.dll
