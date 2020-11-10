@@ -29,7 +29,13 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void Activate()
         {
             _sessionManager.RegisterCallback(ExtendedSessionManager.MessageType.PreviewBeatmapUpdate, HandlePreviewBeatmapPacket, new Func<PreviewBeatmapPacket>(PreviewBeatmapPacket.pool.Obtain));
+            _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
             base.Activate();
+        }
+
+        private void HandlePlayerStateChanged(ExtendedPlayer player)
+        {
+            HarmonyPatches.GameServerPlayerTableColor.UpdateColor(player);
         }
 
         public void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, ExtendedPlayer player)
@@ -68,10 +74,10 @@ namespace MultiplayerExtensions.OverrideClasses
                     {
                         PreviewBeatmapStub preview = r.Result;
 
-                        if (_sessionManager.GetPlayer(userId).isConnectionOwner)
+                        if (userId == base.hostUserId)
                         {
-                            _sessionManager.SetLocalPlayerState("custom-downloaded", preview.isDownloaded);
-                            _sessionManager.SetLocalPlayerState("custom-downloadable", preview.isDownloadable);
+                            _sessionManager.SetLocalPlayerState("bmlocal", preview.isDownloaded);
+                            _sessionManager.SetLocalPlayerState("bmcloud", preview.isDownloadable);
                         }
 
                         HMMainThreadDispatcher.instance.Enqueue(() =>
@@ -95,9 +101,16 @@ namespace MultiplayerExtensions.OverrideClasses
                 Plugin.Log?.Debug($"Local user selected song '{hash}'.");
                 PreviewBeatmapManager.GetPopulatedPreview(levelId).ContinueWith(r =>
                 {
+                    PreviewBeatmapStub preview = r.Result;
+
+                    if (base.localUserId == base.hostUserId)
+                    {
+                        _sessionManager.SetLocalPlayerState("bmlocal", preview.isDownloaded);
+                        _sessionManager.SetLocalPlayerState("bmcloud", preview.isDownloadable);
+                    }
+
                     HMMainThreadDispatcher.instance.Enqueue(() =>
                     {
-                        PreviewBeatmapStub preview = r.Result;
                         SendPreviewBeatmapPacket(preview, characteristic.serializedName, beatmapDifficulty);
                         _menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                         base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic);
