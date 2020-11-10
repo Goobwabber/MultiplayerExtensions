@@ -75,6 +75,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="SemVer">
+      <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="SongCore">
       <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
       <Private>False</Private>

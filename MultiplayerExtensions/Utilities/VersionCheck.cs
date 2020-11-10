@@ -46,6 +46,16 @@ namespace MultiplayerExtensions.Utilities
             ary[2] = Build;
             return ary;
         }
+
+        public override string ToString()
+        {
+            string version = $"{Major}.{Minor}.{Build}";
+            if (Revision != null)
+                version = version + "." + Revision.Value;
+            if (!string.IsNullOrWhiteSpace(Meta))
+                version = version + Meta;
+            return version;
+        }
     }
     public static class VersionCheck
     {
@@ -56,11 +66,28 @@ namespace MultiplayerExtensions.Utilities
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="user"></param>
+        /// <param name="repository"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="UriFormatException"></exception>
+        /// <exception cref="ReleaseNotFoundException"></exception>
+        public static Task<GithubVersion> GetLatestVersionAsync(string user, string repository)
+        {
+            Uri releaseUri = GetReleaseUri(user, repository);
+            return GetLatestVersionAsync(releaseUri);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="releasePageUri"></param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="UriFormatException"></exception>
+        /// <exception cref="ReleaseNotFoundException"></exception>
         public static async Task<GithubVersion> GetLatestVersionAsync(Uri releasePageUri)
         {
             HttpWebRequest request = WebRequest.CreateHttp(releasePageUri);
@@ -72,7 +99,9 @@ namespace MultiplayerExtensions.Utilities
                 JSONNode releases = JSON.Parse(await sr.ReadToEndAsync().ConfigureAwait(false));
                 JSONNode latestRelease = releases[0];
                 string tagLine = latestRelease[Tag_Key].Value;
-                Console.WriteLine(tagLine);
+
+                if (string.IsNullOrWhiteSpace(tagLine))
+                    throw new ReleaseNotFoundException($"Could not find a release at {releasePageUri}");
                 GithubVersion version = ParseVersion(tagLine);
                 version.ReleaseDate = DateTime.Parse(latestRelease[Created_Key].Value);
                 return version;
@@ -103,6 +132,16 @@ namespace MultiplayerExtensions.Utilities
             else
                 throw new InvalidDataException($"Could not parse a version from string '{tagLine}'");
         }
+
+        public static Uri GetReleaseUri(string user, string repository)
+        {
+            if (string.IsNullOrWhiteSpace(user))
+                throw new ArgumentNullException(nameof(user), "user cannot be null or whitespace.");
+            if (string.IsNullOrWhiteSpace(repository))
+                throw new ArgumentNullException(nameof(repository), "repository cannot be null or whitespace.");
+            return new Uri($"https://api.github.com/repos/{user}/{repository}/releases");
+        }
+
 #nullable disable
 
         #region SimpleJSON
@@ -1452,4 +1491,20 @@ namespace MultiplayerExtensions.Utilities
     }
     #endregion
 #nullable restore
+    [Serializable]
+    public class ReleaseNotFoundException : Exception
+    {
+        public ReleaseNotFoundException(string message) : base(message)
+        {
+        }
+
+        public ReleaseNotFoundException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected ReleaseNotFoundException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
+        {
+        }
+    }
 }
