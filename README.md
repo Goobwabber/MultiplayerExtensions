@@ -20,6 +20,7 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 * SongCore v3.0.0+
 * BeatSaverSharp v1.6.0+
 * BeatSaberMarkupLanguage v1.4.0+
+* SiraUtil 2.1.0+
 
 ## Reporting Issues
 * The best way to report issues is to click on the `Issues` tab at the top of the GitHub page. This allows any contributor to see the problem and attempt to fix it, and others with the same issue can contribute more information.
