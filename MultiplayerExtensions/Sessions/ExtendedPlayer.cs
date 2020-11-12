@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiplayerExtensions.Networking
+namespace MultiplayerExtensions.Sessions
 {
     public class ExtendedPlayer : IConnectedPlayer
     {
@@ -26,6 +26,7 @@ namespace MultiplayerExtensions.Networking
         public int sortIndex => _connectedPlayer.sortIndex;
         public bool isKicked => _connectedPlayer.isKicked;
         public MultiplayerAvatarData multiplayerAvatarData => _connectedPlayer.multiplayerAvatarData;
+        public DisconnectedReason disconnectedReason => _connectedPlayer.disconnectedReason;
         public bool HasState(string state) => _connectedPlayer.HasState(state);
     }
 }

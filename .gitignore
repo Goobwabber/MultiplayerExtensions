@@ -342,3 +342,5 @@ healthchecksdb
 Refs/Beat Saber_Data/Managed/*
 !Refs/Beat Saber_Data/Managed/IPA.*
 /bsinstalldir.txt
+
+MultiplayerExtensions/Properties/launchSettings.json
