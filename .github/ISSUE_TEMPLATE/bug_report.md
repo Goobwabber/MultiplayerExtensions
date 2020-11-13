@@ -6,6 +6,8 @@ labels: ''
 assignees: ''
 
 ---
+**Your Platform**
+<!--- PC/Quest, Steam/Oculus store. Also include other information such as if you're using Revive or Oculus Link, custom launch options. -->
 
 **Describe the bug**
 <!--- A clear and concise description of what the bug is. -->
