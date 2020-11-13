@@ -25,7 +25,10 @@ namespace MultiplayerExtensions.Networking
         public float offsetSyncTime => _connectedPlayer.offsetSyncTime;
         public int sortIndex => _connectedPlayer.sortIndex;
         public bool isKicked => _connectedPlayer.isKicked;
+        public DisconnectedReason disconnectedReason => _connectedPlayer.disconnectedReason;
         public MultiplayerAvatarData multiplayerAvatarData => _connectedPlayer.multiplayerAvatarData;
+
+
         public bool HasState(string state) => _connectedPlayer.HasState(state);
     }
 }
