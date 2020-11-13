@@ -14,12 +14,15 @@ MultiplayerExtensions has not been released yet, but you can grab the latest bui
    * You must be logged into GitHub to download builds from GitHub Actions.
 2. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
    * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
+3. **Optional**: Edit `Beat Saber IPA.json` (in your `UserData` folder) and change `Debug` -> `ShowCallSource` to `true`. This will enable BSIPA to get file and line numbers from the `PDB` file where errors occur, which is very useful when reading the log files. This may have a *slight* impact on performance.
    
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
-* SongCore v3.0.0+
+* BS_Utils v1.6.3+
+* SongCore v3.0.2+
 * BeatSaverSharp v1.6.0+
-* BeatSaberMarkupLanguage v1.4.0+
+* BeatSaberMarkupLanguage v1.4.1+
+* SiraUtil 2.1.0+
 
 ## Reporting Issues
 * The best way to report issues is to click on the `Issues` tab at the top of the GitHub page. This allows any contributor to see the problem and attempt to fix it, and others with the same issue can contribute more information.

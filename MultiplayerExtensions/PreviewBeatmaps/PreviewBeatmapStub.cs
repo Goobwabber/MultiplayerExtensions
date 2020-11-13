@@ -14,7 +14,7 @@ namespace MultiplayerExtensions.Beatmaps
         public string levelHash { get; private set; }
         public bool isDownloaded { get; private set; }
         public bool isDownloadable { get; private set; }
-        public string downloadURL { get; private set; }
+        public string? downloadURL { get; private set; }
 
         private IPreviewBeatmapLevel _localPreview;
         private Task<Beatmap?>? _fetchBeatmap;
@@ -55,6 +55,11 @@ namespace MultiplayerExtensions.Beatmaps
         private object _fetchLock = new object();
         public Task<Beatmap?> FetchBeatmap()
         {
+            if (levelHash == null || levelHash.Length == 0)
+            {
+                Plugin.Log?.Warn($"Beatmap with level ID '{levelID}' cannot be converted to a valid Beat Saver hash.");
+                return Task.FromResult<Beatmap?>(null);
+            }
             lock (_fetchLock)
             {
                 if (_fetchBeatmap == null)
@@ -69,9 +74,11 @@ namespace MultiplayerExtensions.Beatmaps
             return _fetchBeatmap;
         }
 
-        private async Task<Beatmap?>? GetBeatmap(string? hash)
+        private async Task<Beatmap?> GetBeatmap(string hash)
         {
-            Task<Beatmap?>? beatmap = BeatSaver.Client.Hash(hash);
+            if (string.IsNullOrEmpty(hash))
+                return null;
+            Task<Beatmap?> beatmap = BeatSaver.Client.Hash(hash);
             await beatmap.ContinueWith(r =>
             {
                 if (r.IsCanceled)
@@ -92,9 +99,9 @@ namespace MultiplayerExtensions.Beatmaps
 
         public PreviewBeatmapStub Populate(Beatmap? bm)
         {
-            isDownloadable = bm != null;
-            if (isDownloadable)
+            if (bm != null)
             {
+                isDownloadable = true;
                 Plugin.Log?.Debug($"PreviewBeatmap({levelID}): Metadata downloaded.");
                 downloadURL = bm.DownloadURL;
                 songName ??= bm.Metadata.SongName;
@@ -110,9 +117,9 @@ namespace MultiplayerExtensions.Beatmaps
 
         public PreviewBeatmapStub Populate(IPreviewBeatmapLevel bm)
         {
-            isDownloaded = bm != null;
-            if (isDownloaded)
+            if (bm != null)
             {
+                isDownloaded = true;
                 Plugin.Log?.Debug($"PreviewBeatmap({levelID}): Loaded from local.");
                 songName ??= bm.songName;
                 songSubName ??= bm.songSubName;
@@ -149,18 +156,17 @@ namespace MultiplayerExtensions.Beatmaps
             }
 
             Beatmap? bm = await FetchBeatmap();
-            if (bm != null)
+            Sprite? sprite = null;
+            if (bm != null && await bm.FetchCoverImage(cancellationToken) is byte[] img)
             {
-                var img = await bm.FetchCoverImage(cancellationToken);
-                return Utilities.Utils.GetSprite(img);
+                sprite = Utilities.Utils.GetSprite(img);
             }
-            else
-            {
-                return Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
-            }
+            if (sprite == null)
+                sprite = Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
+            return sprite;
         }
 
-        public Task<AudioClip> GetPreviewAudioClipAsync(CancellationToken cancellationToken)
+        public Task<AudioClip?> GetPreviewAudioClipAsync(CancellationToken cancellationToken)
         {
             if (_localPreview != null)
             {
