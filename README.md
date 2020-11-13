@@ -18,9 +18,10 @@ MultiplayerExtensions has not been released yet, but you can grab the latest bui
    
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
-* SongCore v3.0.0+
+* BS_Utils v1.6.3+
+* SongCore v3.0.2+
 * BeatSaverSharp v1.6.0+
-* BeatSaberMarkupLanguage v1.4.0+
+* BeatSaberMarkupLanguage v1.4.1+
 * SiraUtil 2.1.0+
 
 ## Reporting Issues
