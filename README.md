@@ -54,3 +54,4 @@ Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp
 ```
 ## Related Mods
 * [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
+* [MultiplayerAvatars](https://github.com/Goobwabber/MultiplayerAvatars)
