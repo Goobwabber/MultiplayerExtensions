@@ -68,7 +68,6 @@ namespace MultiplayerExtensions.HarmonyPatches
     public class LoadLevelPatch
     {
         public static MultiplayerLevelLoader? MultiplayerLevelLoader;
-        public static readonly string CustomLevelPrefix = "custom_level_";
         private static string? LoadingLevelId;
 
         static bool Prefix(ref BeatmapIdentifierNetSerializable beatmapId, ref GameplayModifiers gameplayModifiers, ref float initialStartTime, MultiplayerLevelLoader __instance)

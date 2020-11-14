@@ -68,6 +68,11 @@ namespace MultiplayerExtensions.Beatmaps
         private readonly object _fetchLock = new object();
         public Task<Beatmap?> FetchBeatmap()
         {
+            if(!levelID.ToLower().StartsWith(Utilities.Utils.CustomLevelIdPrefix))
+            {
+                Plugin.Log?.Debug($"Level '{levelID}' seems to be a base game level.");
+                return Task.FromResult<Beatmap?>(null);
+            }
             if (levelHash == null || levelHash.Length == 0)
             {
                 Plugin.Log?.Warn($"Beatmap with level ID '{levelID}' cannot be converted to a valid Beat Saver hash.");

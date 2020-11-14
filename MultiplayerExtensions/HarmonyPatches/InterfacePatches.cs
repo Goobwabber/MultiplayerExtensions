@@ -66,7 +66,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     public class LevelCollectionViewController_DidSelectLevel
     {
         private static GameObject? beatSaverWarning;
-        private static List<string> songsNotFound = new List<string>();
+        private static HashSet<string> songsNotFound = new HashSet<string>();
 
         /// <summary>
         /// Tells the user when they have selected a song that is not on BeatSaver.com.
@@ -89,9 +89,9 @@ namespace MultiplayerExtensions.HarmonyPatches
 
             beatSaverWarning.SetActive(false);
 
-            if (level.levelID.Contains("custom_level") && LobbyJoinPatch.IsMultiplayer)
+            string? levelHash = Utilities.Utils.LevelIdToHash(level.levelID);
+            if (levelHash != null && LobbyJoinPatch.IsMultiplayer)
             {
-                string levelHash = level.levelID.Replace("custom_level_", "");
                 if (songsNotFound.Contains(levelHash))
                 {
                     Plugin.Log?.Warn($"Could not find song '{levelHash}' on BeatSaver.");

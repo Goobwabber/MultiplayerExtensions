@@ -12,6 +12,10 @@ namespace MultiplayerExtensions.Utilities
     public static class Utils
     {
         /// <summary>
+        /// 'custom_level_'
+        /// </summary>
+        public static readonly string CustomLevelIdPrefix = "custom_Level_";
+        /// <summary>
         /// Logger for debugging sprite loads.
         /// </summary>
         public static Action<string?, Exception?>? Logger;
