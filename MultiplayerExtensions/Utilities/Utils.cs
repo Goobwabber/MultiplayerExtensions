@@ -14,7 +14,7 @@ namespace MultiplayerExtensions.Utilities
         /// <summary>
         /// 'custom_level_'
         /// </summary>
-        public static readonly string CustomLevelIdPrefix = "custom_Level_";
+        public static readonly string CustomLevelIdPrefix = "custom_level_";
         /// <summary>
         /// Logger for debugging sprite loads.
         /// </summary>
