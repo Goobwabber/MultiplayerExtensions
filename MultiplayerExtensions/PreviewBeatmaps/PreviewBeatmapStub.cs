@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Beatmaps
 {
     class PreviewBeatmapStub : IPreviewBeatmapLevel
     {
-        public string levelHash { get; private set; }
+        public string? levelHash { get; private set; }
         public bool isDownloaded { get; private set; }
         public bool isDownloadable { get; private set; }
         public string? downloadURL { get; private set; }
@@ -30,14 +30,27 @@ namespace MultiplayerExtensions.Beatmaps
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="levelID"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public PreviewBeatmapStub(string levelID)
         {
-            this.levelID = levelID;
-            this.levelHash = Utilities.Utils.LevelIdToHash(levelID)!;
+            this.levelID = levelID ?? throw new ArgumentNullException(nameof(levelID));
+            this.levelHash = Utilities.Utils.LevelIdToHash(levelID);
             _localPreview = SongCore.Loader.GetLevelById(levelID);
             Populate(_localPreview);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="levelID"></param>
+        /// <param name="songName"></param>
+        /// <param name="songSubName"></param>
+        /// <param name="songAuthorName"></param>
+        /// <param name="levelAuthorName"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public PreviewBeatmapStub(string levelID, string? songName, string? songSubName, string? songAuthorName, string? levelAuthorName) : this(levelID)
         {
             this.songName = songName;
