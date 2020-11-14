@@ -12,14 +12,14 @@ namespace MultiplayerExtensions.Networking
     public class ExtendedSessionManager : IInitializable
     {
         [Inject]
-        private IMultiplayerSessionManager _multiplayerSessionManager;
+        private IMultiplayerSessionManager _multiplayerSessionManager = null!;
 
         private NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer> _packetSerializer = new NetworkPacketSerializer<ExtendedSessionManager.MessageType, IConnectedPlayer>();
-        public Dictionary<string, ExtendedPlayer> players = new Dictionary<string, ExtendedPlayer>();
+        public readonly Dictionary<string, ExtendedPlayer> players = new Dictionary<string, ExtendedPlayer>();
 
-        public event Action<ExtendedPlayer> playerConnectedEvent;
-        public event Action<ExtendedPlayer> playerDisconnectedEvent;
-        public event Action<ExtendedPlayer> playerStateChangedEvent;
+        public event Action<ExtendedPlayer>? playerConnectedEvent;
+        public event Action<ExtendedPlayer>? playerDisconnectedEvent;
+        public event Action<ExtendedPlayer>? playerStateChangedEvent;
 
         public void Initialize()
         {
@@ -102,9 +102,9 @@ namespace MultiplayerExtensions.Networking
             _packetSerializer.RegisterSubSerializer(serializerType, subSerializer);
         }
 
-        public event Action connectedEvent;
-        public event Action<ConnectionFailedReason> connectionFailedEvent;
-        public event Action<DisconnectedReason> disconnectedEvent;
+        public event Action? connectedEvent;
+        public event Action<ConnectionFailedReason>? connectionFailedEvent;
+        public event Action<DisconnectedReason>? disconnectedEvent;
 
         public IConnectedPlayer localPlayer => _multiplayerSessionManager.localPlayer;
         public bool isConnectionOwner => _multiplayerSessionManager.isConnectionOwner;

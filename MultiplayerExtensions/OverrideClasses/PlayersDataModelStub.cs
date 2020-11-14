@@ -13,16 +13,16 @@ namespace MultiplayerExtensions.OverrideClasses
     class PlayersDataModelStub : LobbyPlayersDataModel, ILobbyPlayersDataModel
     {
         [Inject]
-        protected readonly BeatmapLevelsModel _beatmapLevelsModel;
+        protected readonly BeatmapLevelsModel _beatmapLevelsModel = null!;
 
         [Inject]
-        protected readonly BeatmapCharacteristicCollectionSO _beatmapCharacteristicCollection;
+        protected readonly BeatmapCharacteristicCollectionSO _beatmapCharacteristicCollection = null!;
 
         [Inject]
-        protected readonly IMenuRpcManager _menuRpcManager;
+        protected readonly IMenuRpcManager _menuRpcManager = null!;
 
         [Inject]
-        protected readonly ExtendedSessionManager _sessionManager;
+        protected readonly ExtendedSessionManager _sessionManager = null!;
 
         public PlayersDataModelStub() { }
 

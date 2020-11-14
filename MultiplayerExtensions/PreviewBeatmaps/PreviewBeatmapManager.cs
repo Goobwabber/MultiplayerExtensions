@@ -25,7 +25,7 @@ namespace MultiplayerExtensions.Beatmaps
         public static PreviewBeatmapStub GetPreview(PreviewBeatmapPacket packet)
             => GetPreview(packet.levelId, packet.songName, packet.songSubName, packet.songAuthorName, packet.levelAuthorName);
 
-        public static PreviewBeatmapStub GetPreview(string levelId, string songName, string songSubName, string songAuthorName, string levelAuthorName)
+        public static PreviewBeatmapStub GetPreview(string levelId, string? songName, string? songSubName, string? songAuthorName, string? levelAuthorName)
         {
             if (CachedPreviews.ContainsKey(levelId))
             {
@@ -51,7 +51,7 @@ namespace MultiplayerExtensions.Beatmaps
             return beatmap;
         }
 
-        public static PreviewBeatmapStub FetchPreview(string levelId, string songName, string songSubName, string songAuthorName, string levelAuthorName)
+        public static PreviewBeatmapStub FetchPreview(string levelId, string? songName, string? songSubName, string? songAuthorName, string? levelAuthorName)
         {
             PreviewBeatmapStub beatmap = new PreviewBeatmapStub(levelId, songName, songSubName, songAuthorName, levelAuthorName);
             _ = beatmap.FetchPopulated();

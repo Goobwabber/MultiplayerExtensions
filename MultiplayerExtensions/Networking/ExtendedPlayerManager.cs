@@ -10,9 +10,9 @@ namespace MultiplayerExtensions.Networking
     public class ExtendedPlayerManager : IInitializable
     {
         [Inject]
-        private ExtendedSessionManager _sessionManager;
+        private ExtendedSessionManager _sessionManager = null!;
 
-        public string localPlatformID;
+        public string? localPlatformID;
 
         public void Initialize()
         {

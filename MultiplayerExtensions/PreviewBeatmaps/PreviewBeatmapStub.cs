@@ -38,7 +38,7 @@ namespace MultiplayerExtensions.Beatmaps
             Populate(_localPreview);
         }
 
-        public PreviewBeatmapStub(string levelID, string songName, string songSubName, string songAuthorName, string levelAuthorName) : this(levelID)
+        public PreviewBeatmapStub(string levelID, string? songName, string? songSubName, string? songAuthorName, string? levelAuthorName) : this(levelID)
         {
             this.songName = songName;
             this.songSubName = songSubName;
@@ -52,7 +52,7 @@ namespace MultiplayerExtensions.Beatmaps
             return this;
         }
 
-        private object _fetchLock = new object();
+        private readonly object _fetchLock = new object();
         public Task<Beatmap?> FetchBeatmap()
         {
             if (levelHash == null || levelHash.Length == 0)

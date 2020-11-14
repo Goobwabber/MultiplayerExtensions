@@ -32,13 +32,13 @@ namespace MultiplayerExtensions.Networking
             ExtendedPlayerPacket.pool.Release(this);
         }
 
-        public ExtendedPlayerPacket Init(string platformID)
+        public ExtendedPlayerPacket Init(string? platformID)
         {
             this.platformID = platformID;
 
             return this;
         }
 
-        public string platformID;
+        public string? platformID;
     }
 }

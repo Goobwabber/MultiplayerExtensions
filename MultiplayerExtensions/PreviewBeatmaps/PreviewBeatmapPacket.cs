@@ -45,9 +45,21 @@ namespace MultiplayerExtensions.Beatmaps
             PreviewBeatmapPacket.pool.Release(this);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="levelId"></param>
+        /// <param name="songName"></param>
+        /// <param name="songSubName"></param>
+        /// <param name="songAuthorName"></param>
+        /// <param name="levelAuthorName"></param>
+        /// <param name="characteristic"></param>
+        /// <param name="difficulty"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public PreviewBeatmapPacket Init(string levelId, string songName, string songSubName, string songAuthorName, string levelAuthorName, string characteristic, BeatmapDifficulty difficulty)
         {
-            this.levelId = levelId;
+            this.levelId = levelId ?? throw new ArgumentNullException(nameof(levelId));
             this.songName = songName;
             this.songSubName = songSubName;
             this.songAuthorName = songAuthorName;
@@ -58,9 +70,17 @@ namespace MultiplayerExtensions.Beatmaps
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="preview"></param>
+        /// <param name="characteristic"></param>
+        /// <param name="difficulty"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public PreviewBeatmapPacket FromPreview(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
         {
-            this.levelId = preview.levelID;
+            this.levelId = preview.levelID ?? throw new ArgumentException("PreviewBeatmapStub has a null levelID", nameof(preview));
             this.songName = preview.songName;
             this.songSubName = preview.songSubName;
             this.songAuthorName = preview.songAuthorName;
@@ -71,12 +91,12 @@ namespace MultiplayerExtensions.Beatmaps
             return this;
         }
 
-        public string levelId;
-        public string songName;
-        public string songSubName;
-        public string songAuthorName;
-        public string levelAuthorName;
-        public string characteristic;
+        public string levelId = null!;
+        public string? songName;
+        public string? songSubName;
+        public string? songAuthorName;
+        public string? levelAuthorName;
+        public string? characteristic;
         public BeatmapDifficulty difficulty;
     }
 }
