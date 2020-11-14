@@ -12,6 +12,7 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class PlayersDataModelStub : LobbyPlayersDataModel, ILobbyPlayersDataModel
     {
+        /*
         // TODO: These fields won't be read if the object is cast as a LobbyPlayersDataModel, can we inject to the base class instead?
         [Inject]
         protected readonly BeatmapLevelsModel _beatmapLevelsModel = null!;
@@ -21,7 +22,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
         [Inject]
         protected readonly IMenuRpcManager _menuRpcManager = null!;
-
+        */
         [Inject]
         protected readonly ExtendedSessionManager _sessionManager = null!;
 
