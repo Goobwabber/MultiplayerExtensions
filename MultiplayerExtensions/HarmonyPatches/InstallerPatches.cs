@@ -15,7 +15,9 @@ namespace MultiplayerExtensions.HarmonyPatches
     class LobbyPlayersDataModelPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(ConcreteBinderNonGeneric).GetMethod(nameof(ConcreteBinderNonGeneric.To), Array.Empty<Type>());
-        private static readonly MethodInfo _overrideAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null));
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+        private static readonly MethodInfo _overrideAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null)); // Harmony magic?
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         private static readonly MethodInfo _originalMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyPlayersDataModel) });
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
