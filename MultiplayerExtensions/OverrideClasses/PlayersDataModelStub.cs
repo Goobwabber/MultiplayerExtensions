@@ -1,6 +1,5 @@
-﻿using BeatSaverSharp;
-using MultiplayerExtensions.Beatmaps;
-using MultiplayerExtensions.Networking;
+﻿using MultiplayerExtensions.Beatmaps;
+using MultiplayerExtensions.Sessions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +21,13 @@ namespace MultiplayerExtensions.OverrideClasses
         protected readonly IMenuRpcManager _menuRpcManager;
 
         [Inject]
-        protected readonly ExtendedSessionManager _sessionManager;
+        protected readonly SessionManager _sessionManager;
 
         public PlayersDataModelStub() { }
 
         public new void Activate()
         {
-            _sessionManager.RegisterCallback(ExtendedSessionManager.MessageType.PreviewBeatmapUpdate, HandlePreviewBeatmapPacket, new Func<PreviewBeatmapPacket>(PreviewBeatmapPacket.pool.Obtain));
+            _sessionManager.serializer.RegisterCallback(HandlePreviewBeatmapPacket, PreviewBeatmapPacket.pool.Obtain);
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
             base.Activate();
 
@@ -36,12 +35,12 @@ namespace MultiplayerExtensions.OverrideClasses
             _menuRpcManager.selectedBeatmapEvent += this.HandleMenuRpcManagerSelectedBeatmap;
         }
 
-        private void HandlePlayerStateChanged(ExtendedPlayer player)
+        private void HandlePlayerStateChanged(IConnectedPlayer player)
         {
             HarmonyPatches.GameServerPlayerTableColor.UpdateColor(player);
         }
 
-        public void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, ExtendedPlayer player)
+        public void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, IConnectedPlayer player)
         {
             if (Utilities.Utils.LevelIdToHash(packet.levelId) != null)
             {
@@ -77,9 +76,6 @@ namespace MultiplayerExtensions.OverrideClasses
                     {
                         PreviewBeatmapStub preview = r.Result;
 
-                        Plugin.Log?.Info($"user: {userId} | hostuser: {base.hostUserId}");
-                        Plugin.Log?.Info($"local: {preview.isDownloaded} | cloud: {preview.isDownloadable}");
-
                         if (userId == base.hostUserId)
                         {
                             _sessionManager.SetLocalPlayerState("bmlocal", preview.isDownloaded);
@@ -108,9 +104,6 @@ namespace MultiplayerExtensions.OverrideClasses
                 PreviewBeatmapManager.GetPopulatedPreview(levelId).ContinueWith(r =>
                 {
                     PreviewBeatmapStub preview = r.Result;
-
-                    Plugin.Log?.Info($"localuser: {base.localUserId} | hostuser: {base.hostUserId}");
-                    Plugin.Log?.Info($"local: {preview.isDownloaded} | cloud: {preview.isDownloadable}");
 
                     if (base.localUserId == base.hostUserId)
                     {

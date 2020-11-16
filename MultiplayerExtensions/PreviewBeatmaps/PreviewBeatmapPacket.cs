@@ -1,5 +1,6 @@
 ﻿using LiteNetLib.Utils;
 using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,10 @@ namespace MultiplayerExtensions.Beatmaps
 {
     class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
-        public static PacketPool<PreviewBeatmapPacket> pool
+        public static PacketPool<PreviewBeatmapPacket> pool => ThreadStaticPacketPool<PreviewBeatmapPacket>.pool;
+        public void Release()
         {
-            get
-            {
-                return ThreadStaticPacketPool<PreviewBeatmapPacket>.pool;
-            }
+            PreviewBeatmapPacket.pool.Release(this);
         }
 
         public void Serialize(NetDataWriter writer)
@@ -38,11 +37,6 @@ namespace MultiplayerExtensions.Beatmaps
             this.levelAuthorName = reader.GetString();
             this.characteristic = reader.GetString();
             this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
-        }
-
-        public void Release()
-        {
-            PreviewBeatmapPacket.pool.Release(this);
         }
 
         public PreviewBeatmapPacket Init(string levelId, string songName, string songSubName, string songAuthorName, string levelAuthorName, string characteristic, BeatmapDifficulty difficulty)

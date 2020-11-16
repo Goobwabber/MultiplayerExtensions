@@ -1,20 +1,19 @@
 ﻿using LiteNetLib.Utils;
+using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiplayerExtensions.Networking
+namespace MultiplayerExtensions.Sessions
 {
-    public class ExtendedPlayerPacket : INetSerializable, IPoolablePacket
+    class ExtendedPlayerPacket : INetSerializable, IPoolablePacket
     {
-        public static PacketPool<ExtendedPlayerPacket> pool
+        public static PacketPool<ExtendedPlayerPacket> pool => ThreadStaticPacketPool<ExtendedPlayerPacket>.pool;
+        public void Release()
         {
-            get
-            {
-                return ThreadStaticPacketPool<ExtendedPlayerPacket>.pool;
-            }
+            ExtendedPlayerPacket.pool.Release(this);
         }
 
         public void Serialize(NetDataWriter writer)
@@ -25,11 +24,6 @@ namespace MultiplayerExtensions.Networking
         public void Deserialize(NetDataReader reader)
         {
             this.platformID = reader.GetString();
-        }
-
-        public void Release()
-        {
-            ExtendedPlayerPacket.pool.Release(this);
         }
 
         public ExtendedPlayerPacket Init(string platformID)
