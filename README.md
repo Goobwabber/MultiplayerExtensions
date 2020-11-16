@@ -10,12 +10,15 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 
 ## Installation
 MultiplayerExtensions has not been released yet, but you can grab the latest build which is automagically generated. 
-1. Download the `MultiplayerExtensions` file listed under `Artifacts` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build). 
+1. Ensure you have the [required mods](https://github.com/Zingabopp/MultiplayerExtensions#requirements).
+2. Download the `MultiplayerExtensions` file listed under `Artifacts` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build). 
    * You must be logged into GitHub to download builds from GitHub Actions.
-2. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
+3. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
    * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
-3. **Optional**: Edit `Beat Saber IPA.json` (in your `UserData` folder) and change `Debug` -> `ShowCallSource` to `true`. This will enable BSIPA to get file and line numbers from the `PDB` file where errors occur, which is very useful when reading the log files. This may have a *slight* impact on performance.
-   
+4. **Optional**: Edit `Beat Saber IPA.json` (in your `UserData` folder) and change `Debug` -> `ShowCallSource` to `true`. This will enable BSIPA to get file and line numbers from the `PDB` file where errors occur, which is very useful when reading the log files. This may have a *slight* impact on performance.
+
+Lastly, check out [other mods](https://github.com/Zingabopp/MultiplayerExtensions#related-mods) that work well with MultiplayerExtensions!
+
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
 * BS_Utils v1.6.3+
@@ -55,3 +58,4 @@ Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp
 ## Related Mods
 * [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
 * [MultiplayerAvatars](https://github.com/Goobwabber/MultiplayerAvatars)
+* BeatTogether for [PC](https://github.com/pythonology/BeatTogether) or [Quest](https://github.com/pythonology/BeatTogether.Quest)
