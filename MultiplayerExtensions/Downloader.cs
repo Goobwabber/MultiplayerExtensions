@@ -49,7 +49,7 @@ namespace MultiplayerExtensions
                 {
                     SongCore.Loader.SongsLoadedEvent += awaiter.OnEvent;
 
-                    SongCore.Collections.AddSong($"custom_level_{hash}", folderPath);
+                    SongCore.Collections.AddSong($"{Utils.CustomLevelIdPrefix}{hash}", folderPath);
                     SongCore.Loader.Instance.RefreshSongs(false);
                     await awaiter.Task;
                 }

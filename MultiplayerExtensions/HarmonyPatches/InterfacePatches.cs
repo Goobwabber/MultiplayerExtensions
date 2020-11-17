@@ -2,6 +2,7 @@
 using HarmonyLib;
 using HMUI;
 using MultiplayerExtensions.Beatmaps;
+using MultiplayerExtensions.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -72,47 +73,54 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static bool Prefix(IPreviewBeatmapLevel level)
         {
-            if (beatSaverWarning == null)
+            if (level is CustomPreviewBeatmapLevel customLevel)
             {
-                StandardLevelDetailView? levelDetail = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First();
-                beatSaverWarning = new GameObject("BeatSaverWarning", typeof(CurvedTextMeshPro));
-                beatSaverWarning.transform.SetParent(levelDetail.transform, false);
-                beatSaverWarning.GetComponent<CurvedTextMeshPro>().text = "Song not found on BeatSaver.com!";
-                beatSaverWarning.GetComponent<CurvedTextMeshPro>().fontSize = 4;
-                beatSaverWarning.GetComponent<CurvedTextMeshPro>().fontStyle = TMPro.FontStyles.Italic;
-                beatSaverWarning.GetComponent<CurvedTextMeshPro>().color = Color.red;
-                beatSaverWarning.GetComponent<RectTransform>().offsetMin = new Vector2(-23.5f, 100f);
-                beatSaverWarning.GetComponent<RectTransform>().offsetMax = new Vector2(100f, -28f);
-                beatSaverWarning.SetActive(false);
-            }
-
-            beatSaverWarning.SetActive(false);
-
-            if (level.levelID.Contains("custom_level") && LobbyJoinPatch.IsMultiplayer)
-            {
-                string levelHash = level.levelID.Replace("custom_level_", "");
-                if (songsNotFound.Contains(levelHash))
+                if (beatSaverWarning == null)
                 {
-                    Plugin.Log?.Warn($"Could not find song '{levelHash}' on BeatSaver.");
-                    beatSaverWarning.SetActive(true);
-                    songsNotFound.Add(levelHash);
-                    return true;
+                    StandardLevelDetailView? levelDetail = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First();
+                    beatSaverWarning = new GameObject("BeatSaverWarning", typeof(CurvedTextMeshPro));
+                    CurvedTextMeshPro warningText = beatSaverWarning.GetComponent<CurvedTextMeshPro>();
+                    beatSaverWarning.transform.SetParent(levelDetail.transform, false);
+                    warningText.text = "Song not found on BeatSaver.com!";
+                    warningText.fontSize = 4;
+                    warningText.fontStyle = TMPro.FontStyles.Italic;
+                    warningText.color = Color.red;
+                    beatSaverWarning.GetComponent<RectTransform>().offsetMin = new Vector2(-23.5f, 100f);
+                    beatSaverWarning.GetComponent<RectTransform>().offsetMax = new Vector2(100f, -28f);
+                    beatSaverWarning.SetActive(false);
                 }
 
-                BeatSaverSharp.BeatSaver.Client.Hash(levelHash, CancellationToken.None).ContinueWith(r =>
+                beatSaverWarning.SetActive(false);
+                string? levelHash = Utils.LevelIdToHash(level.levelID);
+                if(levelHash == null)
                 {
-                    if (r.Result == null)
+                    Plugin.Log?.Warn($"'{level.levelID}' cannot be parsed into a Beat Saver hash.");
+                }
+                else if (LobbyJoinPatch.IsMultiplayer)
+                {
+                    if (songsNotFound.Contains(levelHash))
                     {
                         Plugin.Log?.Warn($"Could not find song '{levelHash}' on BeatSaver.");
                         beatSaverWarning.SetActive(true);
                         songsNotFound.Add(levelHash);
+                        return true;
                     }
-                    else
+
+                    BeatSaverSharp.BeatSaver.Client.Hash(levelHash, CancellationToken.None).ContinueWith(r =>
                     {
-                        Plugin.Log?.Debug($"Selected song '{levelHash}' from BeatSaver.");
-                    }
-                });
-                return true;
+                        if (r.Result == null)
+                        {
+                            Plugin.Log?.Warn($"Could not find song '{levelHash}' on BeatSaver.");
+                            beatSaverWarning.SetActive(true);
+                            songsNotFound.Add(levelHash);
+                        }
+                        else
+                        {
+                            Plugin.Log?.Debug($"Selected song '{levelHash}' from BeatSaver.");
+                        }
+                    });
+                    return true;
+                }
             }
             return true;
         }
