@@ -24,7 +24,6 @@ namespace MultiplayerExtensions.Sessions
         {
             Plugin.Log?.Info("Setting up SessionManager");
             _packetManager.RegisterSerializer(serializer);
-            _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
 
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
@@ -36,18 +35,6 @@ namespace MultiplayerExtensions.Sessions
             _sessionManager.playerDisconnectedEvent += delegate (IConnectedPlayer player) { playerDisconnectedEvent?.Invoke(player); };
             _sessionManager.playerStateChangedEvent += delegate (IConnectedPlayer player) { playerStateChangedEvent?.Invoke(player); };
             _sessionManager.disconnectedEvent += delegate (DisconnectedReason reason) { disconnectedEvent?.Invoke(reason); };
-        }
-
-        private void HandlePlayerStateChanged(IConnectedPlayer player)
-        {
-            if (player.userId != _sessionManager.localPlayer.userId)
-            {
-                if (player.isConnectionOwner)
-                {
-                    UI.GameplaySetupPanel.instance.SetCustomSongs(player.HasState("customsongs"));
-                    UI.GameplaySetupPanel.instance.SetEnforceMods(player.HasState("enforcemods"));
-                }
-            }
         }
 
         public event Action connectedEvent;

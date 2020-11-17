@@ -35,6 +35,10 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="UI\ClientLobbySetupPanel.bsml" />
+    <None Remove="UI\HostLobbySetupPanel.bsml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="BeatmapCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
       <Private>False</Private>
@@ -176,8 +180,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\GameplaySetupPanel.bsml" />
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="UI\ClientLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\HostLobbySetupPanel.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />

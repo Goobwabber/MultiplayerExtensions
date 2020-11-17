@@ -38,7 +38,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static bool Prefix(ref bool __result)
         {
             Plugin.Log?.Debug($"CustomLevels are {(LobbyJoinPatch.IsPrivate ? "enabled" : "disabled")}.");
-            __result = LobbyJoinPatch.IsPrivate && UI.GameplaySetupPanel.instance.CustomSongs;
+            __result = LobbyJoinPatch.IsPrivate && Plugin.Config.CustomSongs;
             return false;
         }
     }
@@ -58,7 +58,6 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Prefix(MultiplayerLobbyConnectionController __instance)
         {
             ConnectionType = __instance.GetProperty<MultiplayerLobbyConnectionController.LobbyConnectionType, MultiplayerLobbyConnectionController>("connectionType");
-            UI.GameplaySetupPanel.instance.UpdatePanel();
             Plugin.Log?.Debug($"Joining a {ConnectionType} lobby.");
         }
     }
