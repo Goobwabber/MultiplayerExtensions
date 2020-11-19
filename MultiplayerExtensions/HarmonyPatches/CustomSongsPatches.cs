@@ -117,8 +117,6 @@ namespace MultiplayerExtensions.HarmonyPatches
                         if (level != null)
                         {
                             Plugin.Log?.Debug($"Level with ID '{levelId}' was downloaded successfully.");
-                            //Plugin.Log?.Debug($"Triggering 'LobbyGameStateController.HandleMenuRpcManagerStartedLevel' after level download.");
-                            //LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LobbyGameStateController.HandleMenuRpcManagerStartedLevel(LobbyGameStateController_HandleMenuRpcManagerStartedLevel.LastUserId, bmId, modifiers, startTime);
                             MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
                         }
                         else

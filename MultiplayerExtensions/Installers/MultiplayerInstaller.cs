@@ -29,7 +29,5 @@ namespace MultiplayerExtensions.Installers
             if (lobbyPlayerDataPatch != null)
                 HarmonyManager.ApplyPatch(lobbyPlayerDataPatch);
         }
-
-        
     }
 }

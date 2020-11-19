@@ -11,19 +11,19 @@ using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    class HostLobbySetupPanel : BSMLResourceViewController
+    class ClientLobbySetupPanel : BSMLResourceViewController
     {
 
-        public override string ResourceName => "MultiplayerExtensions.UI.Views.HostLobbySetupPanel.bsml";
+        public override string ResourceName => "MultiplayerExtensions.UI.HostLobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
 
         [Inject]
-        internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController)
+        internal void Inject(IMultiplayerSessionManager sessionManager, ClientLobbySetupViewController clientViewController)
         {
             this.sessionManager = sessionManager;
             base.DidActivate(true, false, true);
 
-            hostViewController.didActivateEvent += OnActivate;
+            clientViewController.didActivateEvent += OnActivate;
         }
 
         #region UIComponents
@@ -143,7 +143,6 @@ namespace MultiplayerExtensions.UI
         {
             sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
             defaultHUDToggle.interactable = VerticalHUD;
-            enforceModsToggle.interactable = !CustomSongs;
         }
 
         private void OnPlayerStateChanged(IConnectedPlayer player)

@@ -21,7 +21,6 @@ namespace MultiplayerExtensions.Sessions
         public void Initialize()
         {
             Plugin.Log?.Info("Setting up SessionManager");
-            _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
 
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);

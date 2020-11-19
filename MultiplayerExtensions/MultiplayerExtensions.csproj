@@ -35,6 +35,7 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="UI\CenterScreenLoading.bsml" />
     <None Remove="UI\ClientLobbySetupPanel.bsml" />
     <None Remove="UI\HostLobbySetupPanel.bsml" />
   </ItemGroup>
@@ -181,7 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="UI\ClientLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\CenterScreenLoading.bsml" />
     <EmbeddedResource Include="UI\HostLobbySetupPanel.bsml" />
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +196,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UI\ClientLobbySetupPanel.bsml" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(NCRUNCH)' != '1'">
     <Error Text="The BeatSaberModdingTools.Tasks nuget package doesn't seem to be installed." Condition="'$(BSMTTaskAssembly)' == ''" />
