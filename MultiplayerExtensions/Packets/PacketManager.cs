@@ -32,6 +32,20 @@ namespace MultiplayerExtensions.Packets
             }
         }
 
+        private Action<object> _sendImmediate;
+        private Action<object> SendImmediate
+        {
+            get
+            {
+                if (_sendImmediate == null)
+                {
+                    MethodInfo sendImmediately = typeof(ConnectedPlayerManager).GetMethod("SendImmediately", BindingFlags.NonPublic | BindingFlags.Instance);
+                    _sendImmediate = (object message) => sendImmediately.Invoke(_playerManager, new object[] { message, false });
+                }
+                return _sendImmediate;
+            }
+        }
+
         private Action<object, object> _sendExcludingConnection;
         private Action<object, object> SendExcludingConnection
         {
@@ -39,7 +53,7 @@ namespace MultiplayerExtensions.Packets
             {
                 if (_sendExcludingConnection == null)
                 {
-                    MethodInfo sendExcludingPlayer = typeof(ConnectedPlayerManager).GetMethod("SendImmediatelyExcludingPlayer");
+                    MethodInfo sendExcludingPlayer = typeof(ConnectedPlayerManager).GetMethod("SendImmediatelyExcludingPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
                     _sendExcludingConnection = (object message, object excludedConnection) => sendExcludingPlayer.Invoke(_playerManager, new object[] { message, excludedConnection, false });
                 }
                 return _sendExcludingConnection;
@@ -53,7 +67,7 @@ namespace MultiplayerExtensions.Packets
             {
                 if (_sendToConnection == null)
                 {
-                    MethodInfo sendToPlayer = typeof(ConnectedPlayerManager).GetMethod("SendImmediatelyToPlayer");
+                    MethodInfo sendToPlayer = typeof(ConnectedPlayerManager).GetMethod("SendImmediatelyToPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
                     _sendToConnection = (object message, object toConnection) => sendToPlayer.Invoke(_playerManager, new object[] { message, toConnection });
                 }
                 return _sendToConnection;
@@ -73,9 +87,8 @@ namespace MultiplayerExtensions.Packets
 
         public void SendImmediately<T>(T message) where T : INetSerializable
         {
-            MethodInfo sendImmediately = typeof(ConnectedPlayerManager).GetMethod("SendImmediately");
             if (_playerManager != null)
-                sendImmediately.Invoke(_playerManager, new object[] { message, false });
+                SendImmediate(message);
             else
                 Plugin.Log?.Error($"(PacketManager) '{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated!");
         }
