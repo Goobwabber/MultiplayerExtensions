@@ -164,6 +164,7 @@ namespace MultiplayerExtensions.Utilities
             }
         }
 
+        private static char[] InvalidTrailingPathChars = new char[] { ' ', '.', '-' };
         /// <summary>
         /// 
         /// </summary>
@@ -193,7 +194,7 @@ namespace MultiplayerExtensions.Utilities
                     throw new PathTooLongException(extractDirectory);
                 }
             }
-            return extractDirectory;
+            return extractDirectory.TrimEnd(InvalidTrailingPathChars);
         }
 
         public static Task<bool> TryDeleteAsync(string filePath)
