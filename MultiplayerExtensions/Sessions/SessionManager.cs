@@ -18,12 +18,9 @@ namespace MultiplayerExtensions.Sessions
         [Inject]
         private PacketManager _packetManager;
 
-        public PacketSerializer serializer = new PacketSerializer();
-
         public void Initialize()
         {
             Plugin.Log?.Info("Setting up SessionManager");
-            _packetManager.RegisterSerializer(serializer);
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
 
             _sessionManager.SetLocalPlayerState("modded", true);
