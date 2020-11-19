@@ -1,4 +1,5 @@
 ﻿using MultiplayerExtensions.Beatmaps;
+using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
 using System;
 using System.Collections.Generic;
@@ -23,12 +24,18 @@ namespace MultiplayerExtensions.OverrideClasses
         [Inject]
         protected readonly SessionManager _sessionManager;
 
+        [Inject]
+        protected readonly PacketManager _packetManager;
+
         public PlayersDataModelStub() { }
+
+        private PreviewBeatmapPacket localBeatmap;
 
         public new void Activate()
         {
-            _sessionManager.serializer.RegisterCallback(HandlePreviewBeatmapPacket, PreviewBeatmapPacket.pool.Obtain);
+            _packetManager.RegisterCallback<PreviewBeatmapPacket>(HandlePreviewBeatmapPacket);
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
+            _sessionManager.playerConnectedEvent += HandlePlayerConnected;
             base.Activate();
 
             _menuRpcManager.selectedBeatmapEvent -= base.HandleMenuRpcManagerSelectedBeatmap;
@@ -38,6 +45,14 @@ namespace MultiplayerExtensions.OverrideClasses
         private void HandlePlayerStateChanged(IConnectedPlayer player)
         {
             HarmonyPatches.GameServerPlayerTableColor.UpdateColor(player);
+        }
+
+        private void HandlePlayerConnected(IConnectedPlayer player)
+        {
+            if (localBeatmap != null)
+            {
+                _packetManager.Send(localBeatmap);
+            }
         }
 
         public void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, IConnectedPlayer player)
@@ -54,13 +69,6 @@ namespace MultiplayerExtensions.OverrideClasses
                     });
                 }
             }
-        }
-
-        public void SendPreviewBeatmapPacket(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
-        {
-            PreviewBeatmapPacket beatmapPacket = new PreviewBeatmapPacket().FromPreview(preview, characteristic, difficulty);
-            Plugin.Log?.Info($"Sending 'PreviewBeatmapPacket' with {preview.levelID}");
-            _sessionManager.Send(beatmapPacket);
         }
 
         public override void HandleMenuRpcManagerSelectedBeatmap(string userId, BeatmapIdentifierNetSerializable beatmapId)
@@ -104,6 +112,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 PreviewBeatmapManager.GetPopulatedPreview(levelId).ContinueWith(r =>
                 {
                     PreviewBeatmapStub preview = r.Result;
+                    localBeatmap = new PreviewBeatmapPacket().FromPreview(preview, characteristic.serializedName, beatmapDifficulty);
 
                     if (base.localUserId == base.hostUserId)
                     {
@@ -113,7 +122,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
                     HMMainThreadDispatcher.instance.Enqueue(() =>
                     {
-                        SendPreviewBeatmapPacket(preview, characteristic.serializedName, beatmapDifficulty);
+                        _packetManager.Send(localBeatmap);
                         _menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                         base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic);
                     });

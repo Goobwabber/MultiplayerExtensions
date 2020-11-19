@@ -11,11 +11,7 @@ namespace MultiplayerExtensions.Beatmaps
 {
     class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
-        public static PacketPool<PreviewBeatmapPacket> pool => ThreadStaticPacketPool<PreviewBeatmapPacket>.pool;
-        public void Release()
-        {
-            PreviewBeatmapPacket.pool.Release(this);
-        }
+        public void Release() => ThreadStaticPacketPool<PreviewBeatmapPacket>.pool.Release(this);
 
         public void Serialize(NetDataWriter writer)
         {
