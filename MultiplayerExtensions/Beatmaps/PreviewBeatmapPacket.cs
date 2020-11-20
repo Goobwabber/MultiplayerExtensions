@@ -13,9 +13,6 @@ namespace MultiplayerExtensions.Beatmaps
 {
     class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
-        protected readonly System.Buffers.ArrayPool<byte> bytePool = System.Buffers.ArrayPool<byte>.Shared;
-        private bool _arrayRented;
-
         public string levelId;
         public string songName;
         public string songSubName;
@@ -50,8 +47,6 @@ namespace MultiplayerExtensions.Beatmaps
 
         public void Deserialize(NetDataReader reader)
         {
-            _arrayRented = true;
-
             this.levelId = reader.GetString();
             this.songName = reader.GetString();
             this.songSubName = reader.GetString();
@@ -66,14 +61,12 @@ namespace MultiplayerExtensions.Beatmaps
             this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
 
             int imageLength = reader.GetInt();
-            this.coverImage = bytePool.Rent(imageLength);
             reader.GetBytes(this.coverImage, imageLength);
         }
 
         static async public Task<PreviewBeatmapPacket> FromPreview(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
         {
             PreviewBeatmapPacket packet = new PreviewBeatmapPacket();
-            packet._arrayRented = false;
 
             packet.levelId = preview.levelID;
             packet.songName = preview.songName;
@@ -94,8 +87,6 @@ namespace MultiplayerExtensions.Beatmaps
 
         public void Release()
         {
-            if (_arrayRented)
-                bytePool.Return(coverImage);
             ThreadStaticPacketPool<PreviewBeatmapPacket>.pool.Release(this);
         }
     }

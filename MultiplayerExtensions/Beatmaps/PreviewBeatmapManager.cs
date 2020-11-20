@@ -19,8 +19,8 @@ namespace MultiplayerExtensions.Beatmaps
             if (localDownloadable.ContainsKey(packet.levelId))
                 return new PreviewBeatmapStub(packet.levelId, localDownloadable[packet.levelId]);
 
-            if (CacheContains(packet.levelId))
-                return GetFromCache(packet.levelId);
+            if (CacheContainsId(packet.levelId))
+                return GetIdFromCache(packet.levelId);
 
             PreviewBeatmapStub preview = new PreviewBeatmapStub(packet);
             CachePreview(preview);
@@ -32,8 +32,8 @@ namespace MultiplayerExtensions.Beatmaps
             if (localDownloadable.ContainsKey(levelId))
                 return new PreviewBeatmapStub(levelId, localDownloadable[levelId]);
 
-            if (CacheContains(levelId))
-                return GetFromCache(levelId);
+            if (CacheContainsId(levelId))
+                return GetIdFromCache(levelId);
 
             if (SongCore.Loader.GetLevelById(levelId) != null)
             {
@@ -59,10 +59,16 @@ namespace MultiplayerExtensions.Beatmaps
             cachedPreviews.Insert(0, preview);
         }
 
-        private static bool CacheContains(string levelId)
+        public static bool CacheContainsId(string levelId)
             => cachedPreviews.Any(x => x.levelID == levelId);
 
-        private static PreviewBeatmapStub GetFromCache(string levelId) 
+        public static PreviewBeatmapStub GetIdFromCache(string levelId) 
             => cachedPreviews.Where(x => x.levelID == levelId).First();
+
+        public static bool CacheContainsHash(string levelHash)
+            => cachedPreviews.Any(x => x.levelHash == levelHash);
+
+        public static PreviewBeatmapStub GetHashFromCache(string levelHash)
+            => cachedPreviews.Where(x => x.levelHash == levelHash).First();
     }
 }

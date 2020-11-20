@@ -67,6 +67,10 @@ namespace MultiplayerExtensions.HarmonyPatches
     public class LoadLevelPatch
     {
         public static MultiplayerLevelLoader? MultiplayerLevelLoader;
+        public static BeatmapIdentifierNetSerializable? bmId;
+        public static GameplayModifiers? modifiers;
+        public static float? startTime;
+
         public static readonly string CustomLevelPrefix = "custom_level_";
         private static string? LoadingLevelId;
 
@@ -92,24 +96,18 @@ namespace MultiplayerExtensions.HarmonyPatches
                 Plugin.Log?.Debug($"Download for '{levelId}' is already in progress.");
                 return false;
             }
+
             MultiplayerLevelLoader = __instance;
-            BeatmapIdentifierNetSerializable bmId = beatmapId;
-            GameplayModifiers modifiers = gameplayModifiers;
-            float startTime = initialStartTime;
-            // TODO: Link to UI progress bar. Don't forget case where downloaded song may be switched back to a currently downloading one.
-            // Probably best to have a class containing a download that the IProgress updates with the current progress.
-            // Then that class can be hooked/unhooked from the UI progress bar.
-            IProgress<double>? progress = null;
-            //IProgress<double> progress = new Progress<double>(p =>
-            //{
-            //    Plugin.Log?.Debug($"Progress for '{bmId.levelID}': {p:P}");
-            //});
+            bmId = beatmapId;
+            modifiers = gameplayModifiers;
+            startTime = initialStartTime;
+
             if (LoadingLevelId == null || LoadingLevelId != levelId)
             {
                 LoadingLevelId = levelId;
 
                 Plugin.Log?.Debug($"Attempting to download level with ID '{levelId}'...");
-                Task? downloadTask = Downloader.TryDownloadSong(levelId, progress, CancellationToken.None).ContinueWith(b =>
+                Task? downloadTask = Downloader.TryDownloadSong(levelId, null, CancellationToken.None).ContinueWith(b =>
                 {
                     try
                     {
@@ -135,6 +133,11 @@ namespace MultiplayerExtensions.HarmonyPatches
                 return false;
             }
             return true;
+        }
+
+        static async void DownloadSong()
+        {
+            IPreviewBeatmapLevel beatmap
         }
     }
 }

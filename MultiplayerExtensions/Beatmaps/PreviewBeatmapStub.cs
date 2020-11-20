@@ -12,6 +12,7 @@ namespace MultiplayerExtensions.Beatmaps
     class PreviewBeatmapStub : IPreviewBeatmapLevel
     {
         public string levelHash { get; private set; }
+        public string levelKey { get; private set; }
         public string downloadURL => $"https://beatsaver.com/api/download/hash/{levelHash.ToLower()}";
         private Func<CancellationToken, Task<Sprite?>> _coverGetter;
         private Func<CancellationToken, Task<AudioClip>>? _audioGetter;
@@ -38,7 +39,9 @@ namespace MultiplayerExtensions.Beatmaps
                         Task<Beatmap> bm = BeatSaver.Client.Hash(levelHash, CancellationToken.None);
                         _downloadableTask = bm.ContinueWith<bool>(r =>
                         {
-                            _downloadable = r.Result is Beatmap;
+                            Beatmap bm = r.Result;
+                            _downloadable = bm is Beatmap;
+                            levelKey = bm.Key;
                             return (bool)_downloadable!;
                         });
                     }

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MultiplayerExtensions.Utilities;
 using System.Collections.Concurrent;
+using MultiplayerExtensions.Beatmaps;
 #nullable enable
 
 namespace MultiplayerExtensions
@@ -23,11 +24,17 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
-            var bm = await BeatSaverSharp.BeatSaver.Client.Hash(hash, cancellationToken);
+            if (!PreviewBeatmapManager.CacheContainsHash(hash))
+            {
+                Plugin.Log?.Warn($"Could not get song '{hash}' from cache.");
+                return null;
+            }
 
+            PreviewBeatmapStub preview = PreviewBeatmapManager.GetHashFromCache(hash);
             string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
-            if (bm == null)
+
+            if (await preview.isDownloadable == false)
             {
                 Plugin.Log?.Warn($"Could not find song '{hash}' on Beat Saver.");
                 return null;
