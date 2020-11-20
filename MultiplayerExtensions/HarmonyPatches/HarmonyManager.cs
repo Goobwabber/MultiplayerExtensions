@@ -32,7 +32,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<LoadLevelPatch>();
-            AddDefaultPatch<GameServerPlayerTableColor>();
+            AddDefaultPatch<GameServerPlayerTablePatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class

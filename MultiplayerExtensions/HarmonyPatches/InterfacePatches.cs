@@ -1,6 +1,6 @@
-﻿using BS_Utils.Utilities;
-using HarmonyLib;
+﻿using HarmonyLib;
 using HMUI;
+using IPA.Utilities;
 using MultiplayerExtensions.Beatmaps;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace MultiplayerExtensions.HarmonyPatches
 {
     [HarmonyPatch(typeof(GameServerPlayerTableCell), "SetData", MethodType.Normal)]
-    public class GameServerPlayerTableColor
+    public class GameServerPlayerTablePatch
     {
         private static Color green = new Color(0f, 1f, 0f, 1f);
         private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
@@ -23,41 +23,51 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         static void Postfix(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
         {
-            cells[connectedPlayer.userId] = __instance;
-            models[connectedPlayer.userId] = playerDataModel;
-            UpdateColor(connectedPlayer, playerDataModel, __instance);
+            if (!cells.ContainsValue(__instance))
+            {
+                cells[connectedPlayer.userId] = __instance;
+                models[connectedPlayer.userId] = playerDataModel;
+            }
+
+            Update(connectedPlayer, playerDataModel, __instance);
         }
 
-        public static void UpdateColor(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
+        public static async void Update(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
         {
-            Image background = __instance.GetField<Image>("_localPlayerBackgroundImage");
+            Image background = __instance.GetField<Image, GameServerPlayerTableCell>("_localPlayerBackgroundImage");
             if (playerDataModel.beatmapLevel != null)
             {
                 background.enabled = true;
-                PreviewBeatmapManager.GetPopulatedPreview(playerDataModel.beatmapLevel.levelID).ContinueWith(r =>
-                {
-                    PreviewBeatmapStub preview = r.Result;
-                    float transparency = connectedPlayer.isMe ? 0.4f : 0.1f;
-                    Color color = connectedPlayer.HasState("bmlocal") ? green : connectedPlayer.HasState("bmcloud") ? yellow : red;
-                    color.a = transparency;
+                PreviewBeatmapStub preview = await PreviewBeatmapManager.CreatePreview(playerDataModel.beatmapLevel.levelID);
 
-                    HMMainThreadDispatcher.instance.Enqueue(() =>
-                    {
-                        background.color = color;
-                    });
-                });
+                Color color = connectedPlayer.HasState("beatmap_downloaded") ? green : await preview.isDownloadable ? yellow : red;
+                color.a = connectedPlayer.isMe ? 0.4f : 0.1f;
+
+                HMMainThreadDispatcher.instance.Enqueue(() => background.color = color);
             }
             else
             {
-                background.color = normal;
+                HMMainThreadDispatcher.instance.Enqueue(() => background.color = normal);
             }
         }
 
-        public static void UpdateColor(IConnectedPlayer player)
+        public static void SetLoading(IConnectedPlayer player)
+        {
+            GameServerPlayerTableCell cell = cells[player.userId];
+            CurvedTextMeshPro emptySuggestion = cell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedLevelText");
+            CurvedTextMeshPro suggestion = cell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_suggestedLevelText");
+
+            suggestion.gameObject.SetActive(false);
+            emptySuggestion.gameObject.SetActive(true);
+
+            emptySuggestion.text = "Loading...";
+        }
+
+        public static void Update(IConnectedPlayer player)
         {
             GameServerPlayerTableCell cell = cells[player.userId];
             ILobbyPlayerDataModel model = models[player.userId];
-            UpdateColor(player, model, cell);
+            Update(player, model, cell);
         }
     }
 
