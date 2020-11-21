@@ -80,64 +80,64 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (SongCore.Loader.GetLevelById(levelId) != null)
             {
                 if (LoadingLevelId != levelId)
-                    Plugin.Log?.Debug($"Level with ID '{levelId}' already exists."); // Don't log if LoadLevel was called when a download finished.
+                    Plugin.Log?.Debug($"(SongLoader) Level with ID '{levelId}' already exists."); // Don't log if LoadLevel was called when a download finished.
                 LoadingLevelId = null;
                 return true;
             }
             string? hash = Utilities.Utils.LevelIdToHash(beatmapId.levelID);
             if (hash == null)
             {
-                Plugin.Log?.Info($"Could not get a hash from beatmap with LevelId {beatmapId.levelID}");
+                Plugin.Log?.Info($"(SongLoader) Could not get a hash from beatmap with LevelId {beatmapId.levelID}");
                 LoadingLevelId = null;
                 return true;
             }
             if (Downloader.TryGetDownload(levelId, out _))
             {
-                Plugin.Log?.Debug($"Download for '{levelId}' is already in progress.");
+                Plugin.Log?.Debug($"(SongLoader) Download for '{levelId}' is already in progress.");
                 return false;
             }
 
             MultiplayerLevelLoader = __instance;
-            bmId = beatmapId;
-            modifiers = gameplayModifiers;
-            startTime = initialStartTime;
+            BeatmapIdentifierNetSerializable bmId = beatmapId;
+            GameplayModifiers modifiers = gameplayModifiers;
+            float startTime = initialStartTime;
 
             if (LoadingLevelId == null || LoadingLevelId != levelId)
             {
                 LoadingLevelId = levelId;
 
-                Plugin.Log?.Debug($"Attempting to download level with ID '{levelId}'...");
-                Task? downloadTask = Downloader.TryDownloadSong(levelId, null, CancellationToken.None).ContinueWith(b =>
+                Plugin.Log?.Debug($"(SongLoader) Attempting to download level with ID '{levelId}'...");
+                DownloadSong(levelId).ContinueWith(r =>
                 {
-                    try
-                    {
-                        IPreviewBeatmapLevel? level = b.Result;
-                        if (level != null)
-                        {
-                            Plugin.Log?.Debug($"Level with ID '{levelId}' was downloaded successfully.");
-                            MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
-                        }
-                        else
-                            Plugin.Log?.Warn($"TryDownloadSong was unsuccessful.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Plugin.Log?.Warn($"Error in TryDownloadSong continuation: {ex.Message}");
-                        Plugin.Log?.Debug(ex);
-                    }
-                    finally
-                    {
-                        LoadingLevelId = null;
-                    }
+                    if (r.Result == true)
+                        MultiplayerLevelLoader.LoadLevel(bmId, modifiers, startTime);
                 });
+
                 return false;
             }
+
             return true;
         }
 
-        static async void DownloadSong()
+        static async Task<bool> DownloadSong(string levelId)
         {
-            IPreviewBeatmapLevel beatmap
+            try
+            {
+                IPreviewBeatmapLevel? beatmap = await Downloader.TryDownloadSong(levelId, null, CancellationToken.None);
+                if (beatmap != null)
+                {
+                    Plugin.Log?.Debug($"(SongLoader) Level with ID '{levelId}' was downloaded successfully.");
+                    return true;
+                }
+                Plugin.Log?.Warn($"(SongLoader) TryDownloadSong was unsuccessful.");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"Error in TryDownloadSong continuation: {ex.Message}");
+                Plugin.Log?.Debug(ex);
+            }
+            LoadingLevelId = null;
+            return false;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace MultiplayerExtensions.Beatmaps
     class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
         public string levelId;
+        public string levelKey;
         public string songName;
         public string songSubName;
         public string songAuthorName;
@@ -30,6 +31,7 @@ namespace MultiplayerExtensions.Beatmaps
         public void Serialize(NetDataWriter writer)
         {
             writer.Put(levelId);
+            writer.Put(levelKey);
             writer.Put(songName);
             writer.Put(songSubName);
             writer.Put(songAuthorName);
@@ -48,6 +50,7 @@ namespace MultiplayerExtensions.Beatmaps
         public void Deserialize(NetDataReader reader)
         {
             this.levelId = reader.GetString();
+            this.levelKey = reader.GetString();
             this.songName = reader.GetString();
             this.songSubName = reader.GetString();
             this.songAuthorName = reader.GetString();
@@ -69,6 +72,7 @@ namespace MultiplayerExtensions.Beatmaps
             PreviewBeatmapPacket packet = new PreviewBeatmapPacket();
 
             packet.levelId = preview.levelID;
+            packet.levelKey = preview.levelKey;
             packet.songName = preview.songName;
             packet.songSubName = preview.songSubName;
             packet.songAuthorName = preview.songAuthorName;

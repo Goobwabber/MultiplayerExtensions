@@ -14,6 +14,8 @@ namespace MultiplayerExtensions.Beatmaps
         public string levelHash { get; private set; }
         public string levelKey { get; private set; }
         public string downloadURL => $"https://beatsaver.com/api/download/hash/{levelHash.ToLower()}";
+        public Beatmap? beatmap;
+
         private Func<CancellationToken, Task<Sprite?>> _coverGetter;
         private Func<CancellationToken, Task<AudioClip>>? _audioGetter;
         private Func<CancellationToken, Task<byte[]>> _rawCoverGetter;
@@ -27,6 +29,15 @@ namespace MultiplayerExtensions.Beatmaps
             {
                 if (_downloadableTask == null)
                 {
+                    _downloadableTask = _downloadable != null ?
+                        new Task<bool>(() => (bool)_downloadable!) :
+                        BeatSaver.Client.Hash(levelHash, CancellationToken.None).ContinueWith<bool>(r =>
+                        {
+                            beatmap = r.Result;
+                            _downloadable = beatmap is Beatmap;
+                            levelKey = beatmap.Key;
+                            return (bool)_downloadable!;
+                        });
                     if (_downloadable != null)
                     {
                         _downloadableTask = new Task<bool>(() =>
@@ -80,6 +91,8 @@ namespace MultiplayerExtensions.Beatmaps
         {
             this.levelID = levelID;
             this.levelHash = Utilities.Utils.LevelIdToHash(levelID)!;
+            this.levelKey = bm.Key;
+            this.beatmap = bm;
             this.isDownloaded = false;
 
             this.songName = bm.Metadata.SongName;
@@ -100,6 +113,7 @@ namespace MultiplayerExtensions.Beatmaps
         {
             this.levelID = packet.levelId;
             this.levelHash = Utilities.Utils.LevelIdToHash(levelID)!;
+            this.levelKey = packet.levelKey;
             this.isDownloaded = SongCore.Loader.GetLevelById(packet.levelId) != null;
 
             this.songName = packet.songName;
@@ -131,6 +145,13 @@ namespace MultiplayerExtensions.Beatmaps
         public EnvironmentInfoSO? environmentInfo { get; private set; }
         public EnvironmentInfoSO? allDirectionsEnvironmentInfo { get; private set; }
         public PreviewDifficultyBeatmapSet[]? previewDifficultyBeatmapSets { get; private set; }
+
+        public async Task<byte[]> DownloadZip(CancellationToken cancellationToken, IProgress<double>? progress = null)
+        {
+            if (beatmap == null)
+                beatmap = await BeatSaver.Client.Hash(levelHash, cancellationToken);
+            return await beatmap.DownloadZip(false, cancellationToken, progress);
+        }
 
         private byte[]? _rawCover = null;
         public async Task<byte[]> GetRawCoverAsync(CancellationToken cancellationToken)

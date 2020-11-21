@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using MultiplayerExtensions.Utilities;
 using System.Collections.Concurrent;
 using MultiplayerExtensions.Beatmaps;
+using BeatSaverSharp;
 #nullable enable
 
 namespace MultiplayerExtensions
@@ -31,7 +32,7 @@ namespace MultiplayerExtensions
             }
 
             PreviewBeatmapStub preview = PreviewBeatmapManager.GetHashFromCache(hash);
-            string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
+            string folderPath = Utils.GetSongDirectoryName(preview.levelKey, preview.songName, preview.levelAuthorName);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
 
             if (await preview.isDownloadable == false)
@@ -39,7 +40,8 @@ namespace MultiplayerExtensions
                 Plugin.Log?.Warn($"Could not find song '{hash}' on Beat Saver.");
                 return null;
             }
-            byte[] beatmapBytes = await bm.DownloadZip(false, cancellationToken, progress);
+
+            byte[] beatmapBytes = await preview.DownloadZip(cancellationToken, progress);
             using (var ms = new MemoryStream(beatmapBytes))
             {
                 var result = await ZipUtils.ExtractZip(ms, folderPath);
@@ -78,7 +80,7 @@ namespace MultiplayerExtensions
 
             CustomPreviewBeatmapLevel? beatmap = SongCore.Loader.GetLevelByHash(hash);
             if (beatmap == null)
-                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{bm?.Name ?? hash}' from SongCore, this shouldn't happen.");
+                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{preview?.songName ?? hash}' from SongCore, this shouldn't happen.");
             return beatmap;
         }
 
@@ -87,7 +89,6 @@ namespace MultiplayerExtensions
             Task<IPreviewBeatmapLevel?> task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, progress, cancellationToken));
             Plugin.Log?.Debug($"Active downloads: {CurrentDownloads.Count}");
             return task;
-
         }
 
         private static async Task<IPreviewBeatmapLevel?> TryDownloadSongInternal(string levelId, IProgress<double>? progress, CancellationToken cancellationToken)
