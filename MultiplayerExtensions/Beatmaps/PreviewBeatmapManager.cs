@@ -11,13 +11,13 @@ namespace MultiplayerExtensions.Beatmaps
 {
     static class PreviewBeatmapManager 
     {
-        private static Dictionary<string, bool> localDownloadable = new Dictionary<string, bool>();
+        private static Dictionary<string, PreviewBeatmapStub> localDownloadable = new Dictionary<string, PreviewBeatmapStub>();
         private static List<PreviewBeatmapStub> cachedPreviews = new List<PreviewBeatmapStub>();
 
         public static PreviewBeatmapStub CreatePreview(PreviewBeatmapPacket packet)
         {
             if (localDownloadable.ContainsKey(packet.levelId))
-                return new PreviewBeatmapStub(packet.levelId, localDownloadable[packet.levelId]);
+                return localDownloadable[packet.levelId];
 
             if (CacheContainsId(packet.levelId))
                 return GetIdFromCache(packet.levelId);
@@ -30,7 +30,7 @@ namespace MultiplayerExtensions.Beatmaps
         public static async Task<PreviewBeatmapStub> CreatePreview(string levelId)
         {
             if (localDownloadable.ContainsKey(levelId))
-                return new PreviewBeatmapStub(levelId, localDownloadable[levelId]);
+                return localDownloadable[levelId];
 
             if (CacheContainsId(levelId))
                 return GetIdFromCache(levelId);
@@ -39,7 +39,7 @@ namespace MultiplayerExtensions.Beatmaps
             {
                 PreviewBeatmapStub preview = new PreviewBeatmapStub(levelId);
                 bool downloadable = await preview.isDownloadable;
-                localDownloadable[levelId] = downloadable;
+                localDownloadable[levelId] = preview;
                 return preview;
             }
             else
@@ -54,8 +54,8 @@ namespace MultiplayerExtensions.Beatmaps
 
         private static void CachePreview(PreviewBeatmapStub preview)
         {
-            if (cachedPreviews.Count >= 16)
-                cachedPreviews.RemoveAt(16);
+            if (cachedPreviews.Count >= 32)
+                cachedPreviews.RemoveAt(32);
             cachedPreviews.Insert(0, preview);
         }
 

@@ -28,7 +28,6 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
             AddDefaultPatch<LobbyJoinPatch>();
-            AddDefaultPatch<LevelCollectionViewController_DidSelectLevel>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<LoadLevelPatch>();

@@ -21,7 +21,13 @@ namespace MultiplayerExtensions.Beatmaps
         private Func<CancellationToken, Task<byte[]>> _rawCoverGetter;
 
         public bool isDownloaded;
-        private bool? _downloadable = null;
+
+        private enum DownloadableState
+        {
+            True, False, Unchecked
+        }
+
+        private DownloadableState _downloadable = DownloadableState.Unchecked;
         private Task<bool>? _downloadableTask;
         public Task<bool> isDownloadable
         {
@@ -29,33 +35,15 @@ namespace MultiplayerExtensions.Beatmaps
             {
                 if (_downloadableTask == null)
                 {
-                    _downloadableTask = _downloadable != null ?
-                        new Task<bool>(() => (bool)_downloadable!) :
+                    _downloadableTask = _downloadable != DownloadableState.Unchecked ?
+                        new Task<bool>(() => _downloadable == DownloadableState.True) :
                         BeatSaver.Client.Hash(levelHash, CancellationToken.None).ContinueWith<bool>(r =>
                         {
                             beatmap = r.Result;
-                            _downloadable = beatmap is Beatmap;
+                            _downloadable = beatmap is Beatmap ? DownloadableState.True : DownloadableState.False;
                             levelKey = beatmap.Key;
-                            return (bool)_downloadable!;
+                            return _downloadable == DownloadableState.True;
                         });
-                    if (_downloadable != null)
-                    {
-                        _downloadableTask = new Task<bool>(() =>
-                        {
-                            return (bool)_downloadable!;
-                        });
-                    }
-                    else
-                    {
-                        Task<Beatmap> bm = BeatSaver.Client.Hash(levelHash, CancellationToken.None);
-                        _downloadableTask = bm.ContinueWith<bool>(r =>
-                        {
-                            Beatmap bm = r.Result;
-                            _downloadable = bm is Beatmap;
-                            levelKey = bm.Key;
-                            return (bool)_downloadable!;
-                        });
-                    }
                 }
 
                 return _downloadableTask!;
@@ -82,16 +70,12 @@ namespace MultiplayerExtensions.Beatmaps
             _rawCoverGetter = async (CancellationToken cancellationToken) => Utilities.Sprites.GetRaw(await GetCoverImageAsync(cancellationToken));
         }
 
-        public PreviewBeatmapStub(string levelID, bool downloadable) : this(levelID)
-        {
-            this._downloadable = downloadable;
-        }
-
         public PreviewBeatmapStub(string levelID, Beatmap bm)
         {
             this.levelID = levelID;
             this.levelHash = Utilities.Utils.LevelIdToHash(levelID)!;
             this.levelKey = bm.Key;
+
             this.beatmap = bm;
             this.isDownloaded = false;
 
@@ -103,7 +87,7 @@ namespace MultiplayerExtensions.Beatmaps
             this.beatsPerMinute = bm.Metadata.BPM;
             this.songDuration = bm.Metadata.Duration;
 
-            this._downloadable = true;
+            this._downloadable = DownloadableState.True;
 
             _rawCoverGetter = async (CancellationToken cancellationToken) => await bm.FetchCoverImage(cancellationToken);
             _coverGetter = async (CancellationToken cancellationToken) => Utilities.Sprites.GetSprite(await GetRawCoverAsync(cancellationToken));
@@ -124,7 +108,7 @@ namespace MultiplayerExtensions.Beatmaps
             this.beatsPerMinute = packet.beatsPerMinute;
             this.songDuration = packet.songDuration;
 
-            this._downloadable = packet.isDownloadable;
+            this._downloadable = packet.isDownloadable ? DownloadableState.True : DownloadableState.False;
 
             this._rawCover = packet.coverImage;
             _coverGetter = async (CancellationToken cancellationToken) => Utilities.Sprites.GetSprite(await GetRawCoverAsync(cancellationToken));

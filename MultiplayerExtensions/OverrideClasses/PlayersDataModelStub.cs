@@ -87,7 +87,7 @@ namespace MultiplayerExtensions.OverrideClasses
             if (hash != null)
             {
                 Plugin.Log?.Debug($"Local user selected song '{hash}'.");
-                HarmonyPatches.GameServerPlayerTablePatch.SetLoading(_sessionManager.localPlayer);
+                //HarmonyPatches.GameServerPlayerTablePatch.SetLoading(_sessionManager.localPlayer);
                 PreviewBeatmapStub preview = await PreviewBeatmapManager.CreatePreview(levelId);
 
                 if (base.localUserId == base.hostUserId)
