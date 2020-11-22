@@ -27,8 +27,33 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 * BeatSaberMarkupLanguage v1.4.1+
 * SiraUtil 2.1.0+
 
+## Troubleshooting
+#### Custom Songs button not appearing
+* Most of the time this is because you didn't install MultiplayerExtensions correctly, or are missing a required dependency (most likely SiraUtil or BeatSaverSharp).
+  * Open `Beat Saber\Logs\_latest.log` and search the text for `MultiplayerExtensions`
+  * If you see a line like `[WARNING @ 19:20:44 | IPA/Loader] MultiplayerExtensions is missing dependency BeatSaverSharp@^1.6.0`, that's what you need to fix.
+  * In your log, there's a section where IPA lists loaded plugins. Check and make sure MultiplayerExtensions is listed there.
+  ```
+  [INFO @ 12:41:52 | IPA] Beat Saber
+  [INFO @ 12:41:52 | IPA] Running on Unity 2019.3.15f1
+  [INFO @ 12:41:52 | IPA] Game version 1.13.0
+  [INFO @ 12:41:52 | IPA] -----------------------------
+  [INFO @ 12:41:52 | IPA] Loading plugins from Plugins and found 25
+  [INFO @ 12:41:52 | IPA] -----------------------------
+  [INFO @ 12:41:52 | IPA] Beat Saber IPA (BSIPA): 4.1.3
+  [INFO @ 12:41:52 | IPA] SiraUtil (SiraUtil): 2.1.0
+  [INFO @ 12:41:52 | IPA] INI Parser (Ini Parser): 2.5.7
+  [INFO @ 12:41:52 | IPA] BS_Utils (BS Utils): 1.6.3
+  [INFO @ 12:41:52 | IPA] BeatSaberMarkupLanguage (BeatSaberMarkupLanguage): 1.4.1
+  [INFO @ 12:41:52 | IPA] SongCore (SongCore): 3.0.2
+  [INFO @ 12:41:52 | IPA] BeatSaverSharp (BeatSaverSharp): 1.6.0
+  [INFO @ 12:41:52 | IPA] MultiplayerExtensions (MultiplayerExtensions): 0.2.0
+  [INFO @ 12:41:52 | IPA] -----------------------------
+  [INFO @ 12:41:52 | IPA] -----------------------------```
+* If MultiplayerExtensions is loading and the Custom Songs button isn't showing up, you may need to do a fresh install of Beat Saber.
+
 ## Reporting Issues
-* The best way to report issues is to click on the `Issues` tab at the top of the GitHub page. This allows any contributor to see the problem and attempt to fix it, and others with the same issue can contribute more information.
+* The best way to report issues is to click on the `Issues` tab at the top of the GitHub page. This allows any contributor to see the problem and attempt to fix it, and others with the same issue can contribute more information. **Please try the troubleshooting steps before reporting the issues listed there. Please only report issues after using the latest build, your problem may have already been fixed.**
 * Include in your issue:
   * A detailed explanation of your problem (you can also attach videos/screenshots)
   * **Important**: The log file from the game session the issue occurred (restarting the game creates a new log file).

@@ -340,7 +340,8 @@ ASALocalRun/
 healthchecksdb
 
 Refs/Beat Saber_Data/Managed/*
-!Refs/Beat Saber_Data/Managed/IPA.*
+Refs/Libs/Mono*
+!Refs/Beat Saber_Data/Managed/IPA.Loader.dll
 /bsinstalldir.txt
 
 MultiplayerExtensions/Properties/launchSettings.json

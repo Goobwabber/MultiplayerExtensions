@@ -7,46 +7,68 @@ using System.Threading.Tasks;
 
 namespace MultiplayerExtensions.Packets
 {
-    public class PacketSerializer : NetworkPacketSerializer<byte, IConnectedPlayer>
+    class PacketSerializer : INetworkPacketSubSerializer<IConnectedPlayer>
     {
-        private Registry<Type> _packets = new Registry<Type>(256);
-        private Registry<object> _serializers = new Registry<object>(256);
+        private Dictionary<string, Action<NetDataReader, int, IConnectedPlayer>> packetHandlers = new Dictionary<string, Action<NetDataReader, int, IConnectedPlayer>>();
+        private List<Type> registeredTypes = new List<Type>();
 
-        public void RegisterCallback<T>(Action<T, IConnectedPlayer> callback, Func<T> constructor) where T : INetSerializable
+        public void Serialize(NetDataWriter writer, INetSerializable packet)
         {
-            if (!_packets.Contains(typeof(T)))
-                _packets.Register(typeof(T));
-            byte packetType = (byte)_packets.IndexOf(typeof(T));
-
-            base.RegisterCallback<T>(packetType, callback, constructor);
+            writer.Put(packet.GetType().ToString());
+            packet.Serialize(writer);
         }
 
-        public void UnregisterCallback<T>() where T : INetSerializable
+        public void Deserialize(NetDataReader reader, int length, IConnectedPlayer data)
         {
-            if (!_packets.Contains(typeof(T)))
-                throw new InvalidOperationException();
-            byte packetType = (byte)_packets.IndexOf(typeof(T));
-
-            base.UnregisterCallback<T>(packetType);
-            _packets.Unregister(typeof(T));
+            string packetType = reader.GetString();
+            Action<NetDataReader, int, IConnectedPlayer> action;
+            if (this.packetHandlers.TryGetValue(packetType, out action))
+            {
+                if (action != null)
+                {
+                    action(reader, length, data);
+                    return;
+                }
+            }
         }
 
-        public void RegisterSerializer(INetworkPacketSubSerializer<IConnectedPlayer> subSerializer)
+        public bool HandlesType(Type type)
         {
-            if (!_serializers.Contains(subSerializer))
-                _serializers.Register(subSerializer);
-            byte packetType = (byte)_serializers.IndexOf(subSerializer);
-
-            base.RegisterSubSerializer(packetType, subSerializer);
+            return registeredTypes.Contains(type);
         }
 
-        public void UnregisterSerializer(INetworkPacketSubSerializer<IConnectedPlayer> subSerializer)
+        public void RegisterCallback<TPacket>(Action<TPacket> callback) where TPacket : INetSerializable, IPoolablePacket, new()
         {
-            if (!_serializers.Contains(subSerializer))
-                throw new InvalidOperationException();
-            byte packetType = (byte)_serializers.IndexOf(subSerializer);
+            this.RegisterCallback<TPacket>(delegate (TPacket packet, IConnectedPlayer player)
+            {
+                callback?.Invoke(packet);
+            });
+        }
 
-            base.RegisterSubSerializer(packetType, subSerializer);
+        public void RegisterCallback<TPacket>(Action<TPacket, IConnectedPlayer> callback) where TPacket : INetSerializable, IPoolablePacket, new()
+        {
+            this.registeredTypes.Add(typeof(TPacket));
+
+            Func<NetDataReader, int, TPacket> deserialize = delegate (NetDataReader reader, int size)
+            {
+                TPacket packet = ThreadStaticPacketPool<TPacket>.pool.Obtain();
+                if (packet == null)
+                {
+                    Plugin.Log?.Error($"(PacketSerializer) Constructor for '{typeof(TPacket)}' returned null!");
+                    reader.SkipBytes(size);
+                }
+                else
+                {
+                    packet.Deserialize(reader);
+                }
+                return packet;
+            };
+
+            this.packetHandlers[typeof(TPacket).ToString()] = delegate (NetDataReader reader, int size, IConnectedPlayer player)
+            {
+                Plugin.Log?.Debug($"(PacketSerializer) Received '{typeof(TPacket)}'");
+                callback(deserialize(reader, size), player);
+            };
         }
     }
 }

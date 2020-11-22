@@ -1,9 +1,12 @@
-﻿using LiteNetLib.Utils;
+﻿using IPA.Utilities;
+using LiteNetLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Packets
@@ -12,24 +15,59 @@ namespace MultiplayerExtensions.Packets
     {
         [Inject]
         private IMultiplayerSessionManager _sessionManager;
-
-        private PacketSerializer _packetSerializer = new PacketSerializer();
+        private MultiplayerSessionManager _multiplayerSessionManager;
+        private ConnectedPlayerManager? _playerManager => _multiplayerSessionManager.GetField<ConnectedPlayerManager, MultiplayerSessionManager>("_connectedPlayerManager");
+        private PacketSerializer _serializer = new PacketSerializer();
 
         public void Initialize()
         {
-            _sessionManager.RegisterSerializer((MultiplayerSessionManager.MessageType)100, _packetSerializer);
+            _multiplayerSessionManager = Resources.FindObjectsOfTypeAll<MultiplayerSessionManager>().First();
+            _sessionManager.RegisterSerializer((MultiplayerSessionManager.MessageType)100, _serializer);
         }
 
-        public void Send<T>(T message) where T : INetSerializable => _sessionManager.Send(message);
+        public void Send(INetSerializable message) => _sessionManager.Send(message);
+        public void SendUnreliable(INetSerializable message) => _sessionManager.SendUnreliable(message);
 
-        public void RegisterSerializer(PacketSerializer serializer)
+        public void RegisterCallback<T>(Action<T> action) where T : INetSerializable, IPoolablePacket, new() => _serializer.RegisterCallback<T>(action);
+        public void RegisterCallback<T>(Action<T, IConnectedPlayer> action) where T : INetSerializable, IPoolablePacket, new() => _serializer.RegisterCallback<T>(action);
+
+        public void SendImmediately<T>(T message) where T : INetSerializable
         {
-            _packetSerializer.RegisterSerializer(serializer);
+            MethodInfo sendImmediately = typeof(ConnectedPlayerManager).GetMethod("SendImmediately");
+            if (_playerManager != null)
+                sendImmediately.Invoke(_playerManager, new object[] { message, false });
+            else
+                Plugin.Log?.Error($"(PacketManager) '{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated!");
         }
 
-        public void UnregisterSerializer(PacketSerializer serializer)
+        private object? GetConnection(IConnectedPlayer player)
         {
-            _packetSerializer.RegisterSerializer(serializer);
+            MethodInfo getPlayer = typeof(ConnectedPlayerManager).GetMethod("GetPlayer", new Type[] { typeof(string) });
+            return _playerManager != null ? getPlayer.Invoke(_playerManager, new object[] { player.userId }) : null;
+        }
+
+        public void SendImmediatelyExcludingPlayer<T>(T message, IConnectedPlayer excludedPlayer) where T : INetSerializable
+        {
+            object? excludedConnection = GetConnection(excludedPlayer);
+            if (excludedConnection != null)
+            {
+                MethodInfo sendExcludingPlayer = typeof(ConnectedPlayerManager).GetMethod("SendImmediatelyExcludingPlayer");
+                sendExcludingPlayer.Invoke(_playerManager, new object[] { message, excludedConnection, false });
+            }
+            else
+                Plugin.Log?.Error($"(PacketManager) '{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated!");
+        }
+
+        public void SendImmediatelyToPlayer<T>(T message, IConnectedPlayer toPlayer) where T : INetSerializable
+        {
+            object? toConnection = GetConnection(toPlayer);
+            if (toConnection != null)
+            {
+                MethodInfo sendToPlayer = typeof(ConnectedPlayerManager).GetMethod("SendImmediatelyToPlayer");
+                sendToPlayer.Invoke(_playerManager, new object[] { message, toPlayer });
+            }
+            else
+                Plugin.Log?.Error($"(PacketManager) '{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated!");
         }
     }
 }

@@ -25,7 +25,6 @@
 "Plugins/
 ""BS_Utils.dll?alias=Plugins\BS_Utils.dll
 ""BSML.dll?alias=Plugins\BSML.dll
-""CustomAvatar.dll?alias=Plugins\CustomAvatar.dll
 ""SiraUtil.dll?alias=Plugins\SiraUtil.dll
 ""SongCore.dll?alias=Plugins\SongCore.dll
 

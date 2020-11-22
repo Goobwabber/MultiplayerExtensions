@@ -14,6 +14,9 @@ namespace MultiplayerExtensions.Sessions
         [Inject]
         private SessionManager _sessionManager;
 
+        [Inject]
+        private PacketManager _packetManager;
+
         private Dictionary<string, ExtendedPlayer> _players = new Dictionary<string, ExtendedPlayer>();
         public string localPlatformID;
 
@@ -21,11 +24,10 @@ namespace MultiplayerExtensions.Sessions
         {
             Plugin.Log?.Info("Setting up PlayerManager");
 
-            _sessionManager.connectedEvent += SendLocalPlayerPacket;
             _sessionManager.playerConnectedEvent += OnPlayerConnected;
             _sessionManager.playerDisconnectedEvent += OnPlayerDisconnected;
 
-            _sessionManager.serializer.RegisterCallback(HandlePlayerPacket, ExtendedPlayerPacket.pool.Obtain);
+            _packetManager.RegisterCallback<ExtendedPlayerPacket>(HandlePlayerPacket);
 
             BS_Utils.Gameplay.GetUserInfo.GetUserAsync().ContinueWith(r =>
             {
@@ -38,7 +40,12 @@ namespace MultiplayerExtensions.Sessions
             Plugin.Log?.Info($"Player '{player.userId}' joined");
             var extendedPlayer = new ExtendedPlayer(player);
             _players[player.userId] = extendedPlayer;
-            SendLocalPlayerPacket();
+            
+            if (localPlatformID != null)
+            {
+                ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID);
+                _packetManager.Send(localPlayerPacket);
+            }
         }
 
         private void OnPlayerDisconnected(IConnectedPlayer player)
@@ -46,16 +53,6 @@ namespace MultiplayerExtensions.Sessions
             Plugin.Log?.Info($"Player '{player.userId}' disconnected");
             var extendedPlayer = _players[player.userId];
             _players.Remove(player.userId);
-        }
-
-        private void SendLocalPlayerPacket()
-        {
-            if (localPlatformID != null)
-            {
-                ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID);
-                Plugin.Log?.Info($"Sending 'ExtendedPlayerPacket' with {localPlatformID}");
-                _sessionManager.Send(localPlayerPacket);
-            }
         }
 
         private void HandlePlayerPacket(ExtendedPlayerPacket packet, IConnectedPlayer player)
