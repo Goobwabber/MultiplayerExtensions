@@ -69,7 +69,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 else if (postfix != null)
                     patchTypeName = postfix.method.DeclaringType?.Name;
                 else if (transpiler != null)
-                    patchTypeName = postfix.method.DeclaringType?.Name;
+                    patchTypeName = transpiler.method.DeclaringType?.Name;
                 Plugin.Log?.Debug($"Harmony patching {original.Name} with {patchTypeName}");
                 harmony.Patch(original, prefix, postfix, transpiler);
                 return true;
