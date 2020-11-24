@@ -15,7 +15,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     class LobbyPlayersDataModelPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(ConcreteBinderNonGeneric).GetMethod(nameof(ConcreteBinderNonGeneric.To), Array.Empty<Type>());
-        private static readonly MethodInfo _overrideAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null));
+        private static readonly MethodInfo _overrideAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null!));
         private static readonly MethodInfo _originalMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyPlayersDataModel) });
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
