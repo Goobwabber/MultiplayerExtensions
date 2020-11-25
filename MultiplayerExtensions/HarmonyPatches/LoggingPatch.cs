@@ -18,7 +18,6 @@ namespace MultiplayerExtensions.HarmonyPatches
         private static ConcurrentDictionary<string, PlayerExceptionTracker> PlayerExceptions = new ConcurrentDictionary<string, PlayerExceptionTracker>();
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen)
         {
-            Harmony.DEBUG = true;
             if (_exceptionLogger == null)
                 Plugin.Log?.Error($"Couldn't find _exceptionLogger");
             else
