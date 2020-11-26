@@ -33,6 +33,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<LoadLevelPatch>();
             AddDefaultPatch<GameServerPlayerTableColor>();
+            AddDefaultPatch<LoggingPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
