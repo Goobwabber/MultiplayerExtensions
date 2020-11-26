@@ -65,9 +65,13 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         public static void Update(IConnectedPlayer player)
         {
-            GameServerPlayerTableCell cell = cells[player.userId];
-            ILobbyPlayerDataModel model = models[player.userId];
-            Update(player, model, cell);
+            if (cells.TryGetValue(player.userId, out GameServerPlayerTableCell cell))
+            {
+                ILobbyPlayerDataModel model = models[player.userId];
+                Update(player, model, cell);
+            }
+            else
+                Plugin.Log?.Debug($"Tried to update UI for player '{player.userName} ({player.userId})', but there wasn't an associated TableCell.");
         }
     }
 
