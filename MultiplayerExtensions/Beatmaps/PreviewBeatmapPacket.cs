@@ -44,7 +44,13 @@ namespace MultiplayerExtensions.Beatmaps
             writer.Put(characteristic);
             writer.PutVarUInt((uint)difficulty);
 
-            writer.PutBytesWithLength(coverImage);
+            if (this.coverImage != null)
+                writer.PutBytesWithLength(coverImage);
+            else
+            {
+                Plugin.Log?.Debug($"coverImage is null when serializing '{levelId}'");
+                writer.PutBytesWithLength(Array.Empty<byte>());
+            }
         }
 
         public void Deserialize(NetDataReader reader)
@@ -63,8 +69,9 @@ namespace MultiplayerExtensions.Beatmaps
             this.characteristic = reader.GetString();
             this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
 
-            int imageLength = reader.GetInt();
-            reader.GetBytes(this.coverImage, imageLength);
+            this.coverImage = reader.GetBytesWithLength();
+            if (this.coverImage == null || this.coverImage.Length == 0)
+                Plugin.Log?.Debug($"Received a PreviewBeatmapPacket with an empty coverImage.");
         }
 
         static async public Task<PreviewBeatmapPacket> FromPreview(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
