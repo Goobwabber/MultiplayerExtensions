@@ -14,7 +14,6 @@ namespace MultiplayerExtensions.Beatmaps
     class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
         public string levelId;
-        public string levelKey;
         public string songName;
         public string songSubName;
         public string songAuthorName;
@@ -22,7 +21,6 @@ namespace MultiplayerExtensions.Beatmaps
         public float beatsPerMinute;
         public float songDuration;
 
-        public bool isDownloadable;
         public byte[] coverImage;
 
         public string characteristic;
@@ -31,15 +29,12 @@ namespace MultiplayerExtensions.Beatmaps
         public void Serialize(NetDataWriter writer)
         {
             writer.Put(levelId);
-            writer.Put(levelKey);
             writer.Put(songName);
             writer.Put(songSubName);
             writer.Put(songAuthorName);
             writer.Put(levelAuthorName);
             writer.Put(beatsPerMinute);
             writer.Put(songDuration);
-
-            writer.Put(isDownloadable);
 
             writer.Put(characteristic);
             writer.PutVarUInt((uint)difficulty);
@@ -56,15 +51,12 @@ namespace MultiplayerExtensions.Beatmaps
         public void Deserialize(NetDataReader reader)
         {
             this.levelId = reader.GetString();
-            this.levelKey = reader.GetString();
             this.songName = reader.GetString();
             this.songSubName = reader.GetString();
             this.songAuthorName = reader.GetString();
             this.levelAuthorName = reader.GetString();
             this.beatsPerMinute = reader.GetFloat();
             this.songDuration = reader.GetFloat();
-
-            this.isDownloadable = reader.GetBool();
 
             this.characteristic = reader.GetString();
             this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
@@ -79,7 +71,6 @@ namespace MultiplayerExtensions.Beatmaps
             PreviewBeatmapPacket packet = new PreviewBeatmapPacket();
 
             packet.levelId = preview.levelID;
-            packet.levelKey = preview.levelKey;
             packet.songName = preview.songName;
             packet.songSubName = preview.songSubName;
             packet.songAuthorName = preview.songAuthorName;
@@ -87,7 +78,6 @@ namespace MultiplayerExtensions.Beatmaps
             packet.beatsPerMinute = preview.beatsPerMinute;
             packet.songDuration = preview.songDuration;
 
-            packet.isDownloadable = await preview.isDownloadable;
             packet.coverImage = await preview.GetRawCoverAsync(CancellationToken.None);
 
             packet.characteristic = characteristic;

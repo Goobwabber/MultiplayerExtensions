@@ -21,6 +21,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void Activate()
         {
             _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
+            Downloader.lobbyPlayersDataModel = _lobbyPlayersDataModel;
             base.Activate();
         }
 
@@ -81,6 +82,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
         {
+            
             _sessionManager.SetLocalPlayerState("start_primed", false);
             starting = true;
             base.HandleMenuRpcManagerStartedLevel(userId, beatmapId, gameplayModifiers, startTime);

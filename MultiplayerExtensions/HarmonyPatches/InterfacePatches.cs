@@ -38,7 +38,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (playerDataModel.beatmapLevel != null)
             {
                 background.enabled = true;
-                PreviewBeatmapStub preview = await PreviewBeatmapManager.CreatePreview(playerDataModel.beatmapLevel.levelID);
+                PreviewBeatmapStub preview = (PreviewBeatmapStub)playerDataModel.beatmapLevel;
 
                 Color color = connectedPlayer.HasState("beatmap_downloaded") ? green : await preview.isDownloadable ? yellow : red;
                 color.a = connectedPlayer.isMe ? 0.4f : 0.1f;

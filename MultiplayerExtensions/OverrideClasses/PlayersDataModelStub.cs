@@ -1,4 +1,5 @@
-﻿using MultiplayerExtensions.Beatmaps;
+﻿using BeatSaverSharp;
+using MultiplayerExtensions.Beatmaps;
 using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
 using System;
@@ -45,40 +46,60 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, IConnectedPlayer player)
         {
-            if (Utilities.Utils.LevelIdToHash(packet.levelId) != null)
+            string? hash = Utilities.Utils.LevelIdToHash(packet.levelId);
+            if (hash != null)
             {
-                PreviewBeatmapStub preview = PreviewBeatmapManager.CreatePreview(packet);
-                BeatmapCharacteristicSO? characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(packet.characteristic);
-                HMMainThreadDispatcher.instance.Enqueue(() =>
-                {
-                    base.SetPlayerBeatmapLevel(player.userId, preview, packet.difficulty, characteristic);
-                });
+                Plugin.Log?.Debug($"'{player.userId}' selected song '{hash}'.");
+                BeatmapCharacteristicSO characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(packet.characteristic);
+                PreviewBeatmapStub preview = new PreviewBeatmapStub(packet);
+                HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(player.userId, preview, packet.difficulty, characteristic));
             }
         }
 
         public async override void HandleMenuRpcManagerSelectedBeatmap(string userId, BeatmapIdentifierNetSerializable beatmapId)
         {
-            if (!_sessionManager.GetPlayerByUserId(userId).HasState("modded"))
+            if (beatmapId != null)
             {
-                if (beatmapId != null)
+                string? hash = Utilities.Utils.LevelIdToHash(beatmapId.levelID);
+                if (hash != null)
                 {
-                    string? hash = Utilities.Utils.LevelIdToHash(beatmapId.levelID);
-                    if (hash != null)
+                    Plugin.Log?.Debug($"'{userId}' selected song '{hash}'.");
+                    BeatmapCharacteristicSO characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
+                    PreviewBeatmapStub? preview = null;
+
+                    if (_playersData.Values.Any(playerData => playerData.beatmapLevel?.levelID == beatmapId.levelID))
                     {
-                        Plugin.Log?.Debug($"'{userId}' selected song '{hash}'.");
-                        BeatmapCharacteristicSO characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
-                        PreviewBeatmapStub preview = await PreviewBeatmapManager.CreatePreview(beatmapId.levelID);
-
-                        if (userId == base.hostUserId)
-                            _sessionManager.SetLocalPlayerState("beatmap_downloaded", preview.isDownloaded);
-
-                        HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(userId, preview, beatmapId.difficulty, characteristic));
-                        return;
+                        IPreviewBeatmapLevel playerPreview = _playersData.Values.Where(playerData => playerData.beatmapLevel?.levelID == beatmapId.levelID).First().beatmapLevel;
+                        if (playerPreview is PreviewBeatmapStub playerPreviewStub)
+                            preview = playerPreviewStub;
                     }
-                }
 
-                base.HandleMenuRpcManagerSelectedBeatmap(userId, beatmapId);
+                    IPreviewBeatmapLevel localPreview = SongCore.Loader.GetLevelById(beatmapId.levelID);
+                    if (localPreview != null)
+                        preview = new PreviewBeatmapStub(hash, localPreview);
+
+                    if (preview == null)
+                    {
+                        try
+                        {
+                            Beatmap bm = await BeatSaver.Client.Hash(hash);
+                            preview = new PreviewBeatmapStub(bm);
+                        }
+                        catch
+                        {
+                            return;
+                        }
+                    }
+
+                    if (userId == base.hostUserId)
+                        _sessionManager.SetLocalPlayerState("beatmap_downloaded", preview.isDownloaded);
+
+                    HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(userId, preview, beatmapId.difficulty, characteristic));
+                    return;
+                }
             }
+
+            base.HandleMenuRpcManagerSelectedBeatmap(userId, beatmapId);
         }
 
         public async new void SetLocalPlayerBeatmapLevel(string levelId, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO characteristic)
@@ -87,19 +108,39 @@ namespace MultiplayerExtensions.OverrideClasses
             if (hash != null)
             {
                 Plugin.Log?.Debug($"Local user selected song '{hash}'.");
-                //HarmonyPatches.GameServerPlayerTablePatch.SetLoading(_sessionManager.localPlayer);
-                PreviewBeatmapStub preview = await PreviewBeatmapManager.CreatePreview(levelId);
+                PreviewBeatmapStub? preview = null;
+
+                if (_playersData.Values.Any(playerData => playerData.beatmapLevel?.levelID == levelId))
+                {
+                    IPreviewBeatmapLevel playerPreview = _playersData.Values.Where(playerData => playerData.beatmapLevel?.levelID == levelId).First().beatmapLevel;
+                    if (playerPreview is PreviewBeatmapStub playerPreviewStub)
+                        preview = playerPreviewStub;
+                }
+
+                IPreviewBeatmapLevel localPreview = SongCore.Loader.GetLevelById(levelId);
+                if (localPreview != null)
+                    preview = new PreviewBeatmapStub(hash, localPreview);
+
+                if (preview == null)
+                {
+                    try
+                    {
+                        Beatmap bm = await BeatSaver.Client.Hash(hash);
+                        preview = new PreviewBeatmapStub(bm);
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                }
 
                 if (base.localUserId == base.hostUserId)
                     _sessionManager.SetLocalPlayerState("beatmap_downloaded", preview.isDownloaded);
 
-                _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, characteristic.serializedName, beatmapDifficulty));
-                _menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                 HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
-                return;
-            }
-
-            base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
+                _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, characteristic.serializedName, beatmapDifficulty));
+            }else
+                base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace MultiplayerExtensions
 {
     public static class Downloader
     {
+        public static ILobbyPlayersDataModel lobbyPlayersDataModel;
+
         public static readonly string CustomLevelsFolder = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
         internal static ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>> CurrentDownloads 
             = new ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>>(StringComparer.OrdinalIgnoreCase);
@@ -25,15 +27,15 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
-            if (!PreviewBeatmapManager.CacheContainsHash(hash))
+            PreviewBeatmapStub preview = (PreviewBeatmapStub)lobbyPlayersDataModel.playersData.Values.Where(playerData =>
+                playerData.beatmapLevel is PreviewBeatmapStub beatmapStub && beatmapStub.levelHash == hash
+            ).First().beatmapLevel;
+
+            if (!await preview.isDownloadable)
             {
-                Plugin.Log?.Warn($"Could not get song '{hash}' from cache.");
+                Plugin.Log?.Warn($"Song '{hash}' cannot be downloaded from Beat Saver.");
                 return null;
             }
-
-            PreviewBeatmapStub preview = PreviewBeatmapManager.GetHashFromCache(hash);
-            string folderPath = Utils.GetSongDirectoryName(preview.levelKey, preview.songName, preview.levelAuthorName);
-            folderPath = Path.Combine(CustomLevelsFolder, folderPath);
 
             if (await preview.isDownloadable == false)
             {
@@ -42,6 +44,8 @@ namespace MultiplayerExtensions
             }
 
             byte[] beatmapBytes = await preview.DownloadZip(cancellationToken, progress);
+            string folderPath = Utils.GetSongDirectoryName(preview.beatmap!.Key, preview.songName, preview.levelAuthorName);
+            folderPath = Path.Combine(CustomLevelsFolder, folderPath);
             using (var ms = new MemoryStream(beatmapBytes))
             {
                 var result = await ZipUtils.ExtractZip(ms, folderPath);
