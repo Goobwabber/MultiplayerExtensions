@@ -20,7 +20,9 @@ namespace MultiplayerExtensions.Packets
 
         public void Deserialize(NetDataReader reader, int length, IConnectedPlayer data)
         {
+            int prevPosition = reader.Position;
             string packetType = reader.GetString();
+            length -= reader.Position - prevPosition;
             Action<NetDataReader, int, IConnectedPlayer> action;
             if (this.packetHandlers.TryGetValue(packetType, out action))
             {
@@ -29,6 +31,11 @@ namespace MultiplayerExtensions.Packets
                     action(reader, length, data);
                     return;
                 }
+            }
+            else
+            {
+                reader.SkipBytes(length);
+                return;
             }
         }
 
