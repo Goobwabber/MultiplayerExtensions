@@ -23,20 +23,21 @@ namespace MultiplayerExtensions.Packets
             int prevPosition = reader.Position;
             string packetType = reader.GetString();
             length -= reader.Position - prevPosition;
+            prevPosition = reader.Position;
+
             Action<NetDataReader, int, IConnectedPlayer> action;
-            if (this.packetHandlers.TryGetValue(packetType, out action))
-            {
-                if (action != null)
-                {
+            if (this.packetHandlers.TryGetValue(packetType, out action) && action != null) {
+                try {
                     action(reader, length, data);
-                    return;
+                } catch (Exception ex) {
+                    Plugin.Log?.Warn($"An exception was thrown processing custom packet '{packetType}' from player '{data?.userName ?? "<NULL>"}|{data?.userId ?? " < NULL > "}': {ex.Message}");
+                    Plugin.Log?.Debug(ex);
                 }
             }
-            else
-            {
-                reader.SkipBytes(length);
-                return;
-            }
+            
+            // skip any unprocessed bytes (or rewind the reader if too many bytes were read)
+            int processedBytes = reader.Position - prevPosition;
+            reader.SkipBytes(length - processedBytes);
         }
 
         public bool HandlesType(Type type)
