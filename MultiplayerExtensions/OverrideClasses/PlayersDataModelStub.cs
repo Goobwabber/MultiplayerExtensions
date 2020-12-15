@@ -34,7 +34,13 @@ namespace MultiplayerExtensions.OverrideClasses
             _menuRpcManager.selectedBeatmapEvent += this.HandleMenuRpcManagerSelectedBeatmap;
         }
 
-        private void HandlePlayerStateChanged(IConnectedPlayer player) => HarmonyPatches.GameServerPlayerTablePatch.Update(player);
+        private void HandlePlayerStateChanged(IConnectedPlayer player)
+        {
+            if (player.HasState("beatmap_downloaded"))
+            {
+                this.NotifyModelChange(player.userId);
+            }
+        }
 
         private void HandlePlayerConnected(IConnectedPlayer player)
         {

@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(GameServerPlayerTableCell), "SetData", MethodType.Normal)]
+    [HarmonyPatch(typeof(GameServerPlayersTableView), "SetData", MethodType.Normal)]
     public class GameServerPlayerTablePatch
     {
         private static Color green = new Color(0f, 1f, 0f, 1f);
@@ -18,60 +18,60 @@ namespace MultiplayerExtensions.HarmonyPatches
         private static Color red = new Color(1f, 0f, 0f, 1f);
         private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
 
-        private static Dictionary<string, GameServerPlayerTableCell> cells = new Dictionary<string, GameServerPlayerTableCell>();
-        private static Dictionary<string, ILobbyPlayerDataModel> models = new Dictionary<string, ILobbyPlayerDataModel>();
-
-        static void Postfix(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
+        static void Postfix(List<IConnectedPlayer> sortedPlayers, ILobbyPlayersDataModel lobbyPlayersDataModel, GameServerPlayersTableView __instance)
         {
-            if (!cells.ContainsValue(__instance))
+            IPreviewBeatmapLevel hostBeatmap = lobbyPlayersDataModel.GetPlayerBeatmapLevel(lobbyPlayersDataModel.hostUserId);
+            if (hostBeatmap != null && hostBeatmap is PreviewBeatmapStub hostBeatmapStub)
             {
-                cells[connectedPlayer.userId] = __instance;
-                models[connectedPlayer.userId] = playerDataModel;
+                TableView tableView = __instance.GetField<TableView, GameServerPlayersTableView>("_tableView");
+                foreach (TableCell cell in tableView.visibleCells)
+                {
+                    if (cell is GameServerPlayerTableCell playerCell)
+                    {
+                        Image background = playerCell.GetField<Image, GameServerPlayerTableCell>("_localPlayerBackgroundImage");
+                        CurvedTextMeshPro emptySuggestion = playerCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedLevelText");
+                        CurvedTextMeshPro suggestion = playerCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_suggestedLevelText");
+                        IConnectedPlayer player = sortedPlayers[playerCell.idx];
+                        Color backgroundColor = new Color();
+
+                        if (player.isConnectionOwner)
+                        {
+                            suggestion.gameObject.SetActive(false);
+                            emptySuggestion.gameObject.SetActive(true);
+                            emptySuggestion.text = "Loading...";
+                            hostBeatmapStub.isDownloadable.ContinueWith(r =>
+                            {
+                                HMMainThreadDispatcher.instance.Enqueue(() =>
+                                {
+                                    suggestion.gameObject.SetActive(true);
+                                    emptySuggestion.gameObject.SetActive(false);
+                                });
+                            });
+                        }
+
+                        background.enabled = true;
+                        if (player.HasState("beatmap_downloaded"))
+                        {
+                            backgroundColor = green;
+                            backgroundColor.a = player.isMe ? 0.4f : 0.1f;
+                            background.color = backgroundColor;
+                        }
+                        else
+                        {
+                            hostBeatmapStub.isDownloadable.ContinueWith(r =>
+                            {
+                                bool downloadable = r.Result;
+                                backgroundColor = downloadable ? yellow : red;
+                                backgroundColor.a = player.isMe ? 0.4f : 0.1f;
+                                HMMainThreadDispatcher.instance.Enqueue(() =>
+                                {
+                                    background.color = backgroundColor;
+                                });
+                            });
+                        }
+                    }
+                }
             }
-
-            Update(connectedPlayer, playerDataModel, __instance);
-        }
-
-        public static async void Update(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, GameServerPlayerTableCell __instance)
-        {
-            Image background = __instance.GetField<Image, GameServerPlayerTableCell>("_localPlayerBackgroundImage");
-            if (playerDataModel.beatmapLevel != null)
-            {
-                background.enabled = true;
-                PreviewBeatmapStub preview = (PreviewBeatmapStub)playerDataModel.beatmapLevel;
-
-                Color color = connectedPlayer.HasState("beatmap_downloaded") ? green : await preview.isDownloadable ? yellow : red;
-                color.a = connectedPlayer.isMe ? 0.4f : 0.1f;
-
-                HMMainThreadDispatcher.instance.Enqueue(() => background.color = color);
-            }
-            else
-            {
-                HMMainThreadDispatcher.instance.Enqueue(() => background.color = normal);
-            }
-        }
-
-        public static void SetLoading(IConnectedPlayer player)
-        {
-            GameServerPlayerTableCell cell = cells[player.userId];
-            CurvedTextMeshPro emptySuggestion = cell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedLevelText");
-            CurvedTextMeshPro suggestion = cell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_suggestedLevelText");
-
-            suggestion.gameObject.SetActive(false);
-            emptySuggestion.gameObject.SetActive(true);
-
-            emptySuggestion.text = "Loading...";
-        }
-
-        public static void Update(IConnectedPlayer player)
-        {
-            if (cells.TryGetValue(player.userId, out GameServerPlayerTableCell cell))
-            {
-                ILobbyPlayerDataModel model = models[player.userId];
-                Update(player, model, cell);
-            }
-            else
-                Plugin.Log?.Debug($"Tried to update UI for player '{player.userName} ({player.userId})', but there wasn't an associated TableCell.");
         }
     }
 
