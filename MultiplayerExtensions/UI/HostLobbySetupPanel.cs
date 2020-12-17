@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -102,7 +102,9 @@ namespace MultiplayerExtensions.UI
             CustomSongs = value;
             customSongsToggle.Value = value;
 
-            SetEnforceMods(EnforceMods || value);
+            EnforceMods = EnforceMods || value;
+            enforceModsToggle.Value = EnforceMods || value;
+
             UpdateStates();
         }
 
@@ -111,7 +113,10 @@ namespace MultiplayerExtensions.UI
         {
             EnforceMods = value;
             enforceModsToggle.Value = value;
-            enforceModsToggle.interactable = !CustomSongs;
+
+            CustomSongs = !(!CustomSongs || !value);
+            customSongsToggle.Value = !(!CustomSongs || !value);
+
             UpdateStates();
         }
 
@@ -120,7 +125,9 @@ namespace MultiplayerExtensions.UI
         {
             VerticalHUD = value;
             verticalHUDToggle.Value = value;
-            SetDefaultHUD(!(!DefaultHUD || !value));
+
+            DefaultHUD = !(!DefaultHUD || !value);
+            defaultHUDToggle.Value = !(!DefaultHUD || !value);
         }
 
         [UIAction("SetDefaultHUD")]
@@ -128,7 +135,9 @@ namespace MultiplayerExtensions.UI
         {
             DefaultHUD = value;
             defaultHUDToggle.Value = value;
-            defaultHUDToggle.interactable = VerticalHUD;
+
+            VerticalHUD = VerticalHUD || value;
+            verticalHUDToggle.Value = VerticalHUD || value;
         }
 
         [UIAction("SetHologram")]
@@ -142,8 +151,6 @@ namespace MultiplayerExtensions.UI
         private void OnActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
-            defaultHUDToggle.interactable = VerticalHUD;
-            enforceModsToggle.interactable = !CustomSongs;
         }
 
         private void OnPlayerStateChanged(IConnectedPlayer player)

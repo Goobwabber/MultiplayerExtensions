@@ -50,7 +50,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                         }
 
                         background.enabled = true;
-                        if (player.HasState("beatmap_downloaded"))
+                        if (player.HasState("beatmap_downloaded") || player.HasState("start_primed"))
                         {
                             backgroundColor = green;
                             backgroundColor.a = player.isMe ? 0.4f : 0.1f;

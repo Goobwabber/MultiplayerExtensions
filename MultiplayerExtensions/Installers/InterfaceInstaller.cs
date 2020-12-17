@@ -13,6 +13,11 @@ namespace MultiplayerExtensions.Installers
     {
         public override void InstallBindings()
         {
+
+        }
+
+        public override void Start()
+        {
             Plugin.Log?.Info("Installing Interface");
 
             HostLobbySetupViewController hostViewController = Container.Resolve<HostLobbySetupViewController>();
@@ -22,10 +27,7 @@ namespace MultiplayerExtensions.Installers
             ClientLobbySetupViewController clientViewController = Container.Resolve<ClientLobbySetupViewController>();
             ClientLobbySetupPanel clientSetupPanel = clientViewController.gameObject.AddComponent<ClientLobbySetupPanel>();
             Container.Inject(clientSetupPanel);
-        }
 
-        public override void Start()
-        {
             CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
             CenterScreenLoadingPanel loadingPanel = centerScreenController.gameObject.AddComponent<CenterScreenLoadingPanel>();
             Container.Inject(loadingPanel);
