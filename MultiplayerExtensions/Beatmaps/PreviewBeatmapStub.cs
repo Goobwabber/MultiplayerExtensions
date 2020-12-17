@@ -15,7 +15,7 @@ namespace MultiplayerExtensions.Beatmaps
         public string downloadURL => $"https://beatsaver.com/api/download/hash/{levelHash.ToLower()}";
         public Beatmap? beatmap;
 
-        private Task<Sprite?> _coverTask;
+        private Task<Sprite?>? _coverTask;
         private Task<byte[]> _rawCoverTask;
         private Task<AudioClip>? _audioTask;
 
@@ -92,7 +92,6 @@ namespace MultiplayerExtensions.Beatmaps
             this.songDuration = packet.songDuration;
 
             _rawCoverTask = Task.FromResult(packet.coverImage);
-            _coverTask = new Task<Sprite?>(() => Utilities.Sprites.GetSprite(packet.coverImage));
         }
 
         public PreviewBeatmapStub(Beatmap bm)
@@ -114,7 +113,6 @@ namespace MultiplayerExtensions.Beatmaps
             this._downloadable = DownloadableState.True;
 
             _rawCoverTask = bm.FetchCoverImage(CancellationToken.None);
-            _coverTask = _rawCoverTask.ContinueWith<Sprite?>(task => Utilities.Sprites.GetSprite(task.Result));
         }
 
         public string levelID { get; private set; }
@@ -155,7 +153,12 @@ namespace MultiplayerExtensions.Beatmaps
 
         public async Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken)
         {
-            Sprite? cover = await _coverTask;
+            Sprite? cover = null;
+            if (_coverTask != null)
+                cover = await _coverTask;
+            else
+                Utilities.Sprites.GetSprite(await _rawCoverTask);
+
             if (cover == null)
                 cover = Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
 
