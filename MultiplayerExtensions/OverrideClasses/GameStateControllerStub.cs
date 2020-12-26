@@ -18,6 +18,11 @@ namespace MultiplayerExtensions.OverrideClasses
         [Inject]
         protected readonly PacketManager _packetManager;
 
+        [Inject] 
+        protected readonly ExtendedPlayerManager _extendedPlayerManager;
+
+        private static readonly SemVer.Version _minVersionStartPrimed = new SemVer.Version("0.4.0");
+        
         public new void Activate()
         {
             _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
@@ -50,11 +55,25 @@ namespace MultiplayerExtensions.OverrideClasses
             base.StopListeningToGameStart();
         }
 
+        private bool IsPlayerReady(IConnectedPlayer player) 
+        {
+            if (player.HasState("start_primed")) return true;
+            
+            // player is not modded: always assume ready
+            if (!player.HasState("modded")) return true;
+            
+            var extendedPlayer = _extendedPlayerManager.GetExtendedPlayer(player);
+            // did not receive mpexVersion from player or the version is too old: assume the player is ready to prevent getting stuck at "Loading..." screen 
+            if (extendedPlayer.mpexVersion == null || extendedPlayer.mpexVersion < _minVersionStartPrimed) return true;
+            
+            return false;
+        }
+        
         private void OnPlayerStateChanged(IConnectedPlayer player)
         {
             if (starting)
             {
-                if (_sessionManager.connectedPlayers.All((x) => x.HasState("start_primed") || !x.HasState("modded")) && _sessionManager.LocalPlayerHasState("start_primed"))
+                if (_sessionManager.connectedPlayers.All(IsPlayerReady) && _sessionManager.LocalPlayerHasState("start_primed"))
                 {
                     Plugin.Log.Debug("All players ready, starting game.");
                     StartLevel();
