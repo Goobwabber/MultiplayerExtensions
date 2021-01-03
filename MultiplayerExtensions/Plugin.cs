@@ -12,6 +12,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using IPALogger = IPA.Logging.Logger;
+using BeatSaverSharp;
 
 namespace MultiplayerExtensions
 {
@@ -22,6 +23,7 @@ namespace MultiplayerExtensions
         internal static Plugin Instance { get; private set; } = null!;
         internal static PluginMetadata PluginMetadata = null!;
         internal static Harmony? _harmony;
+        internal static BeatSaver BeatSaver = null!;
         internal static Harmony Harmony
         {
             get
@@ -44,6 +46,12 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
             zenjector.OnApp<MultiplayerInstaller>();
+            HttpOptions options = new HttpOptions
+            {
+                ApplicationName = "MultiplayerExtensions",
+                Version = new Version(pluginMetadata.Version.ToString())
+            };
+            BeatSaver = new BeatSaver(options);
         }
 
         [OnStart]
@@ -67,7 +75,7 @@ namespace MultiplayerExtensions
             {
                 GithubVersion latest = await VersionCheck.GetLatestVersionAsync("Zingabopp", "MultiplayerExtensions");
                 Log?.Debug($"Latest version is {latest}, released on {latest.ReleaseDate.ToShortDateString()}");
-                if(PluginMetadata != null)
+                if (PluginMetadata != null)
                 {
                     SemVer.Version currentVer = PluginMetadata.Version;
                     SemVer.Version latestVersion = new SemVer.Version(latest.ToString());
@@ -78,7 +86,7 @@ namespace MultiplayerExtensions
                     }
                 }
             }
-            catch(ReleaseNotFoundException ex)
+            catch (ReleaseNotFoundException ex)
             {
                 Log?.Warn(ex.Message);
             }

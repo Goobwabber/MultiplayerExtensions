@@ -78,7 +78,7 @@ namespace MultiplayerExtensions.Beatmaps
         {
             if (string.IsNullOrEmpty(hash))
                 return null;
-            Task<Beatmap?> beatmap = BeatSaver.Client.Hash(hash);
+            Task<Beatmap?> beatmap = Plugin.BeatSaver.Hash(hash);
             await beatmap.ContinueWith(r =>
             {
                 if (r.IsCanceled)

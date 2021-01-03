@@ -23,7 +23,7 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
-            var bm = await BeatSaverSharp.BeatSaver.Client.Hash(hash, cancellationToken);
+            var bm = await Plugin.BeatSaver.Hash(hash, cancellationToken);
 
             string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
