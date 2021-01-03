@@ -99,7 +99,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                     return true;
                 }
 
-                BeatSaverSharp.BeatSaver.Client.Hash(levelHash, CancellationToken.None).ContinueWith(r =>
+                Plugin.BeatSaver.Hash(levelHash, CancellationToken.None).ContinueWith(r =>
                 {
                     if (r.Result == null)
                     {
