@@ -82,6 +82,8 @@ namespace MultiplayerExtensions
         {
             Task<IPreviewBeatmapLevel?> task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, progress, cancellationToken));
             Plugin.Log?.Debug($"Active downloads: {CurrentDownloads.Count}");
+            if (task.IsCompleted)
+                CurrentDownloads.TryRemove(levelId, out _);
             return task;
         }
 
