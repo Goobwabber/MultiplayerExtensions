@@ -88,7 +88,7 @@ namespace MultiplayerExtensions.OverrideClasses
                     {
                         try
                         {
-                            Beatmap bm = await BeatSaver.Client.Hash(hash);
+                            Beatmap bm = await Plugin.BeatSaver.Hash(hash);
                             preview = new PreviewBeatmapStub(bm);
                         }
                         catch
@@ -131,7 +131,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 {
                     try
                     {
-                        Beatmap bm = await BeatSaver.Client.Hash(hash);
+                        Beatmap bm = await Plugin.BeatSaver.Hash(hash);
                         preview = new PreviewBeatmapStub(bm);
                     }
                     catch
