@@ -80,6 +80,11 @@ Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp
   </PropertyGroup>
 </Project>
 ```
+## Donate
+You can support development of MultiplayerExtensions by donating at the following links:
+* https://ko-fi.com/goobwabber
+* https://ko-fi.com/zingabopp
+
 ## Related Mods
 * [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
 * [MultiplayerAvatars](https://github.com/Goobwabber/MultiplayerAvatars)
