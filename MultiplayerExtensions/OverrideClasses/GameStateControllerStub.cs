@@ -21,7 +21,6 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void Activate()
         {
             _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
-            Downloader.lobbyPlayersDataModel = _lobbyPlayersDataModel;
             base.Activate();
         }
 

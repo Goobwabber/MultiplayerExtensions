@@ -30,7 +30,6 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<LobbyJoinPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
-            AddDefaultPatch<LoadLevelPatch>();
             AddDefaultPatch<GameServerPlayerTablePatch>();
             AddDefaultPatch<LoggingPatch>();
         }
