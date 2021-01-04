@@ -58,7 +58,7 @@ namespace MultiplayerExtensions.OverrideClasses
                     Plugin.Log.Debug($"Player {player.userId} is ready.");
                 }
 
-                if (_sessionManager.connectedPlayers.All((x) => x.HasState("start_primed") || !x.HasState("modded")) && _sessionManager.LocalPlayerHasState("start_primed"))
+                if (_sessionManager.connectedPlayers.All((x) => x.HasState("start_primed") || (!x.HasState("modded") && x.HasState("is_active"))) && _sessionManager.LocalPlayerHasState("start_primed"))
                 {
                     Plugin.Log.Debug("All players ready, starting game.");
                     StartLevel();
