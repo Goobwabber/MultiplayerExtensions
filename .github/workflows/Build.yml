@@ -23,15 +23,15 @@ jobs:
       run: wget --no-check-certificate "$FILES_URL" -q -O bsfiles.zip
     - name: ExtractRefs
       run: unzip -q -n bsfiles.zip -d ./Refs
+    - name: Download Mod Dependencies
+      uses: Goobwabber/download-beatmods-deps@1.0
+      with:
+        manifest: ./MultiplayerExtensions/manifest.json
     - name: Build
       id: Build
       env: 
         FrameworkPathOverride: /usr/lib/mono/4.8-api
       run: dotnet build --configuration Release
-    - name: Download Mod Dependencies
-      uses: Goobwabber/download-beatmods-deps@1.0
-      with:
-        manifest: ./MultiplayerExtensions/manifest.json
     - name: GitStatus
       run: git status
     - name: Echo Filename
