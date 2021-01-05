@@ -59,6 +59,10 @@ jobs:
       run: wget --no-check-certificate "$FILES_URL" -q -O bsfiles.zip
     - name: ExtractRefs
       run: unzip -q -n bsfiles.zip -d ./Refs
+    - name: Download Mod Dependencies
+      uses: Goobwabber/download-beatmods-deps@1.1
+      with:
+        manifest: ./MultiplayerExtensions/manifest.json
     - name: Test
       id: Test
       env: 
