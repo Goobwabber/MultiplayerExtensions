@@ -8,25 +8,6 @@ on:
       - 'MultiplayerExtensionsTests/**'
 
 jobs:
-  Test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
-    - name: GetStrippedRefs
-      env:
-        FILES_URL: ${{ secrets.BSFILES_URL }}
-      run: wget --no-check-certificate "$FILES_URL" -q -O bsfiles.zip
-    - name: ExtractRefs
-      run: unzip -q -n bsfiles.zip -d ./Refs
-    - name: Test
-      id: Test
-      env: 
-        FrameworkPathOverride: /usr/lib/mono/4.8-api
-      run: dotnet test --logger GitHubActions
   Build:
     runs-on: ubuntu-latest
     steps:
@@ -62,3 +43,22 @@ jobs:
       with:
         name: ${{ steps.Build.outputs.filename }}
         path: ${{ steps.Build.outputs.artifactpath }}
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: GetStrippedRefs
+      env:
+        FILES_URL: ${{ secrets.BSFILES_URL }}
+      run: wget --no-check-certificate "$FILES_URL" -q -O bsfiles.zip
+    - name: ExtractRefs
+      run: unzip -q -n bsfiles.zip -d ./Refs
+    - name: Test
+      id: Test
+      env: 
+        FrameworkPathOverride: /usr/lib/mono/4.8-api
+      run: dotnet test --logger GitHubActions
