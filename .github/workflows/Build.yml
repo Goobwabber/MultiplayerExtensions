@@ -38,5 +38,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
-        name: ${{ steps.Build.outputs.filename }}
+        name: MultiplayerExtensions
         path: ${{ steps.Build.outputs.artifactpath }}
