@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MultiplayerExtensions.Utilities;
 using System.Collections.Concurrent;
+using MultiplayerExtensions.Beatmaps;
+using BeatSaverSharp;
 #nullable enable
 
 namespace MultiplayerExtensions
@@ -23,16 +25,17 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
-            var bm = await Plugin.BeatSaver.Hash(hash, cancellationToken);
+            Beatmap bm = await Plugin.BeatSaver.Hash(hash, cancellationToken);
 
-            string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
-            folderPath = Path.Combine(CustomLevelsFolder, folderPath);
             if (bm == null)
             {
                 Plugin.Log?.Warn($"Could not find song '{hash}' on Beat Saver.");
                 return null;
             }
+
             byte[] beatmapBytes = await bm.DownloadZip(false, cancellationToken, progress);
+            string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.SongAuthorName);
+            folderPath = Path.Combine(CustomLevelsFolder, folderPath);
             using (var ms = new MemoryStream(beatmapBytes))
             {
                 var result = await ZipUtils.ExtractZip(ms, folderPath);
@@ -71,7 +74,7 @@ namespace MultiplayerExtensions
 
             CustomPreviewBeatmapLevel? beatmap = SongCore.Loader.GetLevelByHash(hash);
             if (beatmap == null)
-                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{bm?.Name ?? hash}' from SongCore, this shouldn't happen.");
+                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{bm.Metadata.SongName ?? hash}' from SongCore, this shouldn't happen.");
             return beatmap;
         }
 
@@ -79,8 +82,9 @@ namespace MultiplayerExtensions
         {
             Task<IPreviewBeatmapLevel?> task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, progress, cancellationToken));
             Plugin.Log?.Debug($"Active downloads: {CurrentDownloads.Count}");
+            if (task.IsCompleted)
+                CurrentDownloads.TryRemove(levelId, out _);
             return task;
-
         }
 
         private static async Task<IPreviewBeatmapLevel?> TryDownloadSongInternal(string levelId, IProgress<double>? progress, CancellationToken cancellationToken)

@@ -44,8 +44,8 @@ namespace MultiplayerExtensions
             PluginMetadata = pluginMetadata;
             Log = logger;
             Config = conf.Generated<PluginConfig>();
-            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.instance.AddTab("Multiplayer", "MultiplayerExtensions.UI.GameplaySetupPanel.bsml", GameplaySetupPanel.instance);
             zenjector.OnApp<MultiplayerInstaller>();
+            zenjector.OnMenu<InterfaceInstaller>();
             HttpOptions options = new HttpOptions
             {
                 ApplicationName = "MultiplayerExtensions",

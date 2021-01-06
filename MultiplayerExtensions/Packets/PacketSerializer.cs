@@ -74,7 +74,6 @@ namespace MultiplayerExtensions.Packets
 
             this.packetHandlers[typeof(TPacket).ToString()] = delegate (NetDataReader reader, int size, IConnectedPlayer player)
             {
-                Plugin.Log?.Debug($"(PacketSerializer) Received '{typeof(TPacket)}'");
                 callback(deserialize(reader, size), player);
             };
         }

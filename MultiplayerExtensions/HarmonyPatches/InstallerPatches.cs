@@ -15,8 +15,12 @@ namespace MultiplayerExtensions.HarmonyPatches
     class LobbyPlayersDataModelPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(ConcreteBinderNonGeneric).GetMethod(nameof(ConcreteBinderNonGeneric.To), Array.Empty<Type>());
-        private static readonly MethodInfo _overrideAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null!));
-        private static readonly MethodInfo _originalMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyPlayersDataModel) });
+
+        private static readonly MethodInfo _playersDataModelAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null));
+        private static readonly MethodInfo _gameStateControllerAttacher = SymbolExtensions.GetMethodInfo(() => GameStateControllerAttacher(null));
+
+        private static readonly MethodInfo _playersDataModelMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyPlayersDataModel) });
+        private static readonly MethodInfo _gameStateControllerMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyGameStateController) });
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -25,11 +29,16 @@ namespace MultiplayerExtensions.HarmonyPatches
             {
                 if (codes[i].opcode == OpCodes.Callvirt)
                 {
-                    if (codes[i].Calls(_originalMethod))
+                    if (codes[i].Calls(_playersDataModelMethod))
                     {
-                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _overrideAttacher);
+                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _playersDataModelAttacher);
                         codes[i] = newCode;
-                        break;
+                    }
+
+                    if (codes[i].Calls(_gameStateControllerMethod))
+                    {
+                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _gameStateControllerAttacher);
+                        codes[i] = newCode;
                     }
                 }
             }
@@ -40,6 +49,40 @@ namespace MultiplayerExtensions.HarmonyPatches
         private static FromBinderNonGeneric PlayerDataModelAttacher(ConcreteBinderNonGeneric contract)
         {
             return contract.To<PlayersDataModelStub>();
+        }
+
+        private static FromBinderNonGeneric GameStateControllerAttacher(ConcreteBinderNonGeneric contract)
+        {
+            return contract.To<GameStateControllerStub>();
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerMenuInstaller), "InstallBindings")]
+    class LevelLoaderPatch
+    {
+        private static readonly MethodInfo _rootMethod = typeof(DiContainer).GetMethod(nameof(DiContainer.BindInterfacesAndSelfTo), Array.Empty<Type>());
+
+        private static readonly MethodInfo _levelLoaderAttacher = SymbolExtensions.GetMethodInfo(() => LevelLoaderAttacher(null));
+        private static readonly MethodInfo _levelLoaderMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(MultiplayerLevelLoader) });
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Callvirt && codes[i].Calls(_levelLoaderMethod))
+                {
+                    CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _levelLoaderAttacher);
+                    codes[i] = newCode;
+                }
+            }
+
+            return codes.AsEnumerable();
+        }
+
+        private static FromBinderNonGeneric LevelLoaderAttacher(DiContainer contract)
+        {
+            return contract.Bind(typeof(MultiplayerLevelLoader), typeof(ITickable)).To<LevelLoaderStub>();
         }
     }
 }

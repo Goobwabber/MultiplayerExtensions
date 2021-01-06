@@ -1,0 +1,4 @@
+﻿<vertical id='LoadingDisplay' pad-top='30' pad-bottom='10'>
+  <text text='Loading...' font-size='5' align='Center' italics='true'></text>
+  <loading id='LoadIndicator' pref-height='1' preserve-aspect='true'></loading>
+</vertical>
