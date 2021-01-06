@@ -11,8 +11,9 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 ## Installation
 MultiplayerExtensions has not been released yet, but you can grab the latest build which is automagically generated. 
 1. Ensure you have the [required mods](https://github.com/Zingabopp/MultiplayerExtensions#requirements).
-2. Download the `MultiplayerExtensions` file listed under `Artifacts` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build). 
-   * You must be logged into GitHub to download builds from GitHub Actions.
+2. Download the `MultiplayerExtensions` file listed under `Assets` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/releases)**.
+   * Optionally, you can get a development build by downloading the file listed under `Artifacts`  **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build).
+   * You must be logged into GitHub to download a development build.
 3. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
    * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
 4. **Optional**: Edit `Beat Saber IPA.json` (in your `UserData` folder) and change `Debug` -> `ShowCallSource` to `true`. This will enable BSIPA to get file and line numbers from the `PDB` file where errors occur, which is very useful when reading the log files. This may have a *slight* impact on performance.
