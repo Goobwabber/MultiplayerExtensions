@@ -89,4 +89,4 @@ You can support development of MultiplayerExtensions by donating at the followin
 ## Related Mods
 * [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
 * [MultiplayerAvatars](https://github.com/Goobwabber/MultiplayerAvatars)
-* BeatTogether for [PC](https://github.com/pythonology/BeatTogether) or [Quest](https://github.com/pythonology/BeatTogether.Quest)
+* BeatTogether for [Oculus (Desktop)](https://github.com/pythonology/BeatTogether) or [Quest](https://github.com/pythonology/BeatTogether.Quest)
