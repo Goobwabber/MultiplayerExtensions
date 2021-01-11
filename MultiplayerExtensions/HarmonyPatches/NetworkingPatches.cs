@@ -8,7 +8,8 @@ namespace MultiplayerExtensions.HarmonyPatches
 	[HarmonyPatch(typeof(NetworkConfigSO), "masterServerEndPoint", MethodType.Getter)]
 	internal class GetMasterServerEndPointPatch
 	{
-
+		[HarmonyAfter("mod.serverbrowser")]
+		[HarmonyPriority(Priority.Last)]
 		internal static void Postfix(NetworkConfigSO __instance, ref MasterServerEndPoint __result)
 		{
 			if (__result != null)
@@ -25,6 +26,8 @@ namespace MultiplayerExtensions.HarmonyPatches
 	[HarmonyPatch(typeof(HostLobbySetupViewController), "SetLobbyCode", MethodType.Normal)]
 	internal class SetLobbyCodePatch
 	{
+		[HarmonyAfter("mod.serverbrowser")]
+		[HarmonyPriority(Priority.Last)]
 		public static void Postfix(HostLobbySetupViewController __instance, string code)
 		{
 			if (code == MPState.LastRoomCode)
