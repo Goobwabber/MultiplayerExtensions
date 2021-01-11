@@ -32,6 +32,8 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<GameServerPlayerTablePatch>();
             AddDefaultPatch<LoggingPatch>();
+            AddDefaultPatch<GetMasterServerEndPointPatch>();
+            AddDefaultPatch<SetLobbyCodePatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
