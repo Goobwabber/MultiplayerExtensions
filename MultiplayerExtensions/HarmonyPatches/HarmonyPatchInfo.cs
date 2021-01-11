@@ -34,11 +34,27 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (prefix == null && postfix == null && transpiler == null)
                 throw new ArgumentException("Prefix, Postfix and Transpiler cannot all be null.");
             if (prefix != null)
-                PrefixMethod = new HarmonyMethod(prefix);
+                PrefixMethod = GetHarmonyMethod(prefix);
             if (postfix != null)
-                PostfixMethod = new HarmonyMethod(postfix);
+                PostfixMethod = GetHarmonyMethod(postfix);
             if (transpiler != null)
-                TranspilerMethod = new HarmonyMethod(transpiler);
+                TranspilerMethod = GetHarmonyMethod(transpiler);
+        }
+
+        private HarmonyMethod GetHarmonyMethod(MethodInfo methodInfo)
+        {
+            HarmonyMethod method = new HarmonyMethod(methodInfo);
+            HarmonyPriority? priority = methodInfo.GetCustomAttribute<HarmonyPriority>();
+            HarmonyBefore? beforePatches = methodInfo.GetCustomAttribute<HarmonyBefore>();
+            HarmonyAfter? afterPatches = methodInfo.GetCustomAttribute<HarmonyAfter>();
+            if (priority != null)
+                method.priority = priority.info.priority;
+            if (beforePatches != null)
+                method.before = beforePatches.info.before;
+            if (afterPatches != null)
+                method.after = afterPatches.info.after;
+
+            return method;
         }
 
         public bool ApplyPatch(Harmony? harmony = null)
