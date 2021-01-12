@@ -1,4 +1,5 @@
 ﻿using MultiplayerExtensions.Packets;
+using MultiplayerExtensions.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +13,14 @@ namespace MultiplayerExtensions.Sessions
     class ExtendedPlayerManager : IInitializable
     {
         [Inject]
-        private SessionManager _sessionManager;
+        private SessionManager _sessionManager = null!;
 
         [Inject]
-        private PacketManager _packetManager;
+        private PacketManager _packetManager = null!;
 
         private Dictionary<string, ExtendedPlayer> _players = new Dictionary<string, ExtendedPlayer>();
         public string localPlatformID;
+        public Platform localPlatform;
 
         public void Initialize()
         {
@@ -32,6 +34,7 @@ namespace MultiplayerExtensions.Sessions
             BS_Utils.Gameplay.GetUserInfo.GetUserAsync().ContinueWith(r =>
             {
                 localPlatformID = r.Result.platformUserId;
+                localPlatform = r.Result.platform.ToPlatform();
             });
         }
 
@@ -43,7 +46,7 @@ namespace MultiplayerExtensions.Sessions
             
             if (localPlatformID != null)
             {
-                ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID);
+                ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID, localPlatform);
                 _packetManager.Send(localPlayerPacket);
             }
         }
@@ -51,20 +54,24 @@ namespace MultiplayerExtensions.Sessions
         private void OnPlayerDisconnected(IConnectedPlayer player)
         {
             Plugin.Log?.Info($"Player '{player.userId}' disconnected");
-            var extendedPlayer = _players[player.userId];
+            // var extendedPlayer = _players[player.userId];
             _players.Remove(player.userId);
         }
 
         private void HandlePlayerPacket(ExtendedPlayerPacket packet, IConnectedPlayer player)
         {
-            Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with '{packet.platformID}'");
-            var extendedPlayer = _players[player.userId];
+            Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with '{packet.platformID}' on platform '{packet.platform}'");
+            if (!_players.TryGetValue(player.userId, out ExtendedPlayer extendedPlayer))
+                extendedPlayer = new ExtendedPlayer(player);
             extendedPlayer.platformID = packet.platformID;
+            extendedPlayer.platform = packet.platform;
         }
 
-        public ExtendedPlayer GetExtendedPlayer(IConnectedPlayer player)
+        public ExtendedPlayer? GetExtendedPlayer(IConnectedPlayer player)
         {
-            return _players[player.userId];
+            if (_players.TryGetValue(player.userId, out ExtendedPlayer extendedPlayer))
+                return extendedPlayer;
+            return null;
         }
     }
 }

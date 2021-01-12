@@ -9,7 +9,8 @@ namespace MultiplayerExtensions.Sessions
     public class ExtendedPlayer : IConnectedPlayer
     {
         private IConnectedPlayer _connectedPlayer;
-        public string? platformID;
+        public string? platformID { get; internal set; }
+        public Platform platform { get; internal set; }
 
         public ExtendedPlayer(IConnectedPlayer player)
         {
