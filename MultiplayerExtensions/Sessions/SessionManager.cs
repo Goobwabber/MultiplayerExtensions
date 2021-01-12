@@ -13,16 +13,7 @@ namespace MultiplayerExtensions.Sessions
     class SessionManager : IInitializable
     {
         [Inject]
-        private IMenuRpcManager _menuRpcManager = null!;
-
-        [Inject]
-        private BeatmapCharacteristicCollectionSO _beatmapCharacteristicCollection = null!;
-
-        [Inject]
         private IMultiplayerSessionManager _sessionManager = null!;
-
-        [Inject]
-        private PacketManager _packetManager = null!;
 
         public void Initialize()
         {
@@ -38,54 +29,6 @@ namespace MultiplayerExtensions.Sessions
             _sessionManager.playerDisconnectedEvent += delegate (IConnectedPlayer player) { playerDisconnectedEvent?.Invoke(player); };
             _sessionManager.playerStateChangedEvent += delegate (IConnectedPlayer player) { playerStateChangedEvent?.Invoke(player); };
             _sessionManager.disconnectedEvent += delegate (DisconnectedReason reason) { disconnectedEvent?.Invoke(reason); };
-            RemoveMenuRpcEvents();
-            SetMenuRpcEvents();
-        }
-
-        private void RemoveMenuRpcEvents()
-        {
-            _menuRpcManager.selectedBeatmapEvent -= OnSelectedBeatmap;
-            _menuRpcManager.clearSelectedBeatmapEvent -= OnSelectedBeatmapCleared;
-        }
-
-        private void SetMenuRpcEvents()
-        {
-            // TODO: Appears to stop firing after scene change?
-            _menuRpcManager.selectedBeatmapEvent += OnSelectedBeatmap;
-            _menuRpcManager.clearSelectedBeatmapEvent += OnSelectedBeatmapCleared;
-        }
-
-        private void OnSelectedBeatmapCleared(string userId)
-        {
-            OnSelectedBeatmap(userId, null);
-        }
-
-        private void OnSelectedBeatmap(string userId, BeatmapIdentifierNetSerializable? beatmapId)
-        {
-            SelectedBeatmapEventArgs args;
-            UserType userType = UserType.None;
-            IConnectedPlayer? player = GetPlayerByUserId(userId);
-            if (player != null)
-            {
-                if (player.isMe)
-                    userType |= UserType.Local;
-                if (player.isConnectionOwner)
-                    userType |= UserType.Host;
-            }
-            else
-                Plugin.Log.Warn($"OnSelectedBeatmap raised by an unknown player: {userId}. Selected '{beatmapId?.levelID ?? "<NULL>"}'");
-            if (beatmapId == null || string.IsNullOrEmpty(beatmapId.levelID))
-            {
-                args = new SelectedBeatmapEventArgs(userId, userType);
-            }
-            else
-            {
-                BeatmapCharacteristicSO? characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
-                if (characteristic == null)
-                    Plugin.Log?.Warn($"Unknown characteristic: '{beatmapId.beatmapCharacteristicSerializedName}'");
-                args = new SelectedBeatmapEventArgs(userId, userType, beatmapId.levelID, beatmapId.difficulty, characteristic);
-            }
-            MPEvents.RaiseBeatmapSelected(this, args);
         }
 
         public event Action? connectedEvent;
