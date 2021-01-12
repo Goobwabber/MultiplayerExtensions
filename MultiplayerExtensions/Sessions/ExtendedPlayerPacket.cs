@@ -24,7 +24,7 @@ namespace MultiplayerExtensions.Sessions
             this.platformID = reader.GetString();
             this.mpexVersion = reader.GetString();
             Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
-            if (reader.AvailableBytes >= 4)
+            if (reader.AvailableBytes >= 4) // Verify this works when the platform int exists.
                 this.platform = (Platform)reader.GetInt();
             else
                 this.platform = Platform.Unknown;
