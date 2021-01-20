@@ -57,9 +57,18 @@ namespace MultiplayerExtensions.Sessions
 
         private void HandlePlayerPacket(ExtendedPlayerPacket packet, IConnectedPlayer player)
         {
-            Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with '{packet.platformID}'");
+            Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with platformID: '{packet.platformID}'  mpexVersion: '{packet.mpexVersion}'");
             var extendedPlayer = _players[player.userId];
             extendedPlayer.platformID = packet.platformID;
+            extendedPlayer.mpexVersion = new SemVer.Version(packet.mpexVersion);
+            if (Plugin.PluginMetadata.Version != extendedPlayer.mpexVersion) 
+            {
+                Plugin.Log?.Warn("###################################################################");
+                Plugin.Log?.Warn("Different MultiplayerExtensions version detected!");
+                Plugin.Log?.Warn($"The player '{player.userName}' is using MultiplayerExtensions {extendedPlayer.mpexVersion} while you are using MultiplayerExtensions {Plugin.PluginMetadata.Version}");
+                Plugin.Log?.Warn("For best compatibility all players should use the same version of MultiplayerExtensions.");
+                Plugin.Log?.Warn("###################################################################");
+            }
         }
 
         public ExtendedPlayer GetExtendedPlayer(IConnectedPlayer player)
