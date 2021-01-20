@@ -5,7 +5,6 @@ using MultiplayerExtensions.Sessions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Zenject;
 
@@ -88,7 +87,7 @@ namespace MultiplayerExtensions.OverrideClasses
                     {
                         try
                         {
-                            Beatmap bm = await BeatSaver.Client.Hash(hash);
+                            Beatmap bm = await Plugin.BeatSaver.Hash(hash);
                             preview = new PreviewBeatmapStub(bm);
                         }
                         catch
@@ -131,7 +130,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 {
                     try
                     {
-                        Beatmap bm = await BeatSaver.Client.Hash(hash);
+                        Beatmap bm = await Plugin.BeatSaver.Hash(hash);
                         preview = new PreviewBeatmapStub(bm);
                     }
                     catch
@@ -145,6 +144,9 @@ namespace MultiplayerExtensions.OverrideClasses
 
                 HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
                 _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, characteristic.serializedName, beatmapDifficulty));
+                if (!_sessionManager.connectedPlayers.All(x => x.HasState("modded")))
+                    _menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
+
             }else
                 base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
         }

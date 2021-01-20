@@ -48,7 +48,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                                 });
                             });
                         }
-
+                        // TODO: check merge
                         background.enabled = true;
                         if (player.HasState("beatmap_downloaded") || player.HasState("start_primed"))
                         {

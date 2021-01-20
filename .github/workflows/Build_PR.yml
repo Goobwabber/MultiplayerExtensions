@@ -1,12 +1,10 @@
-name: Build
+name: Pull Request Build
 
 on:
-  push:
+  pull_request:
     branches: [ master ]
     paths:
       - 'MultiplayerExtensions/**'
-      - '.github/workflows/Build.yml'
-      - 'Refs/**'
 
 jobs:
   build:

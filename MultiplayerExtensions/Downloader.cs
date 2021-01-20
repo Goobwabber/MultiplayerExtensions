@@ -16,8 +16,6 @@ namespace MultiplayerExtensions
 {
     public static class Downloader
     {
-        public static ILobbyPlayersDataModel lobbyPlayersDataModel;
-
         public static readonly string CustomLevelsFolder = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Beat Saber_Data", "CustomLevels");
         internal static ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>> CurrentDownloads 
             = new ConcurrentDictionary<string, Task<IPreviewBeatmapLevel?>>(StringComparer.OrdinalIgnoreCase);
@@ -27,24 +25,16 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
-            PreviewBeatmapStub preview = (PreviewBeatmapStub)lobbyPlayersDataModel.playersData.Values.Where(playerData =>
-                playerData.beatmapLevel is PreviewBeatmapStub beatmapStub && beatmapStub.levelHash == hash
-            ).First().beatmapLevel;
+            Beatmap bm = await Plugin.BeatSaver.Hash(hash, cancellationToken);
 
-            if (!await preview.isDownloadable)
-            {
-                Plugin.Log?.Warn($"Song '{hash}' cannot be downloaded from Beat Saver.");
-                return null;
-            }
-
-            if (await preview.isDownloadable == false)
+            if (bm == null)
             {
                 Plugin.Log?.Warn($"Could not find song '{hash}' on Beat Saver.");
                 return null;
             }
 
-            byte[] beatmapBytes = await preview.DownloadZip(cancellationToken, progress);
-            string folderPath = Utils.GetSongDirectoryName(preview.beatmap!.Key, preview.songName, preview.levelAuthorName);
+            byte[] beatmapBytes = await bm.DownloadZip(false, cancellationToken, progress);
+            string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.SongAuthorName);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
             using (var ms = new MemoryStream(beatmapBytes))
             {
@@ -84,7 +74,7 @@ namespace MultiplayerExtensions
 
             CustomPreviewBeatmapLevel? beatmap = SongCore.Loader.GetLevelByHash(hash);
             if (beatmap == null)
-                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{preview?.songName ?? hash}' from SongCore, this shouldn't happen.");
+                Plugin.Log?.Warn($"Couldn't get downloaded beatmap '{bm.Metadata.SongName ?? hash}' from SongCore, this shouldn't happen.");
             return beatmap;
         }
 
@@ -92,6 +82,8 @@ namespace MultiplayerExtensions
         {
             Task<IPreviewBeatmapLevel?> task = CurrentDownloads.GetOrAdd(levelId, TryDownloadSongInternal(levelId, progress, cancellationToken));
             Plugin.Log?.Debug($"Active downloads: {CurrentDownloads.Count}");
+            if (task.IsCompleted)
+                CurrentDownloads.TryRemove(levelId, out _);
             return task;
         }
 

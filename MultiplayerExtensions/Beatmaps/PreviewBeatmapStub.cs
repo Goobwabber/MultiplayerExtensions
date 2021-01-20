@@ -36,7 +36,7 @@ namespace MultiplayerExtensions.Beatmaps
                 {
                     _downloadableTask = _downloadable != DownloadableState.Unchecked ?
                         new Task<bool>(() => _downloadable == DownloadableState.True) :
-                        BeatSaver.Client.Hash(levelHash)
+                        Plugin.BeatSaver.Hash(levelHash)
                         .ContinueWith<bool>(r =>
                         {
                             try
@@ -137,7 +137,7 @@ namespace MultiplayerExtensions.Beatmaps
             {
                 try
                 {
-                    beatmap = await BeatSaver.Client.Hash(levelHash, cancellationToken);
+                    beatmap = await Plugin.BeatSaver.Hash(levelHash, cancellationToken);
                 }
                 catch
                 {
