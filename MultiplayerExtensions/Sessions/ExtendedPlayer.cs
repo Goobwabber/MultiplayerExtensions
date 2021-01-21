@@ -11,6 +11,7 @@ namespace MultiplayerExtensions.Sessions
         private IConnectedPlayer _connectedPlayer;
         public string? platformID { get; internal set; }
         public Platform platform { get; internal set; }
+        public SemVer.Version? mpexVersion;
 
         public ExtendedPlayer(IConnectedPlayer player)
         {

@@ -60,7 +60,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             {
                 operandString = $"({label.GetHashCode().ToString()}) {operandString}";
             }
-            Plugin.Log?.Info($"{c.opcode} | {operandString}");
+            //Plugin.Log?.Info($"{c.opcode} | {operandString}");
         }
 
         private static void ExceptionLogger(IConnectedPlayer p, Exception ex)
