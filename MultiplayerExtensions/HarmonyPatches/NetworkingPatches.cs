@@ -23,12 +23,12 @@ namespace MultiplayerExtensions.HarmonyPatches
 		}
 	}
 
-	[HarmonyPatch(typeof(HostLobbySetupViewController), "SetLobbyCode", MethodType.Normal)]
+	[HarmonyPatch(typeof(MultiplayerSettingsPanelController), "SetLobbyCode", MethodType.Normal)]
 	internal class SetLobbyCodePatch
 	{
 		[HarmonyAfter("mod.serverbrowser")]
 		[HarmonyPriority(Priority.Last)]
-		public static void Postfix(HostLobbySetupViewController __instance, string code)
+		public static void Postfix(MultiplayerSettingsPanelController __instance, string code)
 		{
 			if (code == MPState.LastRoomCode)
 				return;
