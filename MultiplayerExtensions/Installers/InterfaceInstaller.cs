@@ -1,4 +1,6 @@
-﻿using MultiplayerExtensions.UI;
+﻿using IPA.Utilities;
+using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,14 @@ namespace MultiplayerExtensions.Installers
     {
         public override void InstallBindings()
         {
+            ServerPlayerListController playerListController = Container.Resolve<ServerPlayerListController>();
+            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListController>("_gameServerPlayersTableView");
+            GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
+            PlayerTableCellStub playerTableCellStub = playerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
+            playerTableCellStub.Construct(playerTableCell);
+            Destroy(playerTableCell.GetComponent<GameServerPlayerTableCell>());
 
+            playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);
         }
 
         public override void Start()

@@ -3,6 +3,7 @@ using IPA.Utilities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatSaverSharp;
 #if DEBUG
 using System.Collections.Generic;
 #endif
@@ -59,6 +60,42 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             ConnectionType = __instance.GetProperty<MultiplayerLobbyConnectionController.LobbyConnectionType, MultiplayerLobbyConnectionController>("connectionType");
             Plugin.Log?.Debug($"Joining a {ConnectionType} lobby.");
+        }
+    }
+
+    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), "GetEntitlementStatus", MethodType.Normal)]
+    public class CustomLevelEntitlementPatch
+    {
+        /// <summary>
+        /// Changes the return value of the entitlement checker if it is a custom song.
+        /// </summary>
+        static bool Prefix(string levelId, ref Task<EntitlementsStatus> __result)
+        {
+            string? hash = Utilities.Utils.LevelIdToHash(levelId);
+            if (hash == null)
+                return true;
+
+            if (SongCore.Loader.GetLevelByHash(hash) != null)
+                __result = Task.FromResult(EntitlementsStatus.Ok);
+            else
+                __result = Plugin.BeatSaver.Hash(hash).ContinueWith<EntitlementsStatus>(r =>
+                {
+                    Beatmap beatmap = r.Result;
+                    if (beatmap == null)
+                        return EntitlementsStatus.NotOwned;
+                    return EntitlementsStatus.NotDownloaded;
+                });
+
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(MenuRpcManager), "GetIsEntitledToLevel", MethodType.Normal)]
+    public class GetSelfEntitlementPatch
+    {
+        static void Postfix(string levelId, MenuRpcManager __instance)
+        {
+            __instance.InvokeMethod<object, MenuRpcManager>("InvokeGetIsEntitledToLevel", new object[] { "", levelId });
         }
     }
 }

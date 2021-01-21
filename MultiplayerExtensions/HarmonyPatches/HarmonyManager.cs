@@ -27,6 +27,8 @@ namespace MultiplayerExtensions.HarmonyPatches
         static HarmonyManager()
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
+            AddDefaultPatch<CustomLevelEntitlementPatch>();
+            AddDefaultPatch<GetSelfEntitlementPatch>();
             AddDefaultPatch<LobbyJoinPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
