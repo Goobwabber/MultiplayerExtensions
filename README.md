@@ -22,11 +22,11 @@ Lastly, check out [other mods](https://github.com/Zingabopp/MultiplayerExtension
 
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
-* BS_Utils v1.6.3+
-* SongCore v3.0.2+
+* BS_Utils v1.7.0+
+* SongCore v3.0.3+
 * BeatSaverSharp v1.6.0+
-* BeatSaberMarkupLanguage v1.4.1+
-* SiraUtil 2.1.0+
+* BeatSaberMarkupLanguage v1.4.5+
+* SiraUtil 2.4.0+
 
 ## Troubleshooting
 #### Custom Songs button not appearing
