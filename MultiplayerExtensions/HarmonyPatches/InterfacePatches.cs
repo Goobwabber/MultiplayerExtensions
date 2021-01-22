@@ -2,76 +2,64 @@
 using HMUI;
 using IPA.Utilities;
 using MultiplayerExtensions.Beatmaps;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(GameServerPlayersTableView), "SetData", MethodType.Normal)]
-    public class GameServerPlayerTablePatch
+    [HarmonyPatch(typeof(CreateServerFormController), "formData", MethodType.Getter)]
+    class IncreaseMaxPlayersClampPatch
     {
-        private static Color green = new Color(0f, 1f, 0f, 1f);
-        private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
-        private static Color red = new Color(1f, 0f, 0f, 1f);
-        private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
-
-        static void Postfix(List<IConnectedPlayer> sortedPlayers, ILobbyPlayersDataModel lobbyPlayersDataModel, GameServerPlayersTableView __instance)
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            IPreviewBeatmapLevel hostBeatmap = lobbyPlayersDataModel.GetPlayerBeatmapLevel(lobbyPlayersDataModel.hostUserId);
-            if (hostBeatmap != null && hostBeatmap is PreviewBeatmapStub hostBeatmapStub)
+            var codes = instructions.ToList();
+            for (int i = 0; i < codes.Count; i++)
             {
-                TableView tableView = __instance.GetField<TableView, GameServerPlayersTableView>("_tableView");
-                foreach (TableCell cell in tableView.visibleCells)
+                if (codes[i].opcode == OpCodes.Ldc_R4 && codes[i].OperandIs(5))
                 {
-                    if (cell is GameServerPlayerTableCell playerCell)
-                    {
-                        Image background = playerCell.GetField<Image, GameServerPlayerTableCell>("_localPlayerBackgroundImage");
-                        CurvedTextMeshPro emptySuggestion = playerCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedLevelText");
-                        CurvedTextMeshPro suggestion = playerCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_suggestedLevelText");
-                        IConnectedPlayer player = sortedPlayers[playerCell.idx];
-                        Color backgroundColor = new Color();
-
-                        if (player.isConnectionOwner)
-                        {
-                            suggestion.gameObject.SetActive(false);
-                            emptySuggestion.gameObject.SetActive(true);
-                            emptySuggestion.text = "Loading...";
-                            hostBeatmapStub.isDownloadable.ContinueWith(r =>
-                            {
-                                HMMainThreadDispatcher.instance.Enqueue(() =>
-                                {
-                                    suggestion.gameObject.SetActive(true);
-                                    emptySuggestion.gameObject.SetActive(false);
-                                });
-                            });
-                        }
-                        // TODO: check merge
-                        background.enabled = true;
-                        if (player.HasState("beatmap_downloaded") || player.HasState("start_primed"))
-                        {
-                            backgroundColor = green;
-                            backgroundColor.a = player.isMe ? 0.4f : 0.1f;
-                            background.color = backgroundColor;
-                        }
-                        else
-                        {
-                            hostBeatmapStub.isDownloadable.ContinueWith(r =>
-                            {
-                                bool downloadable = r.Result;
-                                backgroundColor = downloadable ? yellow : red;
-                                backgroundColor.a = player.isMe ? 0.4f : 0.1f;
-                                HMMainThreadDispatcher.instance.Enqueue(() =>
-                                {
-                                    background.color = backgroundColor;
-                                });
-                            });
-                        }
-                    }
+                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, 10f);
                 }
             }
+            return codes.AsEnumerable();
+        }
+    }
+
+    [HarmonyPatch(typeof(CreateServerFormController), "Setup", MethodType.Normal)]
+    class IncreaseMaxPlayersPatch
+    {
+        static void Prefix(CreateServerFormController __instance)
+        {
+            FormattedFloatListSettingsController serverForm = __instance.GetField<FormattedFloatListSettingsController, CreateServerFormController>("_maxPlayersList");
+            serverForm.values = new float[] { 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f };
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerPlayerPlacement), "GetAngleBetweenPlayersWithEvenAdjustment", MethodType.Normal)]
+    class PlayerPlacementAnglePatch
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            bool flag = true;
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ldc_R4)
+                {
+                    flag = false;
+                }
+
+                if (flag)
+                {
+                    codes.RemoveAt(0);
+                    i--;
+                }
+            }
+            return codes.AsEnumerable();
         }
     }
 
