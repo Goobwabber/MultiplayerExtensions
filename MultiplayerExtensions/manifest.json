@@ -5,7 +5,7 @@
   "author": "Zingabopp and Goobwabber",
   "version": "0.4.2",
   "description": "Expands the functionality of Beat Saber Multiplayer.",
-  "gameVersion": "1.13.0",
+  "gameVersion": "1.13.2",
   "dependsOn": {
     "BSIPA": "^4.1.3",
     "BS Utils": "^1.7.0",
