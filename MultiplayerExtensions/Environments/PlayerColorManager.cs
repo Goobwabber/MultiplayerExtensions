@@ -1,4 +1,5 @@
 ﻿using MultiplayerExtensions.Packets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,52 +7,50 @@ using Zenject;
 
 namespace MultiplayerExtensions.Environments
 {
-    class PlayerColorManager : IInitializable
+    public class PlayerColorManager : IInitializable, IDisposable
     {
-        [Inject]
-        protected PacketManager packetManager;
+        protected readonly PacketManager _packetManager;
+        protected readonly IMultiplayerSessionManager _sessionManager;
+        protected readonly LobbyPlaceManager _placeManager;
 
-        [Inject]
-        protected IMultiplayerSessionManager multiplayerSessionManager;
-
-        [Inject]
-        protected LobbyPlaceManager placeManager;
+        internal PlayerColorManager(PacketManager packetManager, IMultiplayerSessionManager sessionManager, LobbyPlaceManager placeManager)
+        {
+            _packetManager = packetManager;
+            _sessionManager = sessionManager;
+            _placeManager = placeManager;
+        }
 
         public void Initialize()
         {
             MPEvents.LobbyEnvironmentLoaded += HandleLobbyEnvironmentLoaded;
-            multiplayerSessionManager.playerConnectedEvent += HandlePlayerConnected;
-            packetManager.RegisterCallback<PlayerColorPacket>(HandlePlayerColorPacket);
+            _sessionManager.playerConnectedEvent += HandlePlayerConnected;
+            _packetManager.RegisterCallback<PlayerColorPacket>(HandlePlayerColorPacket);
+        }
+
+        public void Dispose()
+        {
+            MPEvents.LobbyEnvironmentLoaded -= HandleLobbyEnvironmentLoaded;
+            _sessionManager.playerConnectedEvent -= HandlePlayerConnected;
+            _packetManager.UnregisterCallback<PlayerColorPacket>();
         }
 
         private void HandleLobbyEnvironmentLoaded(object sender, System.EventArgs e)
         {
-            packetManager.Send(new PlayerColorPacket() { color = Plugin.Config.Color });
+            _placeManager.SetAllPlayerPlaceColor(Color.black);
+            _packetManager.Send(new PlayerColorPacket() { color = Plugin.Config.Color });
             Color color;
             if (ColorUtility.TryParseHtmlString(Plugin.Config.Color, out color))
-                placeManager.SetPlayerPlaceColor(multiplayerSessionManager.localPlayer, color);
+                _placeManager.SetPlayerPlaceColor(_sessionManager.localPlayer, color);
         }
 
-        public void HandlePlayerConnected(IConnectedPlayer player)
-            => packetManager.Send(new PlayerColorPacket() { color = Plugin.Config.Color });
+        private void HandlePlayerConnected(IConnectedPlayer player)
+            => _packetManager.Send(new PlayerColorPacket() { color = Plugin.Config.Color });
 
-        public void HandlePlayerColorPacket(PlayerColorPacket packet, IConnectedPlayer player)
+        private void HandlePlayerColorPacket(PlayerColorPacket packet, IConnectedPlayer player)
         {
             Color color;
             if (ColorUtility.TryParseHtmlString(packet.color, out color))
-                placeManager.SetPlayerPlaceColor(player, color);
-        }
-
-        public class Team
-        {
-            public string name;
-            public Color color;
-
-            public Team(string name, string color)
-            {
-                this.name = name;
-                ColorUtility.TryParseHtmlString(color, out this.color);
-            }
+                _placeManager.SetPlayerPlaceColor(player, color);
         }
     }
 }

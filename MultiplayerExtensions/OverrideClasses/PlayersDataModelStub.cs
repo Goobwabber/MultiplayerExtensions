@@ -10,10 +10,14 @@ using Zenject;
 
 namespace MultiplayerExtensions.OverrideClasses
 {
-    class PlayersDataModelStub : LobbyPlayersDataModel, ILobbyPlayersDataModel
+    class PlayersDataModelStub : LobbyPlayersDataModel, ILobbyPlayersDataModel, IDisposable
     {
-        [Inject]
         protected readonly PacketManager _packetManager;
+
+        internal PlayersDataModelStub(PacketManager packetManager)
+        {
+            _packetManager = packetManager;
+        }
 
         public new void Activate()
         {
@@ -21,11 +25,30 @@ namespace MultiplayerExtensions.OverrideClasses
             base.Activate();
 
             _menuRpcManager.selectedBeatmapEvent -= base.HandleMenuRpcManagerSelectedBeatmap;
-            _menuRpcManager.selectedBeatmapEvent += this.HandleMenuRpcManagerSelectedBeatmap;
+            _menuRpcManager.selectedBeatmapEvent += HandleMenuRpcManagerSelectedBeatmap;
             _menuRpcManager.getSelectedBeatmapEvent -= base.HandleMenuRpcManagerGetSelectedBeatmap;
-            _menuRpcManager.getSelectedBeatmapEvent += this.HandleMenuRpcManagerGetSelectedBeatmap;
+            _menuRpcManager.getSelectedBeatmapEvent += HandleMenuRpcManagerGetSelectedBeatmap;
             _menuRpcManager.clearSelectedBeatmapEvent -= base.HandleMenuRpcManagerClearBeatmap;
-            _menuRpcManager.clearSelectedBeatmapEvent += this.HandleMenuRpcManagerClearBeatmap;
+            _menuRpcManager.clearSelectedBeatmapEvent += HandleMenuRpcManagerClearBeatmap;
+        }
+
+        public new void Deactivate()
+        {
+            _packetManager.UnregisterCallback<PreviewBeatmapPacket>();
+
+            _menuRpcManager.selectedBeatmapEvent -= HandleMenuRpcManagerSelectedBeatmap;
+            _menuRpcManager.selectedBeatmapEvent += base.HandleMenuRpcManagerSelectedBeatmap;
+            _menuRpcManager.getSelectedBeatmapEvent -= HandleMenuRpcManagerGetSelectedBeatmap;
+            _menuRpcManager.getSelectedBeatmapEvent += base.HandleMenuRpcManagerGetSelectedBeatmap;
+            _menuRpcManager.clearSelectedBeatmapEvent -= HandleMenuRpcManagerClearBeatmap;
+            _menuRpcManager.clearSelectedBeatmapEvent += base.HandleMenuRpcManagerClearBeatmap;
+
+            base.Deactivate();
+        }
+
+        public new void Dispose()
+        {
+            Deactivate();
         }
 
         /// <summary>

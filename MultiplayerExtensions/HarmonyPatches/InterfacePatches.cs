@@ -64,7 +64,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(MultiplayerLobbyController), "ActivateMultiplayerLobby", MethodType.Normal)]
-    class LobbyEnvironmentLoadedPatch
+    class LobbyEnvironmentLoadPatch
     {
         static void Postfix(MultiplayerLobbyController __instance)
         {

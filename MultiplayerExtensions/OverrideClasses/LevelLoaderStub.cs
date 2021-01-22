@@ -33,7 +33,7 @@ namespace MultiplayerExtensions.OverrideClasses
             });
         }
 
-        async Task<bool> DownloadSong(string levelId)
+        private async Task<bool> DownloadSong(string levelId)
         {
             try
             {

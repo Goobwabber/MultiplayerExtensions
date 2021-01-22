@@ -26,7 +26,7 @@ namespace MultiplayerExtensions.Packets
             prevPosition = reader.Position;
 
             Action<NetDataReader, int, IConnectedPlayer> action;
-            if (this.packetHandlers.TryGetValue(packetType, out action) && action != null) {
+            if (packetHandlers.TryGetValue(packetType, out action) && action != null) {
                 try {
                     action(reader, length, data);
                 } catch (Exception ex) {
@@ -45,17 +45,17 @@ namespace MultiplayerExtensions.Packets
             return registeredTypes.Contains(type);
         }
 
-        public void RegisterCallback<TPacket>(Action<TPacket> callback) where TPacket : INetSerializable, IPoolablePacket, new()
+        internal void RegisterCallback<TPacket>(Action<TPacket> callback) where TPacket : INetSerializable, IPoolablePacket, new()
         {
-            this.RegisterCallback<TPacket>(delegate (TPacket packet, IConnectedPlayer player)
+            RegisterCallback<TPacket>(delegate (TPacket packet, IConnectedPlayer player)
             {
                 callback?.Invoke(packet);
             });
         }
 
-        public void RegisterCallback<TPacket>(Action<TPacket, IConnectedPlayer> callback) where TPacket : INetSerializable, IPoolablePacket, new()
+        internal void RegisterCallback<TPacket>(Action<TPacket, IConnectedPlayer> callback) where TPacket : INetSerializable, IPoolablePacket, new()
         {
-            this.registeredTypes.Add(typeof(TPacket));
+            registeredTypes.Add(typeof(TPacket));
 
             Func<NetDataReader, int, TPacket> deserialize = delegate (NetDataReader reader, int size)
             {
@@ -72,10 +72,13 @@ namespace MultiplayerExtensions.Packets
                 return packet;
             };
 
-            this.packetHandlers[typeof(TPacket).ToString()] = delegate (NetDataReader reader, int size, IConnectedPlayer player)
+            packetHandlers[typeof(TPacket).ToString()] = delegate (NetDataReader reader, int size, IConnectedPlayer player)
             {
                 callback(deserialize(reader, size), player);
             };
         }
+
+        internal void UnregisterCallback<TPacket>() where TPacket : INetSerializable, IPoolablePacket, new()
+            => packetHandlers.Remove(typeof(TPacket).ToString());
     }
 }

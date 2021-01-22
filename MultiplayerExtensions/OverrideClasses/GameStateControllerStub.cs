@@ -12,17 +12,19 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class GameStateControllerStub : LobbyGameStateController, ILobbyHostGameStateController, ILobbyGameStateController, IDisposable
     {
-        [Inject]
         protected readonly SessionManager _sessionManager;
-
-        [Inject]
         protected readonly PacketManager _packetManager;
-
-        [Inject] 
         protected readonly ExtendedPlayerManager _extendedPlayerManager;
 
         private static readonly SemVer.Version _minVersionStartPrimed = new SemVer.Version("0.4.0");
         
+        internal GameStateControllerStub(SessionManager sessionManager, PacketManager packetManager, ExtendedPlayerManager extendedPlayerManager)
+        {
+            _sessionManager = sessionManager;
+            _packetManager = packetManager;
+            _extendedPlayerManager = extendedPlayerManager;
+        }
+
         public new void Activate()
         {
             _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
@@ -98,7 +100,7 @@ namespace MultiplayerExtensions.OverrideClasses
             base.CancelGame();
         }
 
-        public void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
+        private void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
         {
             
             _sessionManager.SetLocalPlayerState("start_primed", false);
@@ -108,7 +110,7 @@ namespace MultiplayerExtensions.OverrideClasses
             _multiplayerLevelLoader.countdownFinishedEvent += HandleCountdown;
         }
 
-        public void HandleRpcCancelledLevel(string userId)
+        private void HandleRpcCancelledLevel(string userId)
         {
             starting = false;
             _sessionManager.SetLocalPlayerState("start_primed", false);
@@ -117,7 +119,7 @@ namespace MultiplayerExtensions.OverrideClasses
             base.HandleMenuRpcManagerCancelledLevelStart(userId);
         }
 
-        public void HandleCountdown(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
+        private void HandleCountdown(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
         {
             Plugin.Log?.Debug("Map finished loading, waiting for other players...");
 
@@ -138,7 +140,7 @@ namespace MultiplayerExtensions.OverrideClasses
             }
         }
 
-        public void StartLevel()
+        private void StartLevel()
         {
             starting = false;
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);

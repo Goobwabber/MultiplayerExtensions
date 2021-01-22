@@ -34,7 +34,7 @@ namespace MultiplayerExtensions.OverrideClasses
         private string lastLevelId = "";
         private IConnectedPlayer lastPlayer;
 
-        public void Construct(GameServerPlayerTableCell playerTableCell)
+        internal void Construct(GameServerPlayerTableCell playerTableCell)
         {
             // Player
             _playerNameText = playerTableCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_playerNameText");
@@ -74,7 +74,7 @@ namespace MultiplayerExtensions.OverrideClasses
             lastPlayer = connectedPlayer;
         }
 
-        public async void GetLevelEntitlement(IConnectedPlayer player)
+        private async void GetLevelEntitlement(IConnectedPlayer player)
         {
             if (entitlementCts != null)
                 entitlementCts.Cancel();
@@ -89,7 +89,7 @@ namespace MultiplayerExtensions.OverrideClasses
             SetLevelEntitlement(player, entitlement);
         }
 
-        public void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)
+        private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)
         {
             Color backgroundColor = status switch
             {
@@ -102,7 +102,7 @@ namespace MultiplayerExtensions.OverrideClasses
             _localPlayerBackgroundImage.color = backgroundColor;
         }
 
-        public void HandleSetIsEntitledToLevel(string userId, string levelId, EntitlementsStatus status)
+        private void HandleSetIsEntitledToLevel(string userId, string levelId, EntitlementsStatus status)
         {
             if (userId == lastPlayer?.userId && levelId == lastLevelId)
             {

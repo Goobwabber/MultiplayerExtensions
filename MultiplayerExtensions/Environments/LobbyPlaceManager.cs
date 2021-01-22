@@ -9,16 +9,32 @@ using Zenject;
 
 namespace MultiplayerExtensions.Environments
 {
-    class LobbyPlaceManager
+    public class LobbyPlaceManager
     {
-		[Inject]
-		protected IMultiplayerSessionManager multiplayerSessionManager;
+		protected readonly IMultiplayerSessionManager _sessionManager;
+		protected readonly ILobbyStateDataModel _lobbyStateDataModel;
+		protected readonly MultiplayerLobbyAvatarPlaceManager _placeManager;
 
-		[Inject]
-		protected ILobbyStateDataModel lobbyStateDataModel;
+		internal LobbyPlaceManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MultiplayerLobbyAvatarPlaceManager placeManager)
+        {
+			_sessionManager = sessionManager;
+			_lobbyStateDataModel = lobbyStateDataModel;
+			_placeManager = placeManager;
+        }
 
-		[Inject]
-		protected MultiplayerLobbyAvatarPlaceManager multiplayerPlaceManager;
+		public void SetAllPlayerPlaceColor(Color color)
+        {
+			MultiplayerLobbyAvatarPlace[] places = Resources.FindObjectsOfTypeAll<MultiplayerLobbyAvatarPlace>();
+			foreach(MultiplayerLobbyAvatarPlace place in places)
+            {
+				TubeBloomPrePassLight[] lights = place.GetComponentsInChildren<TubeBloomPrePassLight>();
+				foreach (TubeBloomPrePassLight light in lights)
+				{
+					light.color = color;
+					light.Refresh();
+				}
+			}
+		}
 
 		public void SetPlayerPlaceColor(IConnectedPlayer player, Color color)
 		{
@@ -33,12 +49,12 @@ namespace MultiplayerExtensions.Environments
 
 		public MultiplayerLobbyAvatarPlace GetConnectedPlayerPlace(IConnectedPlayer player)
 		{
-			float innerCircleRadius = multiplayerPlaceManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_innerCircleRadius");
-			float minOuterCircleRadius = multiplayerPlaceManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_minOuterCircleRadius");
+			float innerCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_innerCircleRadius");
+			float minOuterCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_minOuterCircleRadius");
 
-			float angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(this.lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
+			float angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(_lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
 			float outerCircleRadius = Mathf.Max(MultiplayerPlayerPlacement.GetOuterCircleRadius(angleBetweenPlayersWithEvenAdjustment, innerCircleRadius), minOuterCircleRadius);
-			int sortIndex = this.lobbyStateDataModel.localPlayer.sortIndex;
+			int sortIndex = _lobbyStateDataModel.localPlayer.sortIndex;
 
 			float outerCirclePositionAngleForPlayer = MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer(player.sortIndex, sortIndex, angleBetweenPlayersWithEvenAdjustment);
 			Vector3 playerWorldPosition = MultiplayerPlayerPlacement.GetPlayerWorldPosition(outerCircleRadius, outerCirclePositionAngleForPlayer, MultiplayerPlayerLayout.Circle);
