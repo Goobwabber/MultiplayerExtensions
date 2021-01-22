@@ -13,5 +13,6 @@ namespace MultiplayerExtensions
         public bool Hologram { get; set; } = true;
         public bool CustomSongs { get; set; } = true;
         public bool EnforceMods { get; set; } = true;
+        public string Color { get; set; } = "";
     }
 }

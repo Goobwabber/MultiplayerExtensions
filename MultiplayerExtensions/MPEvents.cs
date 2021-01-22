@@ -19,7 +19,15 @@ namespace MultiplayerExtensions
         /// </summary>
         public static event EventHandler<string>? RoomCodeChanged;
 
+        /// <summary>
+        /// Raised when a player selects a beatmap.
+        /// </summary>
         public static event EventHandler<SelectedBeatmapEventArgs>? BeatmapSelected;
+
+        /// <summary>
+        /// Raised after the lobby menu environment finishes loading in <see cref="MultiplayerLobbyController.ActivateMultiplayerLobby()"/>
+        /// </summary>
+        public static event EventHandler? LobbyEnvironmentLoaded;
 
         internal static void RaiseMasterServerChanged(object sender, MasterServerInfo info)
             => MasterServerChanged?.RaiseEventSafe(sender, info, nameof(MasterServerChanged));
@@ -27,6 +35,8 @@ namespace MultiplayerExtensions
             =>  RoomCodeChanged.RaiseEventSafe(sender, code, nameof(RoomCodeChanged));
         internal static void RaiseBeatmapSelected(object sender, SelectedBeatmapEventArgs args) 
             => BeatmapSelected.RaiseEventSafe(sender, args, nameof(BeatmapSelected));
+        internal static void RaiseLobbyEnvironmentLoaded(object sender)
+            => LobbyEnvironmentLoaded.RaiseEventSafe(sender, nameof(LobbyEnvironmentLoaded));
     }
 
     public class SelectedBeatmapEventArgs : EventArgs

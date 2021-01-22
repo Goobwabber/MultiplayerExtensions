@@ -25,7 +25,6 @@ namespace MultiplayerExtensions
         }
 
         private static string? _lastRoomCode;
-
         /// <summary>
         /// The last room code that was set.
         /// </summary>
@@ -40,7 +39,5 @@ namespace MultiplayerExtensions
                 Plugin.Log?.Debug($"Updated room code to '{value}'");
             }
         }
-
-
     }
 }

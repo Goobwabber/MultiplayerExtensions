@@ -1,12 +1,7 @@
 ﻿using IPA.Utilities;
+using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.OverrideClasses;
 using MultiplayerExtensions.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -21,8 +16,10 @@ namespace MultiplayerExtensions.Installers
             PlayerTableCellStub playerTableCellStub = playerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
             playerTableCellStub.Construct(playerTableCell);
             Destroy(playerTableCell.GetComponent<GameServerPlayerTableCell>());
-
             playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);
+
+            Container.BindInterfacesAndSelfTo<LobbyPlaceManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerColorManager>().AsSingle();
         }
 
         public override void Start()

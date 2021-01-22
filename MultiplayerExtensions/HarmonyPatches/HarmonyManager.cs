@@ -38,6 +38,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<GetMasterServerEndPointPatch>();
             AddDefaultPatch<SetLobbyCodePatch>();
             AddDefaultPatch<PlayerPlacementAnglePatch>();
+            AddDefaultPatch<LobbyEnvironmentLoadedPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class

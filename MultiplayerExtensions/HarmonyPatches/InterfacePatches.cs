@@ -63,6 +63,15 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
+    [HarmonyPatch(typeof(MultiplayerLobbyController), "ActivateMultiplayerLobby", MethodType.Normal)]
+    class LobbyEnvironmentLoadedPatch
+    {
+        static void Postfix(MultiplayerLobbyController __instance)
+        {
+            MPEvents.RaiseLobbyEnvironmentLoaded(__instance);
+        }
+    }
+
     [HarmonyPatch(typeof(MultiplayerBigAvatarAnimator), "InitIfNeeded", MethodType.Normal)]
     class MultiplayerBigAvatarAnimator_Init
     {
