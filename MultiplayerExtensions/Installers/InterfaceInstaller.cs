@@ -1,10 +1,7 @@
-﻿using MultiplayerExtensions.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using IPA.Utilities;
+using MultiplayerExtensions.Environments;
+using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.UI;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -13,7 +10,8 @@ namespace MultiplayerExtensions.Installers
     {
         public override void InstallBindings()
         {
-
+            Container.BindInterfacesAndSelfTo<LobbyPlaceManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerColorManager>().AsSingle();
         }
 
         public override void Start()
@@ -31,6 +29,14 @@ namespace MultiplayerExtensions.Installers
             CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
             CenterScreenLoadingPanel loadingPanel = centerScreenController.gameObject.AddComponent<CenterScreenLoadingPanel>();
             Container.Inject(loadingPanel);
+
+            ServerPlayerListController playerListController = Container.Resolve<ServerPlayerListController>();
+            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListController>("_gameServerPlayersTableView");
+            GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
+            PlayerTableCellStub playerTableCellStub = playerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
+            playerTableCellStub.Construct(playerTableCell);
+            Destroy(playerTableCell.GetComponent<GameServerPlayerTableCell>());
+            playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);
         }
     }
 }

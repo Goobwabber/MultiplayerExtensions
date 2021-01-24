@@ -36,13 +36,15 @@ namespace MultiplayerExtensions.UI
 
         public void Update()
         {
-            if (screenController.countdownShown && sessionManager.syncTime >= gameStateController.startTime)
+            if (screenController.countdownShown && sessionManager.syncTime >= gameStateController.startTime && gameStateController.levelStartInitiated)
             {
-                loadingDisplay.gameObject.SetActive(true);
+                if (loadingDisplay != null)
+                    loadingDisplay.gameObject.SetActive(true);
             }
             else
             {
-                loadingDisplay.gameObject.SetActive(false);
+                if (loadingDisplay != null)
+                    loadingDisplay.gameObject.SetActive(false);
             }
         }
     }

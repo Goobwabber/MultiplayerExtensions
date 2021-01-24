@@ -2,76 +2,22 @@
 using HMUI;
 using IPA.Utilities;
 using MultiplayerExtensions.Beatmaps;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(GameServerPlayersTableView), "SetData", MethodType.Normal)]
-    public class GameServerPlayerTablePatch
+    [HarmonyPatch(typeof(MultiplayerLobbyController), "ActivateMultiplayerLobby", MethodType.Normal)]
+    class LobbyEnvironmentLoadPatch
     {
-        private static Color green = new Color(0f, 1f, 0f, 1f);
-        private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
-        private static Color red = new Color(1f, 0f, 0f, 1f);
-        private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
-
-        static void Postfix(List<IConnectedPlayer> sortedPlayers, ILobbyPlayersDataModel lobbyPlayersDataModel, GameServerPlayersTableView __instance)
+        static void Postfix(MultiplayerLobbyController __instance)
         {
-            IPreviewBeatmapLevel hostBeatmap = lobbyPlayersDataModel.GetPlayerBeatmapLevel(lobbyPlayersDataModel.hostUserId);
-            if (hostBeatmap != null && hostBeatmap is PreviewBeatmapStub hostBeatmapStub)
-            {
-                TableView tableView = __instance.GetField<TableView, GameServerPlayersTableView>("_tableView");
-                foreach (TableCell cell in tableView.visibleCells)
-                {
-                    if (cell is GameServerPlayerTableCell playerCell)
-                    {
-                        Image background = playerCell.GetField<Image, GameServerPlayerTableCell>("_localPlayerBackgroundImage");
-                        CurvedTextMeshPro emptySuggestion = playerCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedLevelText");
-                        CurvedTextMeshPro suggestion = playerCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_suggestedLevelText");
-                        IConnectedPlayer player = sortedPlayers[playerCell.idx];
-                        Color backgroundColor = new Color();
-
-                        if (player.isConnectionOwner)
-                        {
-                            suggestion.gameObject.SetActive(false);
-                            emptySuggestion.gameObject.SetActive(true);
-                            emptySuggestion.text = "Loading...";
-                            hostBeatmapStub.isDownloadable.ContinueWith(r =>
-                            {
-                                HMMainThreadDispatcher.instance.Enqueue(() =>
-                                {
-                                    suggestion.gameObject.SetActive(true);
-                                    emptySuggestion.gameObject.SetActive(false);
-                                });
-                            });
-                        }
-                        // TODO: check merge
-                        background.enabled = true;
-                        if (player.HasState("beatmap_downloaded") || player.HasState("start_primed"))
-                        {
-                            backgroundColor = green;
-                            backgroundColor.a = player.isMe ? 0.4f : 0.1f;
-                            background.color = backgroundColor;
-                        }
-                        else
-                        {
-                            hostBeatmapStub.isDownloadable.ContinueWith(r =>
-                            {
-                                bool downloadable = r.Result;
-                                backgroundColor = downloadable ? yellow : red;
-                                backgroundColor.a = player.isMe ? 0.4f : 0.1f;
-                                HMMainThreadDispatcher.instance.Enqueue(() =>
-                                {
-                                    background.color = backgroundColor;
-                                });
-                            });
-                        }
-                    }
-                }
-            }
+            MPEvents.RaiseLobbyEnvironmentLoaded(__instance);
         }
     }
 
@@ -90,7 +36,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Postfix(CoreGameHUDController __instance)
         {
-            if (LobbyJoinPatch.IsMultiplayer && Plugin.Config.VerticalHUD)
+            if (MPState.CurrentGameType != MultiplayerGameType.None && Plugin.Config.VerticalHUD)
             {
                 Plugin.Log?.Debug("Setting up multiplayer HUD");
                 GameEnergyUIPanel gameEnergyUI = __instance.transform.GetComponentInChildren<GameEnergyUIPanel>();

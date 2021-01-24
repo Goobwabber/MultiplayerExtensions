@@ -3,17 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace MultiplayerExtensions.Sessions
 {
     public class ExtendedPlayer : IConnectedPlayer
     {
         private IConnectedPlayer _connectedPlayer;
-        public string? platformID;
 
-        public ExtendedPlayer(IConnectedPlayer player)
+        /// <summary>
+        /// Platform User ID from <see cref="UserInfo.platformUserId"/>
+        /// </summary>
+        public string platformID { get; internal set; }
+
+        /// <summary>
+        /// Platform from <see cref="UserInfo.platformUserId">
+        /// </summary>
+        public Platform platform { get; internal set; }
+
+        /// <summary>
+        /// MultiplayerExtensions version reported by BSIPA.
+        /// </summary>
+        public SemVer.Version mpexVersion;
+
+        /// <summary>
+        /// Player's color set in the plugin config.
+        /// </summary>
+        public Color playerColor;
+
+        public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, SemVer.Version mpexVersion, Color playerColor)
         {
             _connectedPlayer = player;
+            this.platformID = platformID;
+            this.platform = platform;
+            this.mpexVersion = mpexVersion;
+            this.playerColor = playerColor;
         }
 
         public bool isMe => _connectedPlayer.isMe;

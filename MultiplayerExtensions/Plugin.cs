@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using IPALogger = IPA.Logging.Logger;
 using BeatSaverSharp;
+using System.Diagnostics;
 
 namespace MultiplayerExtensions
 {
@@ -46,11 +47,7 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             zenjector.OnApp<MultiplayerInstaller>();
             zenjector.OnMenu<InterfaceInstaller>();
-            HttpOptions options = new HttpOptions
-            {
-                ApplicationName = "MultiplayerExtensions",
-                Version = new Version(pluginMetadata.Version.ToString())
-            };
+            HttpOptions options = new HttpOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
             BeatSaver = new BeatSaver(options);
         }
 
@@ -60,6 +57,19 @@ namespace MultiplayerExtensions
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
+            MPEvents_Test();
+        }
+
+        [Conditional("DEBUG")]
+        public void MPEvents_Test()
+        {
+            MPEvents.BeatmapSelected += (s, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.LevelId))
+                    Log?.Warn($"BeatmapSelected by '{e.UserId}|{e.UserType.ToString()}': {e.LevelId}|{e.BeatmapDifficulty}|{e.BeatmapCharacteristic?.name ?? "<NULL>"}");
+                else
+                    Log?.Warn($"Beatmap Cleared by '{e.UserId}|{e.UserType.ToString()}'");
+            };
 
         }
 

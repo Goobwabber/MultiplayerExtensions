@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MultiplayerExtensions.Sessions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -99,6 +100,18 @@ namespace MultiplayerExtensions.Utilities
                     Plugin.Log?.Debug(ex);
                 }
             }
+        }
+
+        public static Platform ToPlatform(this UserInfo.Platform platform)
+        {
+            return platform switch
+            {
+                UserInfo.Platform.Test => Platform.Unknown,
+                UserInfo.Platform.Steam => Platform.Steam,
+                UserInfo.Platform.Oculus => Platform.OculusPC,
+                UserInfo.Platform.PS4 => Platform.PS4,
+                _ => Platform.Unknown
+            };
         }
     }
 }

@@ -19,10 +19,66 @@ namespace MultiplayerExtensions
         /// </summary>
         public static event EventHandler<string>? RoomCodeChanged;
 
-        internal static void RaiseMasterServerChanged(object sender, MasterServerInfo info) => MasterServerChanged?.RaiseEventSafe(sender, info, nameof(MasterServerChanged));
-        internal static void RaiseRoomCodeChanged(object sender, string code) =>  RoomCodeChanged.RaiseEventSafe(sender, code, nameof(RoomCodeChanged));
+        /// <summary>
+        /// Raised when a player selects a beatmap.
+        /// </summary>
+        public static event EventHandler<SelectedBeatmapEventArgs>? BeatmapSelected;
+
+        /// <summary>
+        /// Raised after the lobby menu environment finishes loading in <see cref="MultiplayerLobbyController.ActivateMultiplayerLobby()"/>
+        /// </summary>
+        public static event EventHandler? LobbyEnvironmentLoaded;
+
+        /// <summary>
+        /// Raised when the game state changes.
+        /// </summary>
+        public static event EventHandler<MultiplayerGameState>? GameStateChanged;
+
+        internal static void RaiseMasterServerChanged(object sender, MasterServerInfo info)
+            => MasterServerChanged?.RaiseEventSafe(sender, info, nameof(MasterServerChanged));
+        internal static void RaiseRoomCodeChanged(object sender, string code) 
+            =>  RoomCodeChanged.RaiseEventSafe(sender, code, nameof(RoomCodeChanged));
+        internal static void RaiseBeatmapSelected(object sender, SelectedBeatmapEventArgs args) 
+            => BeatmapSelected.RaiseEventSafe(sender, args, nameof(BeatmapSelected));
+        internal static void RaiseLobbyEnvironmentLoaded(object sender)
+            => LobbyEnvironmentLoaded.RaiseEventSafe(sender, nameof(LobbyEnvironmentLoaded));
+        internal static void RaiseGameStateChanged(object sender, MultiplayerGameState state)
+            => GameStateChanged.RaiseEventSafe(sender, state, nameof(GameStateChanged));
     }
 
+    public class SelectedBeatmapEventArgs : EventArgs
+    {
+        public readonly string UserId;
+        public readonly UserType UserType;
+        public readonly string LevelId;
+        public readonly BeatmapDifficulty BeatmapDifficulty;
+        public readonly BeatmapCharacteristicSO? BeatmapCharacteristic;
+
+        public SelectedBeatmapEventArgs(string userId, UserType userType, string levelId, 
+            BeatmapDifficulty difficulty, BeatmapCharacteristicSO? characteristicSO)
+            : this(userId, userType)
+        {
+            LevelId = levelId;
+            BeatmapDifficulty = difficulty;
+            BeatmapCharacteristic = characteristicSO;
+        }
+
+        public SelectedBeatmapEventArgs(string userId, UserType userType)
+        {
+            UserId = userId;
+            UserType = userType;
+            LevelId = string.Empty;
+            BeatmapDifficulty = BeatmapDifficulty.Easy;
+            BeatmapCharacteristic = null;
+        }
+    }
+    [Flags]
+    public enum UserType
+    {
+        None = 0,
+        Local = 1 << 0,
+        Host = 1 << 1
+    }
 
     public struct MasterServerInfo : IEquatable<MasterServerInfo>, IEquatable<MasterServerEndPoint>
     {

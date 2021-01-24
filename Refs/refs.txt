@@ -5,6 +5,7 @@
 ""GameplayCore.dll?virt?alias=Beat Saber_Data\Managed\GameplayCore.dll
 ""HMLib.dll?virt?alias=Beat Saber_Data\Managed\HMLib.dll
 ""HMUI.dll?virt?alias=Beat Saber_Data\Managed\HMUI.dll
+""HMRendering.dll?virt?alias=Beat Saber_Data\Managed\HMRendering.dll
 ""LiteNetLib.dll?virt?alias=Beat Saber_Data\Managed\LiteNetLib.dll
 ""Main.dll?virt?alias=Beat Saber_Data\Managed\Main.dll
 ""MediaLoader.dll?virt?alias=Beat Saber_Data\Managed\MediaLoader.dll
@@ -23,7 +24,6 @@
 ""Zenject-usage.dll?alias=Beat Saber_Data\Managed\Zenject-usage.dll
 
 "Plugins/
-""BS_Utils.dll?alias=Plugins\BS_Utils.dll
 ""BSML.dll?alias=Plugins\BSML.dll
 ""SiraUtil.dll?alias=Plugins\SiraUtil.dll
 ""SongCore.dll?alias=Plugins\SongCore.dll

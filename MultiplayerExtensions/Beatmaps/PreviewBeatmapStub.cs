@@ -112,7 +112,7 @@ namespace MultiplayerExtensions.Beatmaps
 
             this._downloadable = DownloadableState.True;
 
-            _rawCoverTask = bm.FetchCoverImage(CancellationToken.None);
+            _rawCoverTask = bm.CoverImageBytes();
         }
 
         public string levelID { get; private set; }
@@ -137,7 +137,7 @@ namespace MultiplayerExtensions.Beatmaps
             {
                 try
                 {
-                    beatmap = await Plugin.BeatSaver.Hash(levelHash, cancellationToken);
+                    beatmap = await Plugin.BeatSaver.Hash(levelHash);
                 }
                 catch
                 {
@@ -145,7 +145,7 @@ namespace MultiplayerExtensions.Beatmaps
                     return null;
                 }
             }
-            return await beatmap.DownloadZip(false, cancellationToken, progress);
+            return await beatmap.ZipBytes(false);
         }
 
         public Task<byte[]> GetRawCoverAsync(CancellationToken cancellationToken) => _rawCoverTask;

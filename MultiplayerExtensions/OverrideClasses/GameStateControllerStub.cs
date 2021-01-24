@@ -12,15 +12,24 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class GameStateControllerStub : LobbyGameStateController, ILobbyHostGameStateController, ILobbyGameStateController, IDisposable
     {
-        [Inject]
-        protected readonly SessionManager _sessionManager;
-
-        [Inject]
+        protected readonly IMultiplayerSessionManager _sessionManager;
         protected readonly PacketManager _packetManager;
+        protected readonly ExtendedPlayerManager _extendedPlayerManager;
+
+        private static readonly SemVer.Version _minVersionStartPrimed = new SemVer.Version("0.4.0");
+        
+        internal GameStateControllerStub(IMultiplayerSessionManager sessionManager, PacketManager packetManager, ExtendedPlayerManager extendedPlayerManager)
+        {
+            _sessionManager = sessionManager;
+            _packetManager = packetManager;
+            _extendedPlayerManager = extendedPlayerManager;
+        }
 
         public new void Activate()
         {
             _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
+            _lobbyGameState.gameStateDidChangeEvent -= base.HandleGameStateDidChange;
+            _lobbyGameState.gameStateDidChangeEvent += HandleGameStateDidChange;
             base.Activate();
         }
 
@@ -29,6 +38,8 @@ namespace MultiplayerExtensions.OverrideClasses
             _sessionManager.playerStateChangedEvent -= OnPlayerStateChanged;
             _menuRpcManager.startedLevelEvent -= HandleRpcStartedLevel;
             _menuRpcManager.cancelledLevelStartEvent -= HandleRpcCancelledLevel;
+            _lobbyGameState.gameStateDidChangeEvent -= HandleGameStateDidChange;
+            _lobbyGameState.gameStateDidChangeEvent += base.HandleGameStateDidChange;
             base.Deactivate();
         }
 
@@ -46,19 +57,30 @@ namespace MultiplayerExtensions.OverrideClasses
         public override void StopListeningToGameStart()
         {
             _menuRpcManager.startedLevelEvent -= HandleRpcStartedLevel;
+            _menuRpcManager.cancelledLevelStartEvent -= HandleRpcCancelledLevel;
             base.StopListeningToGameStart();
         }
 
+        private bool IsPlayerReady(IConnectedPlayer player) 
+        {
+            if (player.HasState("start_primed")) return true;
+            
+            // player is not modded: always assume ready
+            if (!player.HasState("modded")) return true;
+            
+            var extendedPlayer = _extendedPlayerManager.GetExtendedPlayer(player);
+            // did not receive mpexVersion from player or the version is too old: assume the player is ready to prevent getting stuck at "Loading..." screen 
+            if (extendedPlayer == null) return true;
+            if (extendedPlayer.mpexVersion == null || extendedPlayer.mpexVersion < _minVersionStartPrimed) return true;
+            
+            return false;
+        }
+        
         private void OnPlayerStateChanged(IConnectedPlayer player)
         {
             if (starting)
             {
-                if (player.HasState("start_primed"))
-                {
-                    Plugin.Log.Debug($"Player {player.userId} is ready.");
-                }
-
-                if (_sessionManager.connectedPlayers.All((x) => x.HasState("start_primed") || (!x.HasState("modded") && x.HasState("is_active"))) && _sessionManager.LocalPlayerHasState("start_primed"))
+                if (_sessionManager.connectedPlayers.All(IsPlayerReady) && _sessionManager.LocalPlayerHasState("start_primed"))
                 {
                     Plugin.Log.Debug("All players ready, starting game.");
                     StartLevel();
@@ -84,7 +106,20 @@ namespace MultiplayerExtensions.OverrideClasses
             base.CancelGame();
         }
 
-        public void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
+        public new void HandleGameStateDidChange(MultiplayerGameState newGameState)
+        {
+            base.HandleGameStateDidChange(newGameState);
+            MPState.CurrentGameState = newGameState;
+            MPEvents.RaiseGameStateChanged(_lobbyGameState, newGameState);
+        }
+
+        public new void SetMultiplayerGameType(MultiplayerGameType multiplayerGameType)
+        {
+            base.SetMultiplayerGameType(multiplayerGameType);
+            MPState.CurrentGameType = multiplayerGameType;
+        }
+
+        private void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
         {
             
             _sessionManager.SetLocalPlayerState("start_primed", false);
@@ -94,7 +129,7 @@ namespace MultiplayerExtensions.OverrideClasses
             _multiplayerLevelLoader.countdownFinishedEvent += HandleCountdown;
         }
 
-        public void HandleRpcCancelledLevel(string userId)
+        private void HandleRpcCancelledLevel(string userId)
         {
             starting = false;
             _sessionManager.SetLocalPlayerState("start_primed", false);
@@ -103,7 +138,7 @@ namespace MultiplayerExtensions.OverrideClasses
             base.HandleMenuRpcManagerCancelledLevelStart(userId);
         }
 
-        public void HandleCountdown(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
+        private void HandleCountdown(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
         {
             Plugin.Log?.Debug("Map finished loading, waiting for other players...");
 
@@ -124,7 +159,7 @@ namespace MultiplayerExtensions.OverrideClasses
             }
         }
 
-        public void StartLevel()
+        private void StartLevel()
         {
             starting = false;
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);

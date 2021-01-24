@@ -23,17 +23,22 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         internal static readonly HashSet<HarmonyPatchInfo> AppliedPatches = new HashSet<HarmonyPatchInfo>();
         internal static readonly HashSet<HarmonyPatchInfo> DefaultPatches = new HashSet<HarmonyPatchInfo>();
+        internal static readonly Dictionary<HarmonyPatchInfo, string> DependentPatches = new Dictionary<HarmonyPatchInfo, string>();
 
         static HarmonyManager()
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
-            AddDefaultPatch<LobbyJoinPatch>();
+            AddDefaultPatch<CustomLevelEntitlementPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
-            AddDefaultPatch<GameServerPlayerTablePatch>();
             AddDefaultPatch<LoggingPatch>();
             AddDefaultPatch<GetMasterServerEndPointPatch>();
             AddDefaultPatch<SetLobbyCodePatch>();
+            AddDefaultPatch<LobbyEnvironmentLoadPatch>();
+            AddDefaultPatch<StartGameLevelEntitlementPatch>();
+            AddDependentPatch<PlayerPlacementAnglePatch>("BeatTogether");
+            AddDependentPatch<IncreaseMaxPlayersClampPatch>("BeatTogether");
+            AddDependentPatch<IncreaseMaxPlayersPatch>("BeatTogether");
         }
 
         private static void AddDefaultPatch<T>() where T : class
@@ -43,6 +48,15 @@ namespace MultiplayerExtensions.HarmonyPatches
                 DefaultPatches.Add(patch);
             else
                 Plugin.Log?.Warn($"Could not add default patch '{typeof(T).Name}'");
+        }
+
+        private static void AddDependentPatch<T>(string modId) where T : class
+        {
+            HarmonyPatchInfo? patch = GetPatch<T>();
+            if (patch != null)
+                DependentPatches[patch] = modId;
+            else
+                Plugin.Log?.Warn($"Could not add dependent patch '{typeof(T).Name}'");
         }
 
         internal static bool ApplyPatch(HarmonyPatchInfo patchInfo)
@@ -72,7 +86,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                     patchTypeName = postfix.method.DeclaringType?.Name;
                 else if (transpiler != null)
                     patchTypeName = transpiler.method.DeclaringType?.Name;
-                Plugin.Log?.Debug($"Harmony patching {original.Name} with {patchTypeName}");
+                //Plugin.Log?.Debug($"Harmony patching {original.Name} with {patchTypeName}");
                 harmony.Patch(original, prefix, postfix, transpiler);
                 return true;
             }
@@ -90,6 +104,12 @@ namespace MultiplayerExtensions.HarmonyPatches
             Plugin.Log?.Debug($"Applying {patches.Length} Harmony patches.");
             for (int i = 0; i < patches.Length; i++)
                 ApplyPatch(patches[i]);
+
+            foreach (HarmonyPatchInfo patch in DependentPatches.Keys)
+            {
+                if (IPA.Loader.PluginManager.GetPluginFromId(DependentPatches[patch]) != null)
+                    ApplyPatch(patch);
+            }
         }
 
         internal static void UnpatchAll()
@@ -120,11 +140,11 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (patchClass == null) throw new ArgumentNullException(nameof(patchClass), "patchClass cannot be null.");
             try
             {
-                Plugin.Log?.Debug($"Getting patch info for {patchClass.Name}");
+                //Plugin.Log?.Debug($"Getting patch info for {patchClass.Name}");
                 HarmonyPatch[] patches = patchClass.GetCustomAttributes<HarmonyPatch>().ToArray() ?? Array.Empty<HarmonyPatch>();
                 if (patches.Length == 0)
                     throw new ArgumentException($"Type '{patchClass.Name}' has no 'HarmonyPatch' annotations.");
-                Plugin.Log?.Debug($"  Found {patches.Length} HarmonyPatch annotations.");
+                //Plugin.Log?.Debug($"  Found {patches.Length} HarmonyPatch annotations.");
                 Type? originalType = null;
                 string? originalMemberName = null;
                 MethodType methodType = MethodType.Normal;
@@ -153,7 +173,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                     throw new ArgumentException($"Original type could not be determined.");
                 if (methodType == MethodType.Normal && (originalMemberName == null || originalMemberName.Length == 0))
                     methodType = MethodType.Constructor;
-                Plugin.Log?.Debug($"  Attempting to create patch for {GetPatchedMethodString(originalType.Name, originalMemberName, methodType, parameters)}");
+                //Plugin.Log?.Debug($"  Attempting to create patch for {GetPatchedMethodString(originalType.Name, originalMemberName, methodType, parameters)}");
                 MethodBase originalMethod = methodType switch
                 {
                     MethodType.Normal => GetMethod(originalType, originalMemberName!, parameters),

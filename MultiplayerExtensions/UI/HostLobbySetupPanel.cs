@@ -22,8 +22,6 @@ namespace MultiplayerExtensions.UI
         {
             this.sessionManager = sessionManager;
             base.DidActivate(true, false, true);
-
-            hostViewController.didActivateEvent += OnActivate;
         }
 
         #region UIComponents
@@ -48,9 +46,9 @@ namespace MultiplayerExtensions.UI
         public bool CustomSongs
         {
             get => Plugin.Config.CustomSongs;
-            set
-            {
+            set { 
                 Plugin.Config.CustomSongs = value;
+                MPState.CustomSongsEnabled = value;
             }
         }
 
@@ -58,40 +56,28 @@ namespace MultiplayerExtensions.UI
         public bool EnforceMods
         {
             get => Plugin.Config.EnforceMods;
-            set
-            {
-                Plugin.Config.EnforceMods = value;
-            }
+            set { Plugin.Config.EnforceMods = value; }
         }
 
         [UIValue("VerticalHUD")]
         public bool VerticalHUD
         {
             get => Plugin.Config.VerticalHUD;
-            set
-            {
-                Plugin.Config.VerticalHUD = value;
-            }
+            set { Plugin.Config.VerticalHUD = value; }
         }
 
         [UIValue("DefaultHUD")]
         public bool DefaultHUD
         {
             get => Plugin.Config.SingleplayerHUD;
-            set
-            {
-                Plugin.Config.SingleplayerHUD = value;
-            }
+            set { Plugin.Config.SingleplayerHUD = value; }
         }
 
         [UIValue("Hologram")]
         public bool Hologram
         {
             get => Plugin.Config.Hologram;
-            set
-            {
-                Plugin.Config.Hologram = value;
-            }
+            set { Plugin.Config.Hologram = value; }
         }
         #endregion
 
@@ -147,20 +133,6 @@ namespace MultiplayerExtensions.UI
             hologramToggle.Value = value;
         }
         #endregion
-
-        private void OnActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-        {
-            sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
-        }
-
-        private void OnPlayerStateChanged(IConnectedPlayer player)
-        {
-            if (player.userId != sessionManager.localPlayer.userId && player.isConnectionOwner)
-            {
-                SetCustomSongs(player.HasState("customsongs"));
-                SetEnforceMods(player.HasState("enforcemods"));
-            }
-        }
 
         private void UpdateStates()
         {
