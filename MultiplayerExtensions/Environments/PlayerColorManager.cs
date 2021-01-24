@@ -39,8 +39,14 @@ namespace MultiplayerExtensions.Environments
         {
             _placeManager.SetAllPlayerPlaceColor(Color.black);
             _placeManager.SetPlayerPlaceColor(_sessionManager.localPlayer, _playerManager.localColor);
-            foreach (ExtendedPlayer player in _playerManager.players.Values)
-                _placeManager.SetPlayerPlaceColor(player, player.playerColor);
+            foreach (IConnectedPlayer player in _sessionManager.connectedPlayers)
+            {
+                ExtendedPlayer? exPlayer = _playerManager.GetExtendedPlayer(player);
+                if (exPlayer != null)
+                    _placeManager.SetPlayerPlaceColor(player, exPlayer.playerColor);
+                else
+                    Plugin.Log.Info("Player's color not found.");
+            }
         }
 
         private void HandlePlayerConnected(IConnectedPlayer player)

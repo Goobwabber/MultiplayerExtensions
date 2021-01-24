@@ -22,7 +22,7 @@ namespace MultiplayerExtensions.Sessions
 		internal Platform localPlatform;
 		internal Color localColor;
 
-		public IReadOnlyDictionary<string, ExtendedPlayer> players { get => _players; }
+		public Dictionary<string, ExtendedPlayer> players { get => _players; }
 
 		public ExtendedPlayerManager(IMultiplayerSessionManager sessionManager, PacketManager packetManager, IPlatformUserModel platformUserModel)
 		{
@@ -89,6 +89,9 @@ namespace MultiplayerExtensions.Sessions
 			}
 			else
 				extendedPlayer = new ExtendedPlayer(player, packet.platformID, packet.platform, new SemVer.Version(packet.mpexVersion), packet.playerColor);
+
+			_players[player.userId] = extendedPlayer;
+
 			if (Plugin.PluginMetadata.Version != extendedPlayer.mpexVersion) 
 			{
 				Plugin.Log?.Warn("###################################################################");
