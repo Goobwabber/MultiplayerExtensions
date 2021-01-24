@@ -24,7 +24,6 @@
 ""Zenject-usage.dll?alias=Beat Saber_Data\Managed\Zenject-usage.dll
 
 "Plugins/
-""BS_Utils.dll?alias=Plugins\BS_Utils.dll
 ""BSML.dll?alias=Plugins\BSML.dll
 ""SiraUtil.dll?alias=Plugins\SiraUtil.dll
 ""SongCore.dll?alias=Plugins\SongCore.dll

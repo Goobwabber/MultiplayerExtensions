@@ -12,57 +12,6 @@ using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(CreateServerFormController), "formData", MethodType.Getter)]
-    class IncreaseMaxPlayersClampPatch
-    {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var codes = instructions.ToList();
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Ldc_R4 && codes[i].OperandIs(5))
-                {
-                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, 10f);
-                }
-            }
-            return codes.AsEnumerable();
-        }
-    }
-
-    [HarmonyPatch(typeof(CreateServerFormController), "Setup", MethodType.Normal)]
-    class IncreaseMaxPlayersPatch
-    {
-        static void Prefix(CreateServerFormController __instance)
-        {
-            FormattedFloatListSettingsController serverForm = __instance.GetField<FormattedFloatListSettingsController, CreateServerFormController>("_maxPlayersList");
-            serverForm.values = new float[] { 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f };
-        }
-    }
-
-    [HarmonyPatch(typeof(MultiplayerPlayerPlacement), "GetAngleBetweenPlayersWithEvenAdjustment", MethodType.Normal)]
-    class PlayerPlacementAnglePatch
-    {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var codes = instructions.ToList();
-            bool flag = true;
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Ldc_R4)
-                {
-                    flag = false;
-                }
-
-                if (flag)
-                {
-                    codes.RemoveAt(0);
-                    i--;
-                }
-            }
-            return codes.AsEnumerable();
-        }
-    }
-
     [HarmonyPatch(typeof(MultiplayerLobbyController), "ActivateMultiplayerLobby", MethodType.Normal)]
     class LobbyEnvironmentLoadPatch
     {
@@ -87,7 +36,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Postfix(CoreGameHUDController __instance)
         {
-            if (LobbyJoinPatch.IsMultiplayer && Plugin.Config.VerticalHUD)
+            if (MPState.CurrentGameType != MultiplayerGameType.None && Plugin.Config.VerticalHUD)
             {
                 Plugin.Log?.Debug("Setting up multiplayer HUD");
                 GameEnergyUIPanel gameEnergyUI = __instance.transform.GetComponentInChildren<GameEnergyUIPanel>();

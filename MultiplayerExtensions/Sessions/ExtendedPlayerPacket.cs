@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace MultiplayerExtensions.Sessions
 {
@@ -16,6 +17,7 @@ namespace MultiplayerExtensions.Sessions
         {
             writer.Put(platformID);
             writer.Put(mpexVersion);
+            playerColor.Serialize(writer);
             writer.Put((int)platform);
         }
 
@@ -23,6 +25,7 @@ namespace MultiplayerExtensions.Sessions
         {
             this.platformID = reader.GetString();
             this.mpexVersion = reader.GetString();
+            playerColor.Deserialize(reader);
             Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
             if (reader.AvailableBytes >= 4) // Verify this works when the platform int exists.
                 this.platform = (Platform)reader.GetInt();
@@ -30,25 +33,20 @@ namespace MultiplayerExtensions.Sessions
                 this.platform = Platform.Unknown;
         }
 
-        public ExtendedPlayerPacket Init(string platformID, Platform platform)
+        public ExtendedPlayerPacket Init(string platformID, Platform platform, Color playerColor)
         {
             this.platformID = platformID;
             this.mpexVersion = Plugin.PluginMetadata.Version.ToString();
-            this.platform = platform;
+            this.playerColor = new Color32Serializable(playerColor);
             return this;
         }
 
-        /// <summary>
-        /// Platform User ID from <see cref="UserInfo.platformUserId"/>
-        /// </summary>
         public string platformID;
-
         public Platform platform;
-        /// <summary>
-        /// MultiplayerExtensions version reported by BSIPA.
-        /// </summary>
         public string mpexVersion;
+        public Color32Serializable playerColor;
     }
+
     public enum Platform
     {
         Unknown = 0,

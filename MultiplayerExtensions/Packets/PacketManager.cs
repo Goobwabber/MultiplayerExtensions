@@ -98,14 +98,14 @@ namespace MultiplayerExtensions.Packets
         /// <exception cref="System.NullReferenceException">Thrown when <see cref="ConnectedPlayerManager"/> has not been instantiated.</exception>
         /// <typeparam name="T">Type of <see cref="LiteNetLib.Utils.INetSerializable"/> to send.</typeparam>
         /// <param name="message"><see cref="LiteNetLib.Utils.INetSerializable"/> packet to send.</param>
-        public void SendImmediately<T>(T message) where T : INetSerializable
-        {
-            //ConnectedPlayerManager playerManager = _playerManager(ref _sessionManager);
-            //if (playerManager != null)
-            //    _sendImmediate.Invoke(ref playerManager, message, false);
-            //else
-            //    throw new NullReferenceException($"'{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated.");
-        }
+        //public void SendImmediately<T>(T message) where T : INetSerializable
+        //{
+        //    ConnectedPlayerManager playerManager = _playerManager(ref _sessionManager);
+        //    if (playerManager != null)
+        //        _sendImmediate.Invoke(ref playerManager, message, false);
+        //    else
+        //        throw new NullReferenceException($"'{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated.");
+        //}
 
         /// <summary>
         /// Sends a <typeparamref name="T"/> packet to all players except <paramref name="excludedPlayer"/> without waiting for next flush.
@@ -118,19 +118,19 @@ namespace MultiplayerExtensions.Packets
         /// <typeparam name="T">Type of <see cref="LiteNetLib.Utils.INetSerializable"/> to send.</typeparam>
         /// <param name="message"><see cref="LiteNetLib.Utils.INetSerializable"/> packet to send.</param>
         /// <param name="excludedPlayer"><see cref="IConnectedPlayer"/> that packet won't be sent to.</param>
-        public void SendImmediatelyExcludingPlayer<T>(T message, IConnectedPlayer excludedPlayer) where T : INetSerializable
-        {
-            ConnectedPlayerManager playerManager = _playerManager(ref _sessionManager);
-            if (playerManager != null)
-            {
-                //object excludedConnection = _getConnection(ref playerManager, excludedPlayer.userId);
-                //if (excludedConnection != null)
-                //    _sendExcluding.Invoke(ref playerManager, message, excludedConnection, false);
-                //else
-                //    throw new NullReferenceException($"'{typeof(T)}' was not sent because user '{excludedPlayer.userId}' could not be found.");
-            } else
-                throw new NullReferenceException($"'{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated.");
-        }
+        //public void SendImmediatelyExcludingPlayer<T>(T message, IConnectedPlayer excludedPlayer) where T : INetSerializable
+        //{
+        //    ConnectedPlayerManager playerManager = _playerManager(ref _sessionManager);
+        //    if (playerManager != null)
+        //    {
+        //        //object excludedConnection = _getConnection(ref playerManager, excludedPlayer.userId);
+        //        //if (excludedConnection != null)
+        //        //    _sendExcluding.Invoke(ref playerManager, message, excludedConnection, false);
+        //        //else
+        //        //    throw new NullReferenceException($"'{typeof(T)}' was not sent because user '{excludedPlayer.userId}' could not be found.");
+        //    } else
+        //        throw new NullReferenceException($"'{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated.");
+        //}
 
         /// <summary>
         /// Sends a <typeparamref name="T"/> packet to a <paramref name="toPlayer"/> without waiting for next flush.
@@ -143,19 +143,19 @@ namespace MultiplayerExtensions.Packets
         /// <typeparam name="T">Type of <see cref="LiteNetLib.Utils.INetSerializable"/> to send.</typeparam>
         /// <param name="message"><see cref="LiteNetLib.Utils.INetSerializable"/> packet to send.</param>
         /// <param name="toPlayer"><see cref="IConnectedPlayer"/> to send the packet to.</param>
-        public void SendImmediatelyToPlayer<T>(T message, IConnectedPlayer toPlayer) where T : INetSerializable
-        {
-            ConnectedPlayerManager playerManager = _playerManager(ref _sessionManager);
-            if (playerManager != null)
-            {
-                //object toConnection = _getConnection(ref playerManager, toPlayer.userId);
-                //if (toConnection != null)
-                //    _sendToPlayer.Invoke(ref playerManager, message, toConnection);
-                //else
-                //    throw new NullReferenceException($"'{typeof(T)}' was not sent because user '{toPlayer.userId}' could not be found.");
-            }
-            else
-                throw new NullReferenceException($"'{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated.");
-        }
+        //public void SendImmediatelyToPlayer<T>(T message, IConnectedPlayer toPlayer) where T : INetSerializable
+        //{
+        //    ConnectedPlayerManager playerManager = _playerManager(ref _sessionManager);
+        //    if (playerManager != null)
+        //    {
+        //        //object toConnection = _getConnection(ref playerManager, toPlayer.userId);
+        //        //if (toConnection != null)
+        //        //    _sendToPlayer.Invoke(ref playerManager, message, toConnection);
+        //        //else
+        //        //    throw new NullReferenceException($"'{typeof(T)}' was not sent because user '{toPlayer.userId}' could not be found.");
+        //    }
+        //    else
+        //        throw new NullReferenceException($"'{typeof(T)}' was not sent because 'ConnectedPlayerManager' has not been instantiated.");
+        //}
     }
 }

@@ -12,13 +12,13 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class GameStateControllerStub : LobbyGameStateController, ILobbyHostGameStateController, ILobbyGameStateController, IDisposable
     {
-        protected readonly SessionManager _sessionManager;
+        protected readonly IMultiplayerSessionManager _sessionManager;
         protected readonly PacketManager _packetManager;
         protected readonly ExtendedPlayerManager _extendedPlayerManager;
 
         private static readonly SemVer.Version _minVersionStartPrimed = new SemVer.Version("0.4.0");
         
-        internal GameStateControllerStub(SessionManager sessionManager, PacketManager packetManager, ExtendedPlayerManager extendedPlayerManager)
+        internal GameStateControllerStub(IMultiplayerSessionManager sessionManager, PacketManager packetManager, ExtendedPlayerManager extendedPlayerManager)
         {
             _sessionManager = sessionManager;
             _packetManager = packetManager;
@@ -28,6 +28,8 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void Activate()
         {
             _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
+            _lobbyGameState.gameStateDidChangeEvent -= base.HandleGameStateDidChange;
+            _lobbyGameState.gameStateDidChangeEvent += HandleGameStateDidChange;
             base.Activate();
         }
 
@@ -36,6 +38,8 @@ namespace MultiplayerExtensions.OverrideClasses
             _sessionManager.playerStateChangedEvent -= OnPlayerStateChanged;
             _menuRpcManager.startedLevelEvent -= HandleRpcStartedLevel;
             _menuRpcManager.cancelledLevelStartEvent -= HandleRpcCancelledLevel;
+            _lobbyGameState.gameStateDidChangeEvent -= HandleGameStateDidChange;
+            _lobbyGameState.gameStateDidChangeEvent += base.HandleGameStateDidChange;
             base.Deactivate();
         }
 
@@ -53,6 +57,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public override void StopListeningToGameStart()
         {
             _menuRpcManager.startedLevelEvent -= HandleRpcStartedLevel;
+            _menuRpcManager.cancelledLevelStartEvent -= HandleRpcCancelledLevel;
             base.StopListeningToGameStart();
         }
 
@@ -98,6 +103,19 @@ namespace MultiplayerExtensions.OverrideClasses
             _multiplayerLevelLoader.countdownFinishedEvent -= HandleCountdown;
             _multiplayerLevelLoader.countdownFinishedEvent += base.HandleMultiplayerLevelLoaderCountdownFinished;
             base.CancelGame();
+        }
+
+        public new void HandleGameStateDidChange(MultiplayerGameState newGameState)
+        {
+            base.HandleGameStateDidChange(newGameState);
+            MPState.CurrentGameState = newGameState;
+            MPEvents.RaiseGameStateChanged(_lobbyGameState, newGameState);
+        }
+
+        public new void SetMultiplayerGameType(MultiplayerGameType multiplayerGameType)
+        {
+            base.SetMultiplayerGameType(multiplayerGameType);
+            MPState.CurrentGameType = multiplayerGameType;
         }
 
         private void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)

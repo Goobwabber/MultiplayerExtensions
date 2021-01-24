@@ -6,80 +6,104 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Sessions
 {
-    class ExtendedPlayerManager : IInitializable
-    {
-        [Inject]
-        private SessionManager _sessionManager = null!;
+	public class ExtendedPlayerManager : IInitializable, IDisposable
+	{
+		protected readonly IMultiplayerSessionManager _sessionManager;
+		protected readonly PacketManager _packetManager;
+		protected readonly IPlatformUserModel _platformUserModel;
 
-        [Inject]
-        private PacketManager _packetManager = null!;
+		private Dictionary<string, ExtendedPlayer> _players = new Dictionary<string, ExtendedPlayer>();
+		internal string localPlatformID;
+		internal Platform localPlatform;
+		internal Color localColor;
 
-        private Dictionary<string, ExtendedPlayer> _players = new Dictionary<string, ExtendedPlayer>();
-        public string localPlatformID;
-        public Platform localPlatform;
+		public IReadOnlyDictionary<string, ExtendedPlayer> players { get => _players; }
 
-        public void Initialize()
-        {
-            Plugin.Log?.Info("Setting up PlayerManager");
+		public ExtendedPlayerManager(IMultiplayerSessionManager sessionManager, PacketManager packetManager, IPlatformUserModel platformUserModel)
+		{
+			_sessionManager = sessionManager;
+			_packetManager = packetManager;
+			_platformUserModel = platformUserModel;
+		}
 
-            _sessionManager.playerConnectedEvent += OnPlayerConnected;
-            _sessionManager.playerDisconnectedEvent += OnPlayerDisconnected;
+		public void Initialize()
+		{
+			Plugin.Log?.Info("Setting up PlayerManager");
 
-            _packetManager.RegisterCallback<ExtendedPlayerPacket>(HandlePlayerPacket);
+			_sessionManager.playerConnectedEvent += OnPlayerConnected;
+			_sessionManager.playerDisconnectedEvent += OnPlayerDisconnected;
 
-            BS_Utils.Gameplay.GetUserInfo.GetUserAsync().ContinueWith(r =>
-            {
-                localPlatformID = r.Result.platformUserId;
-                localPlatform = r.Result.platform.ToPlatform();
-            });
-        }
+			_packetManager.RegisterCallback<ExtendedPlayerPacket>(HandlePlayerPacket);
 
-        private void OnPlayerConnected(IConnectedPlayer player)
-        {
-            Plugin.Log?.Info($"Player '{player.userId}' joined");
-            var extendedPlayer = new ExtendedPlayer(player);
-            _players[player.userId] = extendedPlayer;
-            
-            if (localPlatformID != null)
-            {
-                ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID, localPlatform);
-                _packetManager.Send(localPlayerPacket);
-            }
-        }
+			if (!ColorUtility.TryParseHtmlString(Plugin.Config.Color, out localColor))
+				localColor = new Color(0.031f, 0.752f, 1f);
 
-        private void OnPlayerDisconnected(IConnectedPlayer player)
-        {
-            Plugin.Log?.Info($"Player '{player.userId}' disconnected");
-            // var extendedPlayer = _players[player.userId];
-            _players.Remove(player.userId);
-        }
+			_platformUserModel.GetUserInfo().ContinueWith(r =>
+			{
+				localPlatformID = r.Result.platformUserId;
+				localPlatform = r.Result.platform.ToPlatform();
+			});
+		}
 
-        private void HandlePlayerPacket(ExtendedPlayerPacket packet, IConnectedPlayer player)
-        {
-            Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with platformID: '{packet.platformID}'  mpexVersion: '{packet.mpexVersion}'");
-            var extendedPlayer = _players[player.userId];
-            extendedPlayer.platformID = packet.platformID;
-            extendedPlayer.platform = packet.platform;
-            extendedPlayer.mpexVersion = new SemVer.Version(packet.mpexVersion);
-            if (Plugin.PluginMetadata.Version != extendedPlayer.mpexVersion) 
-            {
-                Plugin.Log?.Warn("###################################################################");
-                Plugin.Log?.Warn("Different MultiplayerExtensions version detected!");
-                Plugin.Log?.Warn($"The player '{player.userName}' is using MultiplayerExtensions {extendedPlayer.mpexVersion} while you are using MultiplayerExtensions {Plugin.PluginMetadata.Version}");
-                Plugin.Log?.Warn("For best compatibility all players should use the same version of MultiplayerExtensions.");
-                Plugin.Log?.Warn("###################################################################");
-            }
-        }
+		public void Dispose()
+		{
+			_sessionManager.playerConnectedEvent -= OnPlayerConnected;
+			_sessionManager.playerDisconnectedEvent -= OnPlayerDisconnected;
+			_packetManager.UnregisterCallback<ExtendedPlayerPacket>();
+		}
 
-        public ExtendedPlayer? GetExtendedPlayer(IConnectedPlayer player)
-        {
-            if (_players.TryGetValue(player.userId, out ExtendedPlayer extendedPlayer))
-                return extendedPlayer;
-            return null;
-        }
-    }
+		private void OnPlayerConnected(IConnectedPlayer player)
+		{
+			Plugin.Log?.Info($"Player '{player.userId}' joined");
+			if (localPlatformID != null)
+			{
+				ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID, localPlatform, localColor);
+				_packetManager.Send(localPlayerPacket);
+			}
+		}
+
+		private void OnPlayerDisconnected(IConnectedPlayer player)
+		{
+			Plugin.Log?.Info($"Player '{player.userId}' disconnected");
+			// var extendedPlayer = _players[player.userId];
+			_players.Remove(player.userId);
+		}
+
+		private void HandlePlayerPacket(ExtendedPlayerPacket packet, IConnectedPlayer player)
+		{
+			Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with platformID: '{packet.platformID}'  mpexVersion: '{packet.mpexVersion}'");
+
+			ExtendedPlayer extendedPlayer;
+			if (_players.ContainsKey(player.userId))
+			{
+				extendedPlayer = _players[player.userId];
+				extendedPlayer.platformID = packet.platformID;
+				extendedPlayer.platform = packet.platform;
+				extendedPlayer.playerColor = (Color32)packet.playerColor;
+				extendedPlayer.mpexVersion = new SemVer.Version(packet.mpexVersion);
+			}
+			else
+				extendedPlayer = new ExtendedPlayer(player, packet.platformID, packet.platform, new SemVer.Version(packet.mpexVersion), (Color32)packet.playerColor);
+			if (Plugin.PluginMetadata.Version != extendedPlayer.mpexVersion) 
+			{
+				Plugin.Log?.Warn("###################################################################");
+				Plugin.Log?.Warn("Different MultiplayerExtensions version detected!");
+				Plugin.Log?.Warn($"The player '{player.userName}' is using MultiplayerExtensions {extendedPlayer.mpexVersion} while you are using MultiplayerExtensions {Plugin.PluginMetadata.Version}");
+				Plugin.Log?.Warn("For best compatibility all players should use the same version of MultiplayerExtensions.");
+				Plugin.Log?.Warn("###################################################################");
+			}
+		}
+
+		public ExtendedPlayer? GetExtendedPlayer(IConnectedPlayer player)
+		{
+			if (_players.TryGetValue(player.userId, out ExtendedPlayer extendedPlayer))
+				return extendedPlayer;
+			return null;
+		}
+	}
 }

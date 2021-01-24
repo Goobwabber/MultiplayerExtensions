@@ -12,24 +12,6 @@ using System.Collections.Generic;
 /// </summary>
 namespace MultiplayerExtensions.HarmonyPatches
 {
-#if DEBUG
-    [HarmonyPatch(typeof(SongPackMasksModel), MethodType.Constructor,
-        new Type[] { // List the Types of the method's parameters.
-        typeof(BeatmapLevelsModel) })]
-    public class SongPackMasksModel_Constructor
-    {
-        /// <summary>
-        /// Adds a level pack selection to Quick Play's picker. Unfortunately, the server doesn't allow custom songs to be played in Quick Play.
-        /// Left here for testing.
-        /// </summary>
-        static void Postfix(SongPackMasksModel __instance, ref BeatmapLevelsModel beatmapLevelsModel, ref List<Tuple<SongPackMask, string>> ____songPackMaskData)
-        {
-            SongPackMask customs = new SongPackMask("custom_levelpack_CustomLevels");
-            ____songPackMaskData.Add(customs, "Custom");
-        }
-    }
-#endif
-
     [HarmonyPatch(typeof(MultiplayerLevelSelectionFlowCoordinator), "enableCustomLevels", MethodType.Getter)]
     public class EnableCustomLevelsPatch
     {
@@ -38,28 +20,8 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static bool Prefix(ref bool __result)
         {
-            Plugin.Log?.Debug($"CustomLevels are {(LobbyJoinPatch.IsPrivate ? "enabled" : "disabled")}.");
-            __result = LobbyJoinPatch.IsPrivate && Plugin.Config.CustomSongs;
+            __result = MPState.CurrentGameType == MultiplayerGameType.Private && MPState.CustomSongsEnabled;
             return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(MultiplayerLobbyConnectionController), "connectionType", MethodType.Setter)]
-    class LobbyJoinPatch
-    {
-        public static MultiplayerLobbyConnectionController.LobbyConnectionType ConnectionType;
-
-        public static bool IsPrivate { get { return ConnectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.QuickPlay || false; } }
-        public static bool IsHost { get { return ConnectionType == MultiplayerLobbyConnectionController.LobbyConnectionType.PartyHost || false; } }
-        public static bool IsMultiplayer { get { return ConnectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.None || false; } }
-
-        /// <summary>
-        /// Gets the current lobby type.
-        /// </summary>
-        static void Prefix(MultiplayerLobbyConnectionController __instance)
-        {
-            ConnectionType = __instance.GetProperty<MultiplayerLobbyConnectionController.LobbyConnectionType, MultiplayerLobbyConnectionController>("connectionType");
-            Plugin.Log?.Debug($"Joining a {ConnectionType} lobby.");
         }
     }
 
@@ -90,12 +52,21 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(MenuRpcManager), "GetIsEntitledToLevel", MethodType.Normal)]
-    public class GetSelfEntitlementPatch
+    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), "GetPlayerLevelEntitlementsAsync", MethodType.Normal)]
+    public class StartGameLevelEntitlementPatch
     {
-        static void Postfix(string levelId, MenuRpcManager __instance)
+        /// <summary>
+        /// Changes the return value if it returns 'NotDownloaded' so that the host can start the game.
+        /// </summary>
+        static void Postfix(ref Task<EntitlementsStatus> __result)
         {
-            __instance.InvokeMethod<object, MenuRpcManager>("InvokeGetIsEntitledToLevel", new object[] { "", levelId });
+            __result = __result.ContinueWith(r =>
+            {
+                if (r.Result == EntitlementsStatus.NotDownloaded)
+                    return EntitlementsStatus.Ok;
+                else
+                    return r.Result;
+            });
         }
     }
 }

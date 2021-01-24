@@ -47,51 +47,36 @@ namespace MultiplayerExtensions.UI
         [UIValue("CustomSongs")]
         public bool CustomSongs
         {
-            get => Plugin.Config.CustomSongs;
-            set
-            {
-                Plugin.Config.CustomSongs = value;
-            }
+            get => MPState.CustomSongsEnabled;
+            set { MPState.CustomSongsEnabled = value; }
         }
 
         [UIValue("EnforceMods")]
         public bool EnforceMods
         {
             get => Plugin.Config.EnforceMods;
-            set
-            {
-                Plugin.Config.EnforceMods = value;
-            }
+            set { Plugin.Config.EnforceMods = value; }
         }
 
         [UIValue("VerticalHUD")]
         public bool VerticalHUD
         {
             get => Plugin.Config.VerticalHUD;
-            set
-            {
-                Plugin.Config.VerticalHUD = value;
-            }
+            set { Plugin.Config.VerticalHUD = value; }
         }
 
         [UIValue("DefaultHUD")]
         public bool DefaultHUD
         {
             get => Plugin.Config.SingleplayerHUD;
-            set
-            {
-                Plugin.Config.SingleplayerHUD = value;
-            }
+            set { Plugin.Config.SingleplayerHUD = value; }
         }
 
         [UIValue("Hologram")]
         public bool Hologram
         {
             get => Plugin.Config.Hologram;
-            set
-            {
-                Plugin.Config.Hologram = value;
-            }
+            set { Plugin.Config.Hologram = value; }
         }
         #endregion
 

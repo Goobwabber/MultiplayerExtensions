@@ -16,14 +16,15 @@ namespace MultiplayerExtensions.OverrideClasses
     class PlayerTableCellStub : GameServerPlayerTableCell
     {
         [Inject]
-        protected NetworkPlayerEntitlementChecker networkPlayerEntitlementChecker;
+        protected readonly NetworkPlayerEntitlementChecker _entitlementChecker;
 
         [Inject]
-        protected ILobbyPlayersDataModel lobbyPlayersDataModel;
+        protected readonly ILobbyPlayersDataModel _playersDataModel;
 
         [Inject]
-        protected IMenuRpcManager menuRpcManager;
+        protected readonly IMenuRpcManager _menuRpcManager;
 
+        private ButtonBinder __buttonBinder = new ButtonBinder();
         private CancellationTokenSource entitlementCts;
 
         private static Color green = new Color(0f, 1f, 0f, 1f);
@@ -60,12 +61,14 @@ namespace MultiplayerExtensions.OverrideClasses
             _gameplayModifiers = playerTableCell.GetField<GameplayModifiersModelSO, GameServerPlayerTableCell>("_gameplayModifiers");
             // TableCellWithSeparator
             _separator = playerTableCell.GetField<GameObject, TableCellWithSeparator>("_separator");
-
-            //menuRpcManager.setIsEntitledToLevelEvent += HandleSetIsEntitledToLevel;
-            base.Awake();
         }
 
-        public override void Awake() { }
+        public override void Awake() {
+            _menuRpcManager.setIsEntitledToLevelEvent += HandleSetIsEntitledToLevel;
+            __buttonBinder.AddBinding(_kickPlayerButton, new Action(base.HandleKickPlayerButtonPressed));
+            __buttonBinder.AddBinding(_useBeatmapButton, new Action(base.HandleUseBeatmapButtonPressed));
+            __buttonBinder.AddBinding(_useModifiersButton, new Action(base.HandleUseModifiersButtonPressed));
+        }
 
         public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, bool isHost, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
         {
@@ -80,12 +83,12 @@ namespace MultiplayerExtensions.OverrideClasses
                 entitlementCts.Cancel();
             entitlementCts = new CancellationTokenSource();
 
-            string? levelId = lobbyPlayersDataModel.GetPlayerBeatmapLevel(lobbyPlayersDataModel.hostUserId)?.levelID;
+            string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.hostUserId)?.levelID;
             if (levelId == null)
                 return;
 
             lastLevelId = levelId;
-            EntitlementsStatus entitlement = player.isMe ? await networkPlayerEntitlementChecker.GetEntitlementStatus(levelId) : await networkPlayerEntitlementChecker.GetTcsTaskCanPlayerPlayLevel(player, levelId, entitlementCts.Token, out _);
+            EntitlementsStatus entitlement = player.isMe ? await _entitlementChecker.GetEntitlementStatus(levelId) : await _entitlementChecker.GetTcsTaskCanPlayerPlayLevel(player, levelId, entitlementCts.Token, out _);
             SetLevelEntitlement(player, entitlement);
         }
 

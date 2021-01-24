@@ -39,11 +39,14 @@ namespace MultiplayerExtensions.Environments
 		public void SetPlayerPlaceColor(IConnectedPlayer player, Color color)
 		{
 			MultiplayerLobbyAvatarPlace playerPlace = GetConnectedPlayerPlace(player);
-			TubeBloomPrePassLight[] lights = playerPlace.GetComponentsInChildren<TubeBloomPrePassLight>();
-			foreach (TubeBloomPrePassLight light in lights)
+			if (playerPlace != null)
 			{
-				light.color = color;
-				light.Refresh();
+				TubeBloomPrePassLight[] lights = playerPlace.GetComponentsInChildren<TubeBloomPrePassLight>();
+				foreach (TubeBloomPrePassLight light in lights)
+				{
+					light.color = color;
+					light.Refresh();
+				}
 			}
 		}
 

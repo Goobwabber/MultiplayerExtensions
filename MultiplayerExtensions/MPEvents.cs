@@ -29,6 +29,11 @@ namespace MultiplayerExtensions
         /// </summary>
         public static event EventHandler? LobbyEnvironmentLoaded;
 
+        /// <summary>
+        /// Raised when the game state changes.
+        /// </summary>
+        public static event EventHandler<MultiplayerGameState>? GameStateChanged;
+
         internal static void RaiseMasterServerChanged(object sender, MasterServerInfo info)
             => MasterServerChanged?.RaiseEventSafe(sender, info, nameof(MasterServerChanged));
         internal static void RaiseRoomCodeChanged(object sender, string code) 
@@ -37,6 +42,8 @@ namespace MultiplayerExtensions
             => BeatmapSelected.RaiseEventSafe(sender, args, nameof(BeatmapSelected));
         internal static void RaiseLobbyEnvironmentLoaded(object sender)
             => LobbyEnvironmentLoaded.RaiseEventSafe(sender, nameof(LobbyEnvironmentLoaded));
+        internal static void RaiseGameStateChanged(object sender, MultiplayerGameState state)
+            => GameStateChanged.RaiseEventSafe(sender, state, nameof(GameStateChanged));
     }
 
     public class SelectedBeatmapEventArgs : EventArgs
