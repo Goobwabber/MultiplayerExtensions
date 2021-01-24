@@ -25,7 +25,7 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, IProgress<double>? progress, CancellationToken cancellationToken)
         {
-            Beatmap bm = await Plugin.BeatSaver.Hash(hash, cancellationToken);
+            Beatmap bm = await Plugin.BeatSaver.Hash(hash);
 
             if (bm == null)
             {
@@ -33,7 +33,7 @@ namespace MultiplayerExtensions
                 return null;
             }
 
-            byte[] beatmapBytes = await bm.DownloadZip(false, cancellationToken, progress);
+            byte[] beatmapBytes = await bm.ZipBytes(false);
             string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.SongAuthorName);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
             using (var ms = new MemoryStream(beatmapBytes))
