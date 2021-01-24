@@ -40,7 +40,7 @@ namespace MultiplayerExtensions
             }
         }
 
-        private static MultiplayerGameState? _currentGameState;
+        private static MultiplayerGameState? _currentGameState = MultiplayerGameState.None;
         /// <summary>
         /// The current multiplayer game state.
         /// </summary>
@@ -56,7 +56,7 @@ namespace MultiplayerExtensions
             }
         }
 
-        private static MultiplayerGameType? _currentGameType;
+        private static MultiplayerGameType? _currentGameType = MultiplayerGameType.None;
         /// <summary>
         /// The current multiplayer game type.
         /// </summary>
