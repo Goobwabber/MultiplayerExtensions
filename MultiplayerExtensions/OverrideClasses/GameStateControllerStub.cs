@@ -70,6 +70,7 @@ namespace MultiplayerExtensions.OverrideClasses
             
             var extendedPlayer = _extendedPlayerManager.GetExtendedPlayer(player);
             // did not receive mpexVersion from player or the version is too old: assume the player is ready to prevent getting stuck at "Loading..." screen 
+            if (extendedPlayer == null) return true;
             if (extendedPlayer.mpexVersion == null || extendedPlayer.mpexVersion < _minVersionStartPrimed) return true;
             
             return false;
