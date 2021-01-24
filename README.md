@@ -10,7 +10,6 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 * 10 player lobbies __(BeatTogether Exclusive feature)__
 
 ## Installation
-MultiplayerExtensions has not been released yet, but you can grab the latest build which is automagically generated. 
 1. Ensure you have the [required mods](https://github.com/Zingabopp/MultiplayerExtensions#requirements).
 2. Download the `MultiplayerExtensions` file listed under `Assets` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/releases)**.
    * Optionally, you can get a development build by downloading the file listed under `Artifacts`  **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build).
