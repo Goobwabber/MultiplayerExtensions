@@ -7,6 +7,7 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 * Warns the user when a song is not on Beat Saver.
 * Adds HUD configuration options.
 * Kicks unmodded players when custom levels are enabled.
+* 10 player lobbies __(BeatTogether Exclusive feature)__
 
 ## Installation
 MultiplayerExtensions has not been released yet, but you can grab the latest build which is automagically generated. 
@@ -22,11 +23,11 @@ Lastly, check out [other mods](https://github.com/Zingabopp/MultiplayerExtension
 
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
-* BS_Utils v1.7.0+
 * SongCore v3.0.3+
 * BeatSaverSharp v1.6.0+
 * BeatSaberMarkupLanguage v1.4.5+
 * SiraUtil 2.4.0+
+* BeatTogether 1.0.2+ (Only required for 10 player lobbies)
 
 ## Troubleshooting
 #### Custom Songs button not appearing
