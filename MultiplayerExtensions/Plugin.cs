@@ -47,11 +47,7 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             zenjector.OnApp<MultiplayerInstaller>();
             zenjector.OnMenu<InterfaceInstaller>();
-            HttpOptions options = new HttpOptions
-            {
-                ApplicationName = "MultiplayerExtensions",
-                Version = new Version(pluginMetadata.Version.ToString())
-            };
+            HttpOptions options = new HttpOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
             BeatSaver = new BeatSaver(options);
         }
 
