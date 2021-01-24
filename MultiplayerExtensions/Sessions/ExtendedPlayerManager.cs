@@ -84,11 +84,11 @@ namespace MultiplayerExtensions.Sessions
 				extendedPlayer = _players[player.userId];
 				extendedPlayer.platformID = packet.platformID;
 				extendedPlayer.platform = packet.platform;
-				extendedPlayer.playerColor = (Color32)packet.playerColor;
+				extendedPlayer.playerColor = packet.playerColor;
 				extendedPlayer.mpexVersion = new SemVer.Version(packet.mpexVersion);
 			}
 			else
-				extendedPlayer = new ExtendedPlayer(player, packet.platformID, packet.platform, new SemVer.Version(packet.mpexVersion), (Color32)packet.playerColor);
+				extendedPlayer = new ExtendedPlayer(player, packet.platformID, packet.platform, new SemVer.Version(packet.mpexVersion), packet.playerColor);
 			if (Plugin.PluginMetadata.Version != extendedPlayer.mpexVersion) 
 			{
 				Plugin.Log?.Warn("###################################################################");
