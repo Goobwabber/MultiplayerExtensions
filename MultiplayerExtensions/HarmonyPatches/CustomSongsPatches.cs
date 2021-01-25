@@ -1,12 +1,7 @@
 ﻿using HarmonyLib;
-using IPA.Utilities;
-using System;
-using System.Threading;
 using System.Threading.Tasks;
 using BeatSaverSharp;
-#if DEBUG
-using System.Collections.Generic;
-#endif
+
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
 /// </summary>

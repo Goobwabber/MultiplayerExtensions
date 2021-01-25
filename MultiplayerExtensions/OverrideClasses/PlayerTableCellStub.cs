@@ -1,9 +1,6 @@
 ﻿using HMUI;
 using IPA.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
@@ -15,17 +12,12 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class PlayerTableCellStub : GameServerPlayerTableCell
     {
-        [Inject]
-        protected readonly NetworkPlayerEntitlementChecker _entitlementChecker;
-
-        [Inject]
-        protected readonly ILobbyPlayersDataModel _playersDataModel;
-
-        [Inject]
-        protected readonly IMenuRpcManager _menuRpcManager;
+        protected NetworkPlayerEntitlementChecker _entitlementChecker = null!;
+        protected ILobbyPlayersDataModel _playersDataModel = null!;
+        protected IMenuRpcManager _menuRpcManager = null!;
 
         private ButtonBinder __buttonBinder = new ButtonBinder();
-        private CancellationTokenSource entitlementCts;
+        private CancellationTokenSource entitlementCts = null!;
 
         private static Color green = new Color(0f, 1f, 0f, 1f);
         private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
@@ -33,7 +25,15 @@ namespace MultiplayerExtensions.OverrideClasses
         private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
 
         private string lastLevelId = "";
-        private IConnectedPlayer lastPlayer;
+        private IConnectedPlayer lastPlayer = null!;
+
+        [Inject]
+        internal void Inject(NetworkPlayerEntitlementChecker entitlementChecker, ILobbyPlayersDataModel playersDataModel, IMenuRpcManager menuRpcManager)
+        {
+            _entitlementChecker = entitlementChecker;
+            _playersDataModel = playersDataModel;
+            _menuRpcManager = menuRpcManager;
+        }
 
         internal void Construct(GameServerPlayerTableCell playerTableCell)
         {

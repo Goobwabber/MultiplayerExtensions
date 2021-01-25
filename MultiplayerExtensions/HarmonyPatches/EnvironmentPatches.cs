@@ -1,14 +1,6 @@
 ﻿using HarmonyLib;
 using HMUI;
-using IPA.Utilities;
-using MultiplayerExtensions.Beatmaps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Threading;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
