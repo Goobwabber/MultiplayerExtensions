@@ -1,11 +1,4 @@
-﻿using LiteNetLib.Utils;
-using MultiplayerExtensions.HarmonyPatches;
-using MultiplayerExtensions.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using Zenject;
 
 namespace MultiplayerExtensions.Sessions

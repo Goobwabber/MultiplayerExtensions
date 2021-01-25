@@ -1,12 +1,9 @@
 ﻿using BeatSaverSharp;
 using MultiplayerExtensions.Beatmaps;
 using MultiplayerExtensions.Packets;
-using MultiplayerExtensions.Sessions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Zenject;
 
 namespace MultiplayerExtensions.OverrideClasses
 {
