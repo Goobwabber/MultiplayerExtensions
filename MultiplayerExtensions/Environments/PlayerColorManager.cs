@@ -36,6 +36,7 @@ namespace MultiplayerExtensions.Environments
         private void HandleLobbyEnvironmentLoaded(object sender, System.EventArgs e)
         {
             _placeManager.SetAllPlayerPlaceColor(Color.black);
+            _placeManager.SetCenterScreenScale();
             _placeManager.SetPlayerPlaceColor(_sessionManager.localPlayer, _playerManager.localColor);
             foreach (IConnectedPlayer player in _sessionManager.connectedPlayers)
             {

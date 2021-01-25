@@ -1,5 +1,6 @@
 ﻿using IPA.Utilities;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace MultiplayerExtensions.Environments
@@ -43,6 +44,17 @@ namespace MultiplayerExtensions.Environments
 					light.Refresh();
 				}
 			}
+		}
+
+		public void SetCenterScreenScale()
+        {
+			float innerCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_innerCircleRadius");
+			float minOuterCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_minOuterCircleRadius");
+			float angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(_lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
+			float outerCircleRadius = Mathf.Max(MultiplayerPlayerPlacement.GetOuterCircleRadius(angleBetweenPlayersWithEvenAdjustment, innerCircleRadius), minOuterCircleRadius);
+			float scaleRatio = outerCircleRadius / minOuterCircleRadius;
+			MultiplayerLobbyCenterStageManager centerscreen = Resources.FindObjectsOfTypeAll<MultiplayerLobbyCenterStageManager>().First();
+			centerscreen.transform.localScale = new Vector3(scaleRatio, scaleRatio, scaleRatio);
 		}
 
 		public MultiplayerLobbyAvatarPlace GetConnectedPlayerPlace(IConnectedPlayer player)
