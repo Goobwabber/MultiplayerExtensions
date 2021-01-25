@@ -20,6 +20,7 @@ namespace MultiplayerExtensions.UI
             this.gameStateController = gameStateController;
             this.screenController = screenController;
             base.DidActivate(true, false, true);
+
             loadIndicator.color = Color.white;
         }
 

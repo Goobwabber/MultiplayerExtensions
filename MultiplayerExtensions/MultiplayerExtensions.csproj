@@ -56,7 +56,7 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="HMRendering">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="LiteNetLib">
