@@ -56,6 +56,31 @@ namespace MultiplayerExtensions
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
             MPEvents_Test();
+
+            playerPlacementAnglePatch = HarmonyManager.GetPatch<PlayerPlacementAnglePatch>()!;
+            increaseMaxPlayersClampPatch = HarmonyManager.GetPatch<IncreaseMaxPlayersClampPatch>()!;
+            increaseMaxPlayersPatch = HarmonyManager.GetPatch<IncreaseMaxPlayersPatch>()!;
+            MPEvents.MasterServerChanged += MasterServerChanged;
+        }
+
+        private HarmonyPatchInfo playerPlacementAnglePatch;
+        private HarmonyPatchInfo increaseMaxPlayersClampPatch;
+        private HarmonyPatchInfo increaseMaxPlayersPatch;
+
+        private void MasterServerChanged(object sender, MasterServerInfo e)
+        {
+            if (!e.isOfficial)
+            {
+                playerPlacementAnglePatch.ApplyPatch();
+                increaseMaxPlayersClampPatch.ApplyPatch();
+                increaseMaxPlayersPatch.ApplyPatch();
+            }
+            else
+            {
+                playerPlacementAnglePatch.RemovePatch();
+                increaseMaxPlayersClampPatch.RemovePatch();
+                increaseMaxPlayersPatch.RemovePatch();
+            }
         }
 
         [Conditional("DEBUG")]

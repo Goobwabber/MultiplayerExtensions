@@ -81,6 +81,8 @@ namespace MultiplayerExtensions
     {
         public readonly string hostname;
         public readonly int port;
+        public readonly bool isOfficial => hostname.Contains("beatsaber.com");
+
         public MasterServerInfo(string hostname, int port)
         {
             this.hostname = hostname;

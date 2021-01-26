@@ -36,9 +36,6 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<SetLobbyCodePatch>();
             AddDefaultPatch<LobbyEnvironmentLoadPatch>();
             AddDefaultPatch<StartGameLevelEntitlementPatch>();
-            AddDependentPatch<PlayerPlacementAnglePatch>("BeatTogether");
-            AddDependentPatch<IncreaseMaxPlayersClampPatch>("BeatTogether");
-            AddDependentPatch<IncreaseMaxPlayersPatch>("BeatTogether");
         }
 
         private static void AddDefaultPatch<T>() where T : class
@@ -48,15 +45,6 @@ namespace MultiplayerExtensions.HarmonyPatches
                 DefaultPatches.Add(patch);
             else
                 Plugin.Log?.Warn($"Could not add default patch '{typeof(T).Name}'");
-        }
-
-        private static void AddDependentPatch<T>(string modId) where T : class
-        {
-            HarmonyPatchInfo? patch = GetPatch<T>();
-            if (patch != null)
-                DependentPatches[patch] = modId;
-            else
-                Plugin.Log?.Warn($"Could not add dependent patch '{typeof(T).Name}'");
         }
 
         internal static bool ApplyPatch(HarmonyPatchInfo patchInfo)

@@ -40,7 +40,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             {
                 if (codes[i].opcode == OpCodes.Ldc_R4 && codes[i].OperandIs(5))
                 {
-                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, 10f);
+                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, 20f);
                 }
             }
             return codes.AsEnumerable();
@@ -53,7 +53,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Prefix(CreateServerFormController __instance)
         {
             FormattedFloatListSettingsController serverForm = __instance.GetField<FormattedFloatListSettingsController, CreateServerFormController>("_maxPlayersList");
-            serverForm.values = new float[] { 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f };
+            serverForm.values = new float[] { 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f, 17f, 18f, 19f, 20f };
         }
     }
 }
