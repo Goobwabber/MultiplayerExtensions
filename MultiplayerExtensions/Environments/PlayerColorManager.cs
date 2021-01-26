@@ -25,15 +25,34 @@ namespace MultiplayerExtensions.Environments
         {
             MPEvents.LobbyEnvironmentLoaded += HandleLobbyEnvironmentLoaded;
             _sessionManager.playerConnectedEvent += HandlePlayerConnected;
+            _sessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
         }
 
         public void Dispose()
         {
             MPEvents.LobbyEnvironmentLoaded -= HandleLobbyEnvironmentLoaded;
             _sessionManager.playerConnectedEvent -= HandlePlayerConnected;
+            _sessionManager.playerDisconnectedEvent -= HandlePlayerDisconnected;
         }
 
         private void HandleLobbyEnvironmentLoaded(object sender, System.EventArgs e)
+        {
+            ReloadEnvironment();
+        }
+
+        private void HandlePlayerConnected(IConnectedPlayer player)
+        {
+            ExtendedPlayer? exPlayer = _playerManager.GetExtendedPlayer(player);
+            if (exPlayer != null)
+                _placeManager.SetPlayerPlaceColor(player, exPlayer.playerColor);
+        }
+
+        private void HandlePlayerDisconnected(IConnectedPlayer player)
+        {
+            ReloadEnvironment();
+        }
+
+        private void ReloadEnvironment()
         {
             _placeManager.SetAllPlayerPlaceColor(Color.black);
             _placeManager.SetCenterScreenScale();
@@ -46,13 +65,6 @@ namespace MultiplayerExtensions.Environments
                 else
                     Plugin.Log.Info("Player's color not found.");
             }
-        }
-
-        private void HandlePlayerConnected(IConnectedPlayer player)
-        {
-            ExtendedPlayer? exPlayer = _playerManager.GetExtendedPlayer(player);
-            if (exPlayer != null)
-                _placeManager.SetPlayerPlaceColor(player, exPlayer.playerColor);
         }
     }
 }
