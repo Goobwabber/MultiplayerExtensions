@@ -53,6 +53,12 @@ namespace MultiplayerExtensions
         public void OnApplicationStart()
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
+
+            if (Plugin.Config.MaxPlayers > 100)
+                Plugin.Config.MaxPlayers = 100;
+            if (Plugin.Config.MaxPlayers < 10)
+                Plugin.Config.MaxPlayers = 10;
+
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
             MPEvents_Test();
