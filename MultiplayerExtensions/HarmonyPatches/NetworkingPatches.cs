@@ -1,4 +1,8 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using UnityEngine;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
@@ -50,6 +54,41 @@ namespace MultiplayerExtensions.HarmonyPatches
 				return;
 			MPState.LastRoomCode = code;
 			MPEvents.RaiseRoomCodeChanged(__instance, code);
+		}
+	}
+
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "PollUpdate", MethodType.Normal)]
+	internal class UpdateFrequencyPatch
+    {
+		private static float nextTime = 0f;
+		private static float frequency = 0.1f;
+
+		internal static bool Prefix()
+		{
+			if (Time.time > nextTime)
+			{
+				nextTime = Time.time + frequency;
+				return true;
+			}
+			return false;
+		}
+    }
+
+	//Make this work with harmony manager
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "SendUnreliable", MethodType.Normal)]
+	internal class RemoveByteLimitPatch
+    {
+		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = instructions.ToList();
+			for (int i = 0; i < codes.Count; i++)
+			{
+				if (codes[i].opcode == OpCodes.Ble_S)
+				{
+					codes[i] = new CodeInstruction(OpCodes.Br_S, codes[i].operand);
+				}
+			}
+			return codes.AsEnumerable();
 		}
 	}
 }

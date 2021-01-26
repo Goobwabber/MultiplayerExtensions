@@ -36,6 +36,8 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<LobbyEnvironmentLoadPatch>();
             AddDefaultPatch<StartGameLevelEntitlementPatch>();
             AddDefaultPatch<GetMasterServerStatusUrlPatch>();
+            AddDefaultPatch<UpdateFrequencyPatch>();
+            //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 
         private static void AddDefaultPatch<T>() where T : class
