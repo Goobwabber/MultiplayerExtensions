@@ -55,7 +55,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         internal static void Prefix(CreateServerFormController __instance)
         {
             if (playerValues == null)
-                playerValues = Enumerable.Range(2, Plugin.Config.MaxPlayers).Select(x => (float)x).ToArray();
+                playerValues = Enumerable.Range(2, Plugin.Config.MaxPlayers-1).Select(x => (float)x).ToArray();
             FormattedFloatListSettingsController serverForm = __instance.GetField<FormattedFloatListSettingsController, CreateServerFormController>("_maxPlayersList");
             serverForm.values = playerValues;
         }
