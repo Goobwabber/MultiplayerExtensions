@@ -40,7 +40,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             {
                 if (codes[i].opcode == OpCodes.Ldc_R4 && codes[i].OperandIs(5))
                 {
-                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, Plugin.Config.MaxPlayers);
+                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, (float)Plugin.Config.MaxPlayers);
                 }
             }
             return codes.AsEnumerable();

@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<LobbyPlaceManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<PlayerColorManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LobbyEnvironmentManager>().AsSingle();
         }
 
         public override void Start()
