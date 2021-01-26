@@ -69,17 +69,18 @@ namespace MultiplayerExtensions
 
         private void MasterServerChanged(object sender, MasterServerInfo e)
         {
+            Plugin.Log.Info($"Master server changed to {e.hostname}:{e.port}");
             if (!e.isOfficial)
             {
-                playerPlacementAnglePatch.ApplyPatch();
-                increaseMaxPlayersClampPatch.ApplyPatch();
-                increaseMaxPlayersPatch.ApplyPatch();
+                HarmonyManager.ApplyPatch(playerPlacementAnglePatch);
+                HarmonyManager.ApplyPatch(increaseMaxPlayersClampPatch);
+                HarmonyManager.ApplyPatch(increaseMaxPlayersPatch);
             }
             else
             {
-                playerPlacementAnglePatch.RemovePatch();
-                increaseMaxPlayersClampPatch.RemovePatch();
-                increaseMaxPlayersPatch.RemovePatch();
+                HarmonyManager.RemovePatch(playerPlacementAnglePatch);
+                HarmonyManager.RemovePatch(increaseMaxPlayersClampPatch);
+                HarmonyManager.RemovePatch(increaseMaxPlayersPatch);
             }
         }
 

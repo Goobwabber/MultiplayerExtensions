@@ -8,27 +8,43 @@ namespace MultiplayerExtensions.HarmonyPatches
 	[HarmonyPatch(typeof(NetworkConfigSO), "masterServerEndPoint", MethodType.Getter)]
 	internal class GetMasterServerEndPointPatch
 	{
-		[HarmonyAfter("mod.serverbrowser")]
+		[HarmonyAfter("mod.serverbrowser", "com.Python.BeatTogether")]
 		[HarmonyPriority(Priority.Last)]
 		internal static void Postfix(NetworkConfigSO __instance, ref MasterServerEndPoint __result)
 		{
-			if (__result != null)
-			{
-				MasterServerInfo info = new MasterServerInfo(__result);
-				if (MPState.CurrentMasterServer.Equals(info))
-					return;
-				MPState.CurrentMasterServer = info;
-				MPEvents.RaiseMasterServerChanged(__instance, info);
-			}
+			if (MPState.CurrentMasterServer.Equals(__result))
+				return;
+			MPState.CurrentMasterServer.SetEndPoint(__result);
+			MPEvents.RaiseMasterServerChanged(__instance, MPState.CurrentMasterServer);
 		}
 	}
 
+	/// <summary>
+	/// For retrieving the currently used Master Server status URL.
+	/// </summary>
+	[HarmonyPatch(typeof(NetworkConfigSO), "masterServerStatusUrl", MethodType.Getter)]
+	internal class GetMasterServerStatusUrlPatch
+    {
+		[HarmonyAfter("mod.serverbrowser", "com.Python.BeatTogether")]
+		[HarmonyPriority(Priority.Last)]
+		internal static void Postfix(NetworkConfigSO __instance, ref string __result)
+        {
+			if (MPState.CurrentMasterServer.Equals(__result))
+				return;
+			MPState.CurrentMasterServer.SetStatusURL(__result);
+			MPEvents.RaiseMasterServerChanged(__instance, MPState.CurrentMasterServer);
+        }
+	}
+
+	/// <summary>
+	/// For retrieving the currently used Master Server Status URL.
+	/// </summary>
 	[HarmonyPatch(typeof(MultiplayerSettingsPanelController), "SetLobbyCode", MethodType.Normal)]
 	internal class SetLobbyCodePatch
-	{
-		[HarmonyAfter("mod.serverbrowser")]
+	{ 
+		[HarmonyAfter("mod.serverbrowser", "com.Python.BeatTogether")]
 		[HarmonyPriority(Priority.Last)]
-		public static void Postfix(MultiplayerSettingsPanelController __instance, string code)
+		internal static void Postfix(MultiplayerSettingsPanelController __instance, string code)
 		{
 			if (code == MPState.LastRoomCode)
 				return;

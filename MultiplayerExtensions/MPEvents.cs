@@ -79,16 +79,19 @@ namespace MultiplayerExtensions
 
     public struct MasterServerInfo : IEquatable<MasterServerInfo>, IEquatable<MasterServerEndPoint>
     {
-        public readonly string hostname;
-        public readonly int port;
-        public readonly bool isOfficial => hostname.Contains("beatsaber.com");
+        public string hostname { get; private set; }
+        public int port { get; private set; }
+        public string statusURL { get; private set; }
+        public readonly bool isOfficial => statusURL == "" ? hostname.Contains("beatsaber.com") : statusURL.Contains("beatsaber.com");
 
-        public MasterServerInfo(string hostname, int port)
+        public MasterServerInfo(string hostname, int port, string statusURL)
         {
             this.hostname = hostname;
             this.port = port;
+            this.statusURL = statusURL;
         }
-        public MasterServerInfo(MasterServerEndPoint endPoint)
+
+        internal void SetEndPoint(MasterServerEndPoint endPoint)
         {
             if (endPoint == null)
             {
@@ -98,6 +101,11 @@ namespace MultiplayerExtensions
             }
             hostname = endPoint.hostName;
             port = endPoint.port;
+        }
+
+        internal void SetStatusURL(string url)
+        {
+            statusURL = url;
         }
 
         public override string ToString()
@@ -112,6 +120,11 @@ namespace MultiplayerExtensions
             if (endPoint == null)
                 return false;
             return endPoint.hostName == hostname && endPoint.port == port;
+        }
+
+        public bool Equals(string status)
+        {
+            return status == statusURL;
         }
 
         public override bool Equals(object obj)

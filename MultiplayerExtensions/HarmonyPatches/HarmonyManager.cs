@@ -23,7 +23,6 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         internal static readonly HashSet<HarmonyPatchInfo> AppliedPatches = new HashSet<HarmonyPatchInfo>();
         internal static readonly HashSet<HarmonyPatchInfo> DefaultPatches = new HashSet<HarmonyPatchInfo>();
-        internal static readonly Dictionary<HarmonyPatchInfo, string> DependentPatches = new Dictionary<HarmonyPatchInfo, string>();
 
         static HarmonyManager()
         {
@@ -36,6 +35,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<SetLobbyCodePatch>();
             AddDefaultPatch<LobbyEnvironmentLoadPatch>();
             AddDefaultPatch<StartGameLevelEntitlementPatch>();
+            AddDefaultPatch<GetMasterServerStatusUrlPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
@@ -92,12 +92,6 @@ namespace MultiplayerExtensions.HarmonyPatches
             Plugin.Log?.Debug($"Applying {patches.Length} Harmony patches.");
             for (int i = 0; i < patches.Length; i++)
                 ApplyPatch(patches[i]);
-
-            foreach (HarmonyPatchInfo patch in DependentPatches.Keys)
-            {
-                if (IPA.Loader.PluginManager.GetPluginFromId(DependentPatches[patch]) != null)
-                    ApplyPatch(patch);
-            }
         }
 
         internal static void UnpatchAll()
