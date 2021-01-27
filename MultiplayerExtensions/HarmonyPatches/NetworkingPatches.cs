@@ -18,26 +18,9 @@ namespace MultiplayerExtensions.HarmonyPatches
 		{
 			if (MPState.CurrentMasterServer.Equals(__result))
 				return;
-			MPState.CurrentMasterServer.SetEndPoint(__result);
+			MPState.CurrentMasterServer = new MasterServerInfo(__result.hostName, __result.port, __instance.masterServerStatusUrl);
 			MPEvents.RaiseMasterServerChanged(__instance, MPState.CurrentMasterServer);
 		}
-	}
-
-	/// <summary>
-	/// For retrieving the currently used Master Server status URL.
-	/// </summary>
-	[HarmonyPatch(typeof(NetworkConfigSO), "masterServerStatusUrl", MethodType.Getter)]
-	internal class GetMasterServerStatusUrlPatch
-    {
-		[HarmonyAfter("mod.serverbrowser", "com.Python.BeatTogether")]
-		[HarmonyPriority(Priority.Last)]
-		internal static void Postfix(NetworkConfigSO __instance, ref string __result)
-        {
-			if (MPState.CurrentMasterServer.Equals(__result))
-				return;
-			MPState.CurrentMasterServer.SetStatusURL(__result);
-			MPEvents.RaiseMasterServerChanged(__instance, MPState.CurrentMasterServer);
-        }
 	}
 
 	/// <summary>

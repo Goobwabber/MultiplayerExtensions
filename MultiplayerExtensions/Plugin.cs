@@ -75,7 +75,6 @@ namespace MultiplayerExtensions
 
         private void MasterServerChanged(object sender, MasterServerInfo e)
         {
-            Plugin.Log.Info($"Master server changed to {e.hostname}:{e.port}");
             if (!e.isOfficial)
             {
                 HarmonyManager.ApplyPatch(playerPlacementAnglePatch);

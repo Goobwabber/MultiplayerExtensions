@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using MultiplayerExtensions.Utilities;
 
@@ -79,33 +79,16 @@ namespace MultiplayerExtensions
 
     public struct MasterServerInfo : IEquatable<MasterServerInfo>, IEquatable<MasterServerEndPoint>
     {
-        public string hostname { get; private set; }
-        public int port { get; private set; }
-        public string statusURL { get; private set; }
-        public readonly bool isOfficial => statusURL == "" ? hostname.Contains("beatsaber.com") : statusURL.Contains("beatsaber.com");
+        public readonly string hostname;
+        public readonly int port;
+        public readonly string statusURL;
+        public readonly bool isOfficial => hostname.Contains("beatsaber.com");
 
         public MasterServerInfo(string hostname, int port, string statusURL)
         {
             this.hostname = hostname;
             this.port = port;
             this.statusURL = statusURL;
-        }
-
-        internal void SetEndPoint(MasterServerEndPoint endPoint)
-        {
-            if (endPoint == null)
-            {
-                hostname = "localhost";
-                port = 2328;
-                return;
-            }
-            hostname = endPoint.hostName;
-            port = endPoint.port;
-        }
-
-        internal void SetStatusURL(string url)
-        {
-            statusURL = url;
         }
 
         public override string ToString()
