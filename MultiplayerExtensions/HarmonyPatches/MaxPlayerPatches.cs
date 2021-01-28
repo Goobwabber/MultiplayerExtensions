@@ -7,9 +7,9 @@ using System.Reflection.Emit;
 namespace MultiplayerExtensions.HarmonyPatches
 {
     [HarmonyPatch(typeof(MultiplayerPlayerPlacement), "GetAngleBetweenPlayersWithEvenAdjustment", MethodType.Normal)]
-    class PlayerPlacementAnglePatch
+    internal class PlayerPlacementAnglePatch
     {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = instructions.ToList();
             bool flag = true;
@@ -31,16 +31,16 @@ namespace MultiplayerExtensions.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(CreateServerFormController), "formData", MethodType.Getter)]
-    class IncreaseMaxPlayersClampPatch
+    internal class IncreaseMaxPlayersClampPatch
     {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = instructions.ToList();
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Ldc_R4 && codes[i].OperandIs(5))
                 {
-                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, 20f);
+                    codes[i] = new CodeInstruction(OpCodes.Ldc_R4, (float)Plugin.Config.MaxPlayers);
                 }
             }
             return codes.AsEnumerable();
@@ -48,12 +48,14 @@ namespace MultiplayerExtensions.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(CreateServerFormController), "Setup", MethodType.Normal)]
-    class IncreaseMaxPlayersPatch
+    internal class IncreaseMaxPlayersPatch
     {
-        static void Prefix(CreateServerFormController __instance)
+        internal static void Prefix(CreateServerFormController __instance)
         {
+            int maxPlayers = MPState.CurrentMasterServer.isOfficial ? 5 : Plugin.Config.MaxPlayers;
+            float[] playerValues = Enumerable.Range(2, maxPlayers-1).Select(x => (float)x).ToArray();
             FormattedFloatListSettingsController serverForm = __instance.GetField<FormattedFloatListSettingsController, CreateServerFormController>("_maxPlayersList");
-            serverForm.values = new float[] { 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f, 17f, 18f, 19f, 20f };
+            serverForm.values = playerValues;
         }
     }
 }

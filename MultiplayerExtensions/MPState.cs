@@ -2,7 +2,7 @@
 {
     public static class MPState
     {
-        private static MasterServerInfo _masterServerEndPoint = new MasterServerInfo("localhost", 2328);
+        private static MasterServerInfo _masterServerEndPoint = new MasterServerInfo("localhost", 2328, "");
         /// <summary>
         /// The current known Master Server.
         /// </summary>

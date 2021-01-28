@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using MultiplayerExtensions.Utilities;
 
@@ -81,23 +81,14 @@ namespace MultiplayerExtensions
     {
         public readonly string hostname;
         public readonly int port;
+        public readonly string statusURL;
         public readonly bool isOfficial => hostname.Contains("beatsaber.com");
 
-        public MasterServerInfo(string hostname, int port)
+        public MasterServerInfo(string hostname, int port, string statusURL)
         {
             this.hostname = hostname;
             this.port = port;
-        }
-        public MasterServerInfo(MasterServerEndPoint endPoint)
-        {
-            if (endPoint == null)
-            {
-                hostname = "localhost";
-                port = 2328;
-                return;
-            }
-            hostname = endPoint.hostName;
-            port = endPoint.port;
+            this.statusURL = statusURL;
         }
 
         public override string ToString()
@@ -112,6 +103,11 @@ namespace MultiplayerExtensions
             if (endPoint == null)
                 return false;
             return endPoint.hostName == hostname && endPoint.port == port;
+        }
+
+        public bool Equals(string status)
+        {
+            return status == statusURL;
         }
 
         public override bool Equals(object obj)

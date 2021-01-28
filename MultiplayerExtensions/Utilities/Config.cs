@@ -8,5 +8,6 @@
         public bool CustomSongs { get; set; } = true;
         public bool EnforceMods { get; set; } = true;
         public string Color { get; set; } = "#08C0FF";
+        public int MaxPlayers { get; set; } = 10;
     }
 }

@@ -53,34 +53,15 @@ namespace MultiplayerExtensions
         public void OnApplicationStart()
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
+
+            if (Plugin.Config.MaxPlayers > 100)
+                Plugin.Config.MaxPlayers = 100;
+            if (Plugin.Config.MaxPlayers < 10)
+                Plugin.Config.MaxPlayers = 10;
+
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
             MPEvents_Test();
-
-            playerPlacementAnglePatch = HarmonyManager.GetPatch<PlayerPlacementAnglePatch>()!;
-            increaseMaxPlayersClampPatch = HarmonyManager.GetPatch<IncreaseMaxPlayersClampPatch>()!;
-            increaseMaxPlayersPatch = HarmonyManager.GetPatch<IncreaseMaxPlayersPatch>()!;
-            MPEvents.MasterServerChanged += MasterServerChanged;
-        }
-
-        private HarmonyPatchInfo playerPlacementAnglePatch;
-        private HarmonyPatchInfo increaseMaxPlayersClampPatch;
-        private HarmonyPatchInfo increaseMaxPlayersPatch;
-
-        private void MasterServerChanged(object sender, MasterServerInfo e)
-        {
-            if (!e.isOfficial)
-            {
-                playerPlacementAnglePatch.ApplyPatch();
-                increaseMaxPlayersClampPatch.ApplyPatch();
-                increaseMaxPlayersPatch.ApplyPatch();
-            }
-            else
-            {
-                playerPlacementAnglePatch.RemovePatch();
-                increaseMaxPlayersClampPatch.RemovePatch();
-                increaseMaxPlayersPatch.RemovePatch();
-            }
         }
 
         [Conditional("DEBUG")]
@@ -93,7 +74,6 @@ namespace MultiplayerExtensions
                 else
                     Log?.Warn($"Beatmap Cleared by '{e.UserId}|{e.UserType.ToString()}'");
             };
-
         }
 
         [OnExit]

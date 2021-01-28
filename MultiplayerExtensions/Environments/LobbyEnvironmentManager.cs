@@ -1,19 +1,20 @@
 ﻿using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
 using System;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Environments
 {
-    public class PlayerColorManager : IInitializable, IDisposable
+    public class LobbyEnvironmentManager : IInitializable, IDisposable
     {
         protected readonly PacketManager _packetManager;
         protected readonly IMultiplayerSessionManager _sessionManager;
         protected readonly LobbyPlaceManager _placeManager;
         protected readonly ExtendedPlayerManager _playerManager;
 
-        internal PlayerColorManager(PacketManager packetManager, IMultiplayerSessionManager sessionManager, LobbyPlaceManager placeManager, ExtendedPlayerManager playerManager)
+        internal LobbyEnvironmentManager(PacketManager packetManager, IMultiplayerSessionManager sessionManager, LobbyPlaceManager placeManager, ExtendedPlayerManager playerManager)
         {
             _packetManager = packetManager;
             _sessionManager = sessionManager;
@@ -37,6 +38,10 @@ namespace MultiplayerExtensions.Environments
 
         private void HandleLobbyEnvironmentLoaded(object sender, System.EventArgs e)
         {
+            MenuEnvironmentManager envManager = Resources.FindObjectsOfTypeAll<MenuEnvironmentManager>().First();
+            bool flag = _sessionManager.maxPlayerCount <= 30;
+            envManager.transform.Find("NearBuildingLeft").gameObject.SetActive(flag);
+            envManager.transform.Find("NearBuildingRight").gameObject.SetActive(flag);
             ReloadEnvironment();
         }
 

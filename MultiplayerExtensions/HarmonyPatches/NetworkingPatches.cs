@@ -1,4 +1,8 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using UnityEngine;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
@@ -8,32 +12,83 @@ namespace MultiplayerExtensions.HarmonyPatches
 	[HarmonyPatch(typeof(NetworkConfigSO), "masterServerEndPoint", MethodType.Getter)]
 	internal class GetMasterServerEndPointPatch
 	{
-		[HarmonyAfter("mod.serverbrowser")]
+		[HarmonyAfter("mod.serverbrowser", "com.Python.BeatTogether")]
 		[HarmonyPriority(Priority.Last)]
 		internal static void Postfix(NetworkConfigSO __instance, ref MasterServerEndPoint __result)
 		{
-			if (__result != null)
-			{
-				MasterServerInfo info = new MasterServerInfo(__result);
-				if (MPState.CurrentMasterServer.Equals(info))
-					return;
-				MPState.CurrentMasterServer = info;
-				MPEvents.RaiseMasterServerChanged(__instance, info);
-			}
+			if (MPState.CurrentMasterServer.Equals(__result))
+				return;
+			MPState.CurrentMasterServer = new MasterServerInfo(__result.hostName, __result.port, __instance.masterServerStatusUrl);
+			MPEvents.RaiseMasterServerChanged(__instance, MPState.CurrentMasterServer);
 		}
 	}
 
+	/// <summary>
+	/// For retrieving the currently used Master Server Status URL.
+	/// </summary>
 	[HarmonyPatch(typeof(MultiplayerSettingsPanelController), "SetLobbyCode", MethodType.Normal)]
 	internal class SetLobbyCodePatch
-	{
-		[HarmonyAfter("mod.serverbrowser")]
+	{ 
+		[HarmonyAfter("mod.serverbrowser", "com.Python.BeatTogether")]
 		[HarmonyPriority(Priority.Last)]
-		public static void Postfix(MultiplayerSettingsPanelController __instance, string code)
+		internal static void Postfix(MultiplayerSettingsPanelController __instance, string code)
 		{
 			if (code == MPState.LastRoomCode)
 				return;
 			MPState.LastRoomCode = code;
 			MPEvents.RaiseRoomCodeChanged(__instance, code);
+		}
+	}
+
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "FlushReliableQueue", MethodType.Normal)]
+	internal class UpdateReliableFrequencyPatch
+    {
+		private static float nextTime = 0f;
+		private static float frequency = 0.1f;
+
+		internal static bool Prefix()
+		{
+			if (Time.time > nextTime)
+			{
+				nextTime = Time.time + frequency;
+				return true;
+			}
+			return false;
+		}
+    }
+
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "FlushUnreliableQueue", MethodType.Normal)]
+	internal class UpdateUnreliableFrequencyPatch
+	{
+		private static float nextTime = 0f;
+		private static float frequency = 0.1f;
+
+		internal static bool Prefix()
+		{
+			if (Time.time > nextTime)
+			{
+				nextTime = Time.time + frequency;
+				return true;
+			}
+			return false;
+		}
+	}
+
+	//Make this work with harmony manager
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "SendUnreliable", MethodType.Normal)]
+	internal class RemoveByteLimitPatch
+    {
+		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = instructions.ToList();
+			for (int i = 0; i < codes.Count; i++)
+			{
+				if (codes[i].opcode == OpCodes.Ble_S)
+				{
+					codes[i] = new CodeInstruction(OpCodes.Br_S, codes[i].operand);
+				}
+			}
+			return codes.AsEnumerable();
 		}
 	}
 }

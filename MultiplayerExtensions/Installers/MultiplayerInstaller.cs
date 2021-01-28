@@ -10,13 +10,14 @@ namespace MultiplayerExtensions.Installers
 		public HarmonyPatchInfo? lobbyPlayerDataPatch;
 		public HarmonyPatchInfo? levelLoaderPatch;
 
-		public override void InstallBindings()
-		{
-			Plugin.Log?.Info("Injecting Dependencies");
-			Container.BindInterfacesAndSelfTo<PacketManager>().AsSingle();
-			Container.BindInterfacesAndSelfTo<SessionManager>().AsSingle();
-			Container.BindInterfacesAndSelfTo<ExtendedPlayerManager>().AsSingle();
-		}
+        public override void InstallBindings()
+        {
+            Plugin.Log?.Info("Injecting Dependencies");
+            Container.BindInterfacesAndSelfTo<PacketManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<SessionManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ExtendedPlayerManager>().AsSingle();
+			var _ = Container.Resolve<NetworkConfigSO>().masterServerEndPoint;
+        }
 
 		public override void Start()
 		{
