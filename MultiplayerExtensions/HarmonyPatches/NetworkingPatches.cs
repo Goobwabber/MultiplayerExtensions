@@ -40,8 +40,8 @@ namespace MultiplayerExtensions.HarmonyPatches
 		}
 	}
 
-	[HarmonyPatch(typeof(ConnectedPlayerManager), "PollUpdate", MethodType.Normal)]
-	internal class UpdateFrequencyPatch
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "FlushReliableQueue", MethodType.Normal)]
+	internal class UpdateReliableFrequencyPatch
     {
 		private static float nextTime = 0f;
 		private static float frequency = 0.1f;
@@ -56,6 +56,23 @@ namespace MultiplayerExtensions.HarmonyPatches
 			return false;
 		}
     }
+
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "FlushUnreliableQueue", MethodType.Normal)]
+	internal class UpdateUnreliableFrequencyPatch
+	{
+		private static float nextTime = 0f;
+		private static float frequency = 0.1f;
+
+		internal static bool Prefix()
+		{
+			if (Time.time > nextTime)
+			{
+				nextTime = Time.time + frequency;
+				return true;
+			}
+			return false;
+		}
+	}
 
 	//Make this work with harmony manager
 	[HarmonyPatch(typeof(ConnectedPlayerManager), "SendUnreliable", MethodType.Normal)]

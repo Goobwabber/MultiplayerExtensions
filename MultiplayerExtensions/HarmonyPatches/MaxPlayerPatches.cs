@@ -50,12 +50,10 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(CreateServerFormController), "Setup", MethodType.Normal)]
     internal class IncreaseMaxPlayersPatch
     {
-        internal static float[] playerValues;
-
         internal static void Prefix(CreateServerFormController __instance)
         {
-            if (playerValues == null)
-                playerValues = Enumerable.Range(2, Plugin.Config.MaxPlayers-1).Select(x => (float)x).ToArray();
+            int maxPlayers = MPState.CurrentMasterServer.isOfficial ? 5 : Plugin.Config.MaxPlayers;
+            float[] playerValues = Enumerable.Range(2, maxPlayers-1).Select(x => (float)x).ToArray();
             FormattedFloatListSettingsController serverForm = __instance.GetField<FormattedFloatListSettingsController, CreateServerFormController>("_maxPlayersList");
             serverForm.values = playerValues;
         }

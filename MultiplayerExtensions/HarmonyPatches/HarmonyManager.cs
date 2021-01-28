@@ -35,7 +35,11 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<SetLobbyCodePatch>();
             AddDefaultPatch<LobbyEnvironmentLoadPatch>();
             AddDefaultPatch<StartGameLevelEntitlementPatch>();
-            AddDefaultPatch<UpdateFrequencyPatch>();
+            AddDefaultPatch<UpdateReliableFrequencyPatch>();
+            AddDefaultPatch<UpdateUnreliableFrequencyPatch>();
+            AddDefaultPatch<PlayerPlacementAnglePatch>();
+            AddDefaultPatch<IncreaseMaxPlayersClampPatch>();
+            AddDefaultPatch<IncreaseMaxPlayersPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 
