@@ -2,6 +2,7 @@
 using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.OverrideClasses;
 using MultiplayerExtensions.UI;
+using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -33,9 +34,11 @@ namespace MultiplayerExtensions.Installers
             ServerPlayerListController playerListController = Container.Resolve<ServerPlayerListController>();
             GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListController>("_gameServerPlayersTableView");
             GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
-            PlayerTableCellStub playerTableCellStub = playerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
-            playerTableCellStub.Construct(playerTableCell);
-            Destroy(playerTableCell.GetComponent<GameServerPlayerTableCell>());
+            GameServerPlayerTableCell newPlayerTableCell = GameObject.Instantiate(playerTableCell);
+            newPlayerTableCell.gameObject.SetActive(false);
+            PlayerTableCellStub playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
+            playerTableCellStub.Construct(newPlayerTableCell);
+            Destroy(newPlayerTableCell.GetComponent<GameServerPlayerTableCell>());
             playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);
         }
     }
