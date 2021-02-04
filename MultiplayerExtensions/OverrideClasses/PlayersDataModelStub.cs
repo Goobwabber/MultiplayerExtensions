@@ -80,7 +80,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public async override void HandleMenuRpcManagerGetSelectedBeatmap(string userId)
         {
             ILobbyPlayerDataModel lobbyPlayerDataModel = this.GetLobbyPlayerDataModel(this.localUserId);
-            if (_multiplayerSessionManager.GetPlayerByUserId(userId).HasState("modded") && lobbyPlayerDataModel?.beatmapLevel is PreviewBeatmapStub preview)
+            if (lobbyPlayerDataModel != null && MPState.CurrentGameType != MultiplayerGameType.QuickPlay && _multiplayerSessionManager.GetPlayerByUserId(userId).HasState("modded") && lobbyPlayerDataModel?.beatmapLevel is PreviewBeatmapStub preview)
                 _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
             else if (lobbyPlayerDataModel != null && lobbyPlayerDataModel.beatmapLevel != null)
                 this._menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(lobbyPlayerDataModel.beatmapLevel.levelID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
