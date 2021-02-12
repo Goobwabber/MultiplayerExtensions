@@ -86,12 +86,18 @@ namespace MultiplayerExtensions.OverrideClasses
             entitlementCts = new CancellationTokenSource();
 
             string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.hostUserId)?.levelID;
-            if (levelId == null)
+            if (levelId == null) 
                 return;
 
             lastLevelId = levelId;
-            EntitlementsStatus entitlement = player.isMe ? await _entitlementChecker.GetEntitlementStatus(levelId) : await _entitlementChecker.GetTcsTaskCanPlayerPlayLevel(player, levelId, entitlementCts.Token, out _);
-            SetLevelEntitlement(player, entitlement);
+
+            bool needsRpc = false;
+            Task<EntitlementsStatus> entitlement = player.isMe ? 
+                _entitlementChecker.GetEntitlementStatus(levelId) : 
+                _entitlementChecker.GetTcsTaskCanPlayerPlayLevel(player, levelId, entitlementCts.Token, out needsRpc);
+            if (needsRpc)
+                _menuRpcManager.GetIsEntitledToLevel(levelId);
+            SetLevelEntitlement(player, await entitlement);
         }
 
         private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)

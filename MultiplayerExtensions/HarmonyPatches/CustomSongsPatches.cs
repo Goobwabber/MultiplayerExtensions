@@ -44,7 +44,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (hash == null)
                 return true;
 
-            if (SongCore.Loader.GetLevelByHash(hash) != null)
+            if (SongCore.Collections.songWithHashPresent(hash))
                 __result = Task.FromResult(EntitlementsStatus.Ok);
             else
                 __result = Plugin.BeatSaver.Hash(hash).ContinueWith<EntitlementsStatus>(r =>
