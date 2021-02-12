@@ -7,7 +7,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Installers
 {
-    class InterfaceInstaller : MonoInstaller
+    class MPMenuInstaller : MonoInstaller
     {
         public override void InstallBindings()
         {

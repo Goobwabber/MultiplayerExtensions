@@ -109,7 +109,7 @@ namespace MultiplayerExtensions.OverrideClasses
                     if (localPreview != null)
                         preview = new PreviewBeatmapStub(hash, localPreview);
                     if (preview == null)
-                        preview = await FetchBeatSaverPreview(hash);
+                        preview = await FetchBeatSaverPreview(beatmapId.levelID, hash);
                     HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(userId, preview, beatmapId.difficulty, characteristic));
                 }
             }
@@ -123,7 +123,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public async new void SetLocalPlayerBeatmapLevel(string levelId, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO characteristic)
         {
             string? hash = Utilities.Utils.LevelIdToHash(levelId);
-            Plugin.Log?.Debug($"Local user selected song '{hash}'.");
+            Plugin.Log?.Debug($"Local user selected song '{hash ?? levelId}'.");
             if (hash != null)
             {
                 if (_playersData.Values.Any(playerData => playerData.beatmapLevel?.levelID == levelId))
@@ -139,7 +139,7 @@ namespace MultiplayerExtensions.OverrideClasses
                     if (localPreview != null)
                         preview = new PreviewBeatmapStub(hash, localPreview);
                     if (preview == null)
-                        preview = await FetchBeatSaverPreview(hash);
+                        preview = await FetchBeatSaverPreview(levelId, hash);
 
                     HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
                     _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, characteristic.serializedName, beatmapDifficulty));
@@ -195,12 +195,12 @@ namespace MultiplayerExtensions.OverrideClasses
         /// <summary>
         /// Creates a preview from a BeatSaver request.
         /// </summary>
-        public async Task<PreviewBeatmapStub?> FetchBeatSaverPreview(string hash)
+        public async Task<PreviewBeatmapStub?> FetchBeatSaverPreview(string levelID, string hash)
         {
             try
             {
                 Beatmap bm = await Plugin.BeatSaver.Hash(hash);
-                return new PreviewBeatmapStub(bm);
+                return new PreviewBeatmapStub(levelID, bm);
             }
             catch(Exception ex)
             {

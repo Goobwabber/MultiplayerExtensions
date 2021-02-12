@@ -79,7 +79,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 		}
 	}
 
-	//Make this work with harmony manager
+	// TODO: Make this work with harmony manager
 	[HarmonyPatch(typeof(ConnectedPlayerManager), "SendUnreliable", MethodType.Normal)]
 	internal class RemoveByteLimitPatch
     {

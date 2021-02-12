@@ -8,7 +8,7 @@ using BeatSaverSharp;
 namespace MultiplayerExtensions.HarmonyPatches
 {
     [HarmonyPatch(typeof(MultiplayerLevelSelectionFlowCoordinator), "enableCustomLevels", MethodType.Getter)]
-    public class EnableCustomLevelsPatch
+    internal class EnableCustomLevelsPatch
     {
         /// <summary>
         /// Overrides getter for <see cref="MultiplayerLevelSelectionFlowCoordinator.enableCustomLevels"/>
@@ -20,8 +20,20 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
+    [HarmonyPatch(typeof(HostLobbySetupViewController), "SetPlayersMissingLevelText", MethodType.Normal)]
+    internal class MissingLevelStartPatch
+    {
+        /// <summary>
+        /// Disables starting of game if not all players have song.
+        /// </summary>
+        static void Prefix(HostLobbySetupViewController __instance, string playersMissingLevelText)
+        {
+            __instance.SetStartGameEnabled(playersMissingLevelText == null, HostLobbySetupViewController.CannotStartGameReason.None);
+        }
+    }
+
     [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), "GetEntitlementStatus", MethodType.Normal)]
-    public class CustomLevelEntitlementPatch
+    internal class CustomLevelEntitlementPatch
     {
         /// <summary>
         /// Changes the return value of the entitlement checker if it is a custom song.
@@ -48,7 +60,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), "GetPlayerLevelEntitlementsAsync", MethodType.Normal)]
-    public class StartGameLevelEntitlementPatch
+    internal class StartGameLevelEntitlementPatch
     {
         /// <summary>
         /// Changes the return value if it returns 'NotDownloaded' so that the host can start the game.

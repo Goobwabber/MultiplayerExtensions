@@ -53,7 +53,10 @@ namespace MultiplayerExtensions.Environments
 			float angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(_lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
 			float outerCircleRadius = Mathf.Max(MultiplayerPlayerPlacement.GetOuterCircleRadius(angleBetweenPlayersWithEvenAdjustment, innerCircleRadius), minOuterCircleRadius);
 			float scaleRatio = outerCircleRadius / minOuterCircleRadius;
-			MultiplayerLobbyCenterStageManager centerscreen = Resources.FindObjectsOfTypeAll<MultiplayerLobbyCenterStageManager>().First();
+			MultiplayerLobbyCenterStageManager[] centerscreens = Resources.FindObjectsOfTypeAll<MultiplayerLobbyCenterStageManager>();
+			if (centerscreens.Length == 0)
+				return;
+			MultiplayerLobbyCenterStageManager centerscreen = centerscreens.First();
 			centerscreen.transform.localScale = new Vector3(scaleRatio, scaleRatio, scaleRatio);
 		}
 

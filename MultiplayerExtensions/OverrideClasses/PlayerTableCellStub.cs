@@ -72,6 +72,8 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, bool isHost, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
         {
+            if (getLevelEntitlementTask != null)
+                getLevelEntitlementTask = getLevelEntitlementTask.ContinueWith<AdditionalContentModel.EntitlementStatus>(r => AdditionalContentModel.EntitlementStatus.Owned);
             base.SetData(connectedPlayer, playerDataModel, isHost, getLevelEntitlementTask);
             GetLevelEntitlement(connectedPlayer);
             lastPlayer = connectedPlayer;
