@@ -5,7 +5,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Installers
 {
-	class MultiplayerInstaller : MonoInstaller
+	class MPCoreInstaller : MonoInstaller
 	{
 		public HarmonyPatchInfo? lobbyPlayerDataPatch;
 		public HarmonyPatchInfo? levelLoaderPatch;

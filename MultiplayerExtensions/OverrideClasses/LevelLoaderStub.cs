@@ -10,7 +10,7 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             string? levelId = beatmapId.levelID;
             string? hash = Utilities.Utils.LevelIdToHash(beatmapId.levelID);
-            if (SongCore.Loader.GetLevelById(levelId) != null || hash == null)
+            if (SongCore.Collections.songWithHashPresent(hash) || hash == null)
             {
                 Plugin.Log?.Debug($"(SongLoader) Level with ID '{levelId}' already exists.");
                 base.LoadLevel(beatmapId, gameplayModifiers, initialStartTime);

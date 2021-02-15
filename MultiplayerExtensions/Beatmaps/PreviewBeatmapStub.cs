@@ -91,9 +91,9 @@ namespace MultiplayerExtensions.Beatmaps
             _rawCoverTask = Task.FromResult(packet.coverImage);
         }
 
-        public PreviewBeatmapStub(Beatmap bm)
+        public PreviewBeatmapStub(string levelID, Beatmap bm)
         {
-            this.levelID = bm.ID;
+            this.levelID = levelID;
             this.levelHash = bm.Hash;
             
             this.beatmap = bm;

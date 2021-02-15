@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 
@@ -57,24 +59,27 @@ namespace MultiplayerExtensions.HarmonyPatches
 		}
     }
 
-	[HarmonyPatch(typeof(ConnectedPlayerManager), "FlushUnreliableQueue", MethodType.Normal)]
+	[HarmonyPatch(typeof(ConnectedPlayerManager), "PollUpdate", MethodType.Normal)]
 	internal class UpdateUnreliableFrequencyPatch
 	{
-		private static float nextTime = 0f;
-		private static float frequency = 0.1f;
+		private static readonly MethodInfo _updateUnreliableMethod = typeof(ConnectedPlayerManager).GetMethod("FlushUnreliableQueue", BindingFlags.NonPublic | BindingFlags.Instance);
 
-		internal static bool Prefix()
+		internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
-			if (Time.time > nextTime)
+			var codes = instructions.ToList();
+			for (int i = 0; i < codes.Count; i++)
 			{
-				nextTime = Time.time + frequency;
-				return true;
+				if (codes[i].opcode == OpCodes.Ldarg_0 && codes[i+1].Calls(_updateUnreliableMethod))
+                {
+					codes.RemoveRange(i, 2);
+                }
 			}
-			return false;
+
+			return codes.AsEnumerable();
 		}
 	}
 
-	//Make this work with harmony manager
+	// TODO: Make this work with harmony manager
 	[HarmonyPatch(typeof(ConnectedPlayerManager), "SendUnreliable", MethodType.Normal)]
 	internal class RemoveByteLimitPatch
     {

@@ -40,6 +40,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<PlayerPlacementAnglePatch>();
             AddDefaultPatch<IncreaseMaxPlayersClampPatch>();
             AddDefaultPatch<IncreaseMaxPlayersPatch>();
+            AddDefaultPatch<MissingLevelStartPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 
