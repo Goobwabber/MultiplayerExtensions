@@ -10,5 +10,5 @@
       <toggle-setting id="HologramToggle" value='Hologram' on-change='SetHologram' text='Hologram' hover-hint='Toggles the hologram showing the player in first place'></toggle-setting>
     </vertical>
   </horizontal>
-  <text id='DownloadProgressText' value='DownloadProgress' text='' align='center'></text>
+  <text id='DownloadProgressText' value='DownloadProgress' text='' align='Center'></text>
 </vertical>
