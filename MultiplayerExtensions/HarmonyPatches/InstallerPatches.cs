@@ -94,20 +94,26 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             var mib = __instance as MonoInstallerBase;
             var Container = SiraUtil.Accessors.GetDiContainer(ref mib);
-            ExtendedPlayer? exPlayer = Container.Resolve<ExtendedPlayerManager>().GetExtendedPlayer(____connectedPlayer);
+
+            ExtendedPlayerManager exPlayerManager = Container.Resolve<ExtendedPlayerManager>();
+            ExtendedPlayer? exPlayer = exPlayerManager.GetExtendedPlayer(____connectedPlayer);
+            ExtendedPlayer? hostPlayer = exPlayerManager.GetExtendedPlayer(Container.Resolve<IMultiplayerSessionManager>().connectionOwner);
+
+            GameplayModifiers? newModifiers;
             if (____connectedPlayer.HasState("modded") && Plugin.Config.FreeMod && exPlayer?.mpexVersion >= _minVersionFreeMod)
-            {
-                var newModifiers = exPlayer.lastModifiers;
-                if (newModifiers != null)
-                    ____sceneSetupData = new GameplayCoreSceneSetupData(
-                      ____sceneSetupData.difficultyBeatmap,
-                      newModifiers,
-                      ____sceneSetupData.playerSpecificSettings,
-                      ____sceneSetupData.practiceSettings,
-                      ____sceneSetupData.useTestNoteCutSoundEffects,
-                      ____sceneSetupData.environmentInfo
-                    );
-            }
+                newModifiers = exPlayer.lastModifiers;
+            else
+                newModifiers = hostPlayer?.lastModifiers;
+                
+            if (newModifiers != null)
+                ____sceneSetupData = new GameplayCoreSceneSetupData(
+                  ____sceneSetupData.difficultyBeatmap,
+                  newModifiers,
+                  ____sceneSetupData.playerSpecificSettings,
+                  ____sceneSetupData.practiceSettings,
+                  ____sceneSetupData.useTestNoteCutSoundEffects,
+                  ____sceneSetupData.environmentInfo
+                );
         }
     }
 }

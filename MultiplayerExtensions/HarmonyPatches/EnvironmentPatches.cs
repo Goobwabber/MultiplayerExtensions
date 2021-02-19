@@ -1,5 +1,8 @@
 ﻿using HarmonyLib;
 using HMUI;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MultiplayerExtensions.HarmonyPatches
@@ -29,7 +32,17 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Postfix(LevelCompletionResults levelCompletionResults, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
         {
             if (levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared)
-                ____multiplayerPlayersManager.SwitchLocalPlayerToInactive();
+            {
+                ____multiplayerPlayersManager.StartCoroutine(SetLocalPlayerInactive(____multiplayerPlayersManager));
+            }
+            
+        }
+
+        static IEnumerator SetLocalPlayerInactive(MultiplayerPlayersManager multiplayerPlayersManager)
+        {
+            yield return new WaitForSeconds(2f);
+            yield return multiplayerPlayersManager.StartCoroutine(multiplayerPlayersManager.SwitchLocalPlayerToInactiveCoroutine());
+            yield break;
         }
     }
 
@@ -38,7 +51,65 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Prefix(ref float ____startDelay, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
         {
+            ____startDelay = 1f;
             ____multiplayerPlayersManager.StopAllCoroutines();
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerLevelFinishedController), nameof(MultiplayerLevelFinishedController.HandlePlayerDidFinish), MethodType.Normal)]
+    internal class CancelResultsAnimationPatch
+    {
+        static bool Prefix(LevelCompletionResults levelCompletionResults, ref IGameplayRpcManager ____rpcManager, ref LevelCompletionResults ____localPlayerResults, ref Dictionary<string, LevelCompletionResults> ____otherPlayersCompletionResults, ref IMultiplayerSessionManager ____multiplayerSessionManager, ref MultiplayerLevelFinishedController __instance)
+        {
+            LevelCompletionResults localPlayerResults = levelCompletionResults;
+            if (localPlayerResults == null)
+                localPlayerResults = new LevelCompletionResults(LevelCompletionResults.LevelEndAction.MultiplayerInactive);
+            ____rpcManager.LevelFinished(localPlayerResults);
+            ____localPlayerResults = localPlayerResults;
+
+            bool allPlayersFinished = true;
+            foreach (IConnectedPlayer player in ____multiplayerSessionManager.connectedPlayers)
+            {
+                allPlayersFinished = allPlayersFinished && (!player.IsActiveOrFinished() || ____otherPlayersCompletionResults.ContainsKey(player.userId));
+            }
+            if (allPlayersFinished)
+                __instance.StartCoroutine(StartLevelFinished(__instance, levelCompletionResults));
+            return false;
+        }
+
+        static IEnumerator StartLevelFinished(MultiplayerLevelFinishedController instance, LevelCompletionResults localPlayerResults)
+        {
+            yield return new WaitForSeconds(0.1f);
+            yield return instance.StartCoroutine(instance.StartLevelFinished(localPlayerResults));
+            yield break;
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerLevelFinishedController), nameof(MultiplayerLevelFinishedController.HandleRpcLevelFinished), MethodType.Normal)]
+    internal class InvokeResultsAnimationPatch
+    {
+        static bool Postfix(string userId, LevelCompletionResults results, ref LevelCompletionResults ____localPlayerResults, ref Dictionary<string, LevelCompletionResults> ____otherPlayersCompletionResults, ref IMultiplayerSessionManager ____multiplayerSessionManager, ref MultiplayerLevelFinishedController __instance)
+        {
+            if (____otherPlayersCompletionResults.ContainsKey(userId))
+                return false;
+
+            ____otherPlayersCompletionResults[userId] = results;
+
+            bool allPlayersFinished = ____localPlayerResults != null;
+            foreach (IConnectedPlayer player in ____multiplayerSessionManager.connectedPlayers)
+            {
+                allPlayersFinished = allPlayersFinished && (!player.IsActiveOrFinished() || ____otherPlayersCompletionResults.ContainsKey(player.userId));
+            }
+            if (allPlayersFinished)
+                __instance.StartCoroutine(StartLevelFinished(__instance, ____localPlayerResults!));
+            return false;
+        }
+
+        static IEnumerator StartLevelFinished(MultiplayerLevelFinishedController instance, LevelCompletionResults localPlayerResults)
+        {
+            yield return new WaitForSeconds(0.1f);
+            yield return instance.StartCoroutine(instance.StartLevelFinished(localPlayerResults));
+            yield break;
         }
     }
 

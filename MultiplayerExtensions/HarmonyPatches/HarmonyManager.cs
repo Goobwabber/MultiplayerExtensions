@@ -45,6 +45,8 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<CenterStageGameDataPatch>();
             AddDefaultPatch<SpectateOnFinishPatch>();
             AddDefaultPatch<CancelSpectateAnimationPatch>();
+            AddDefaultPatch<CancelResultsAnimationPatch>();
+            AddDefaultPatch<InvokeResultsAnimationPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 
