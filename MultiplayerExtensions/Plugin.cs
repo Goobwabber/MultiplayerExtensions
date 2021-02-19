@@ -8,10 +8,12 @@ using MultiplayerExtensions.Installers;
 using SiraUtil.Zenject;
 using MultiplayerExtensions.Utilities;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using IPALogger = IPA.Logging.Logger;
 using BeatSaverSharp;
 using System.Diagnostics;
+using Zenject;
 
 namespace MultiplayerExtensions
 {
@@ -45,6 +47,7 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             zenjector.OnApp<MPCoreInstaller>();
             zenjector.OnMenu<MPMenuInstaller>();
+            zenjector.OnGame<MPGameInstaller>();
             HttpOptions options = new HttpOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
             BeatSaver = new BeatSaver(options);
         }

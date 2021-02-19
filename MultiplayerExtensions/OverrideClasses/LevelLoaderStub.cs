@@ -1,11 +1,15 @@
-﻿using System;
+﻿using MultiplayerExtensions.UI;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Zenject;
 
 namespace MultiplayerExtensions.OverrideClasses
 {
-    class LevelLoaderStub : MultiplayerLevelLoader
+    class LevelLoaderStub : MultiplayerLevelLoader, IProgress<double>
     {
+        public event Action<double> progressUpdated;
+
         public override void LoadLevel(BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float initialStartTime)
         {
             string? levelId = beatmapId.levelID;
@@ -34,7 +38,7 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             try
             {
-                IPreviewBeatmapLevel? beatmap = await Downloader.TryDownloadSong(levelId, null, CancellationToken.None);
+                IPreviewBeatmapLevel? beatmap = await Downloader.TryDownloadSong(levelId, this, CancellationToken.None);
                 if (beatmap != null)
                 {
                     Plugin.Log?.Debug($"(SongLoader) Level with ID '{levelId}' was downloaded successfully.");
@@ -49,5 +53,8 @@ namespace MultiplayerExtensions.OverrideClasses
             }
             return false;
         }
+
+        void IProgress<double>.Report(double value)
+            => progressUpdated?.Invoke(value);
     }
 }

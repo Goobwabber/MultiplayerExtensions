@@ -99,8 +99,11 @@ namespace MultiplayerExtensions.Sessions
 		}
 
 		public ExtendedPlayer? GetExtendedPlayer(IConnectedPlayer player)
-		{
-			if (_players.TryGetValue(player.userId, out ExtendedPlayer extendedPlayer))
+			=> GetExtendedPlayer(player.userId);
+
+		public ExtendedPlayer? GetExtendedPlayer(string userId)
+        {
+			if (_players.TryGetValue(userId, out ExtendedPlayer extendedPlayer))
 				return extendedPlayer;
 			return null;
 		}

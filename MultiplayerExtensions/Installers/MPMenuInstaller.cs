@@ -20,16 +20,13 @@ namespace MultiplayerExtensions.Installers
             Plugin.Log?.Info("Installing Interface");
 
             HostLobbySetupViewController hostViewController = Container.Resolve<HostLobbySetupViewController>();
-            HostLobbySetupPanel hostSetupPanel = hostViewController.gameObject.AddComponent<HostLobbySetupPanel>();
-            Container.Inject(hostSetupPanel);
+            Container.InstantiateComponent<HostLobbySetupPanel>(hostViewController.gameObject);
 
             ClientLobbySetupViewController clientViewController = Container.Resolve<ClientLobbySetupViewController>();
-            ClientLobbySetupPanel clientSetupPanel = clientViewController.gameObject.AddComponent<ClientLobbySetupPanel>();
-            Container.Inject(clientSetupPanel);
+            Container.InstantiateComponent<ClientLobbySetupPanel>(clientViewController.gameObject);
 
             CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
-            CenterScreenLoadingPanel loadingPanel = centerScreenController.gameObject.AddComponent<CenterScreenLoadingPanel>();
-            Container.Inject(loadingPanel);
+            Container.InstantiateComponent<CenterScreenLoadingPanel>(centerScreenController.gameObject);
 
             ServerPlayerListController playerListController = Container.Resolve<ServerPlayerListController>();
             GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListController>("_gameServerPlayersTableView");

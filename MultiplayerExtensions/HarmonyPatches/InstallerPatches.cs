@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.Sessions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,6 +82,32 @@ namespace MultiplayerExtensions.HarmonyPatches
         private static FromBinderNonGeneric LevelLoaderAttacher(DiContainer contract)
         {
             return contract.Bind(typeof(MultiplayerLevelLoader), typeof(ITickable)).To<LevelLoaderStub>();
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerConnectedPlayerInstaller), nameof(MultiplayerConnectedPlayerInstaller.InstallBindings))]
+    internal class ConnectedPlayerInstallerPatch
+    {
+        private static readonly SemVer.Version _minVersionFreeMod = new SemVer.Version("0.4.6");
+
+        internal static void Prefix(ref GameplayCoreInstaller __instance, ref IConnectedPlayer ____connectedPlayer, ref GameplayCoreSceneSetupData ____sceneSetupData)
+        {
+            var mib = __instance as MonoInstallerBase;
+            var Container = SiraUtil.Accessors.GetDiContainer(ref mib);
+            ExtendedPlayer? exPlayer = Container.Resolve<ExtendedPlayerManager>().GetExtendedPlayer(____connectedPlayer);
+            if (____connectedPlayer.HasState("modded") && Plugin.Config.FreeMod && exPlayer?.mpexVersion >= _minVersionFreeMod)
+            {
+                var newModifiers = exPlayer.lastModifiers;
+                if (newModifiers != null)
+                    ____sceneSetupData = new GameplayCoreSceneSetupData(
+                      ____sceneSetupData.difficultyBeatmap,
+                      newModifiers,
+                      ____sceneSetupData.playerSpecificSettings,
+                      ____sceneSetupData.practiceSettings,
+                      ____sceneSetupData.useTestNoteCutSoundEffects,
+                      ____sceneSetupData.environmentInfo
+                    );
+            }
         }
     }
 }

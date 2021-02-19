@@ -17,10 +17,11 @@ namespace MultiplayerExtensions.Sessions
             Plugin.Log?.Info("Setting up SessionManager");
 
             MPState.CustomSongsEnabled = Plugin.Config.CustomSongs;
+            Plugin.Config.FreeMod = false;
 
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
-            _sessionManager.SetLocalPlayerState("enforcemods", Plugin.Config.EnforceMods);
+            _sessionManager.SetLocalPlayerState("freemod", false);
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
 

@@ -1,6 +1,7 @@
 ﻿using BeatSaverSharp;
 using MultiplayerExtensions.Beatmaps;
 using MultiplayerExtensions.Packets;
+using MultiplayerExtensions.Sessions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,10 +11,12 @@ namespace MultiplayerExtensions.OverrideClasses
     class PlayersDataModelStub : LobbyPlayersDataModel, ILobbyPlayersDataModel, IDisposable
     {
         protected readonly PacketManager _packetManager;
+        protected readonly ExtendedPlayerManager _playerManager;
 
-        internal PlayersDataModelStub(PacketManager packetManager)
+        internal PlayersDataModelStub(PacketManager packetManager, ExtendedPlayerManager playerManager)
         {
             _packetManager = packetManager;
+            _playerManager = playerManager;
         }
 
         public new void Activate()
@@ -27,6 +30,10 @@ namespace MultiplayerExtensions.OverrideClasses
             _menuRpcManager.getSelectedBeatmapEvent += HandleMenuRpcManagerGetSelectedBeatmap;
             _menuRpcManager.clearSelectedBeatmapEvent -= base.HandleMenuRpcManagerClearBeatmap;
             _menuRpcManager.clearSelectedBeatmapEvent += HandleMenuRpcManagerClearBeatmap;
+            _menuRpcManager.selectedGameplayModifiersEvent -= base.HandleMenuRpcManagerSelectedGameplayModifiers;
+            _menuRpcManager.selectedGameplayModifiersEvent += HandleMenuRpcManagerSelectedGameplayModifiers;
+            _menuRpcManager.clearSelectedGameplayModifiersEvent -= base.HandleMenuRpcManagerClearSelectedGameplayModifiers;
+            _menuRpcManager.clearSelectedGameplayModifiersEvent += HandleMenuRpcManagerClearSelectedGameplayModifiers;
         }
 
         public new void Deactivate()
@@ -39,6 +46,10 @@ namespace MultiplayerExtensions.OverrideClasses
             _menuRpcManager.getSelectedBeatmapEvent += base.HandleMenuRpcManagerGetSelectedBeatmap;
             _menuRpcManager.clearSelectedBeatmapEvent -= HandleMenuRpcManagerClearBeatmap;
             _menuRpcManager.clearSelectedBeatmapEvent += base.HandleMenuRpcManagerClearBeatmap;
+            _menuRpcManager.selectedGameplayModifiersEvent -= HandleMenuRpcManagerSelectedGameplayModifiers;
+            _menuRpcManager.selectedGameplayModifiersEvent += base.HandleMenuRpcManagerSelectedGameplayModifiers;
+            _menuRpcManager.clearSelectedGameplayModifiersEvent -= HandleMenuRpcManagerClearSelectedGameplayModifiers;
+            _menuRpcManager.clearSelectedGameplayModifiersEvent += base.HandleMenuRpcManagerClearSelectedGameplayModifiers;
 
             base.Deactivate();
         }
@@ -148,6 +159,22 @@ namespace MultiplayerExtensions.OverrideClasses
                 }
             }else
                 base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
+        }
+
+        public override void HandleMenuRpcManagerSelectedGameplayModifiers(string userId, GameplayModifiers gameplayModifiers)
+        {
+            ExtendedPlayer? player = _playerManager.GetExtendedPlayer(userId);
+            if (player != null)
+                player.lastModifiers = gameplayModifiers;
+            base.HandleMenuRpcManagerSelectedGameplayModifiers(userId, gameplayModifiers);
+        }
+
+        public override void HandleMenuRpcManagerClearSelectedGameplayModifiers(string userId)
+        {
+            ExtendedPlayer? player = _playerManager.GetExtendedPlayer(userId);
+            if (player != null)
+                player.lastModifiers = null;
+            base.HandleMenuRpcManagerClearSelectedGameplayModifiers(userId);
         }
 
         /// <summary>

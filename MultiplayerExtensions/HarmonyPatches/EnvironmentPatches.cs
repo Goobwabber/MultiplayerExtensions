@@ -5,7 +5,7 @@ using UnityEngine;
 namespace MultiplayerExtensions.HarmonyPatches
 {
     [HarmonyPatch(typeof(MultiplayerLobbyController), "ActivateMultiplayerLobby", MethodType.Normal)]
-    class LobbyEnvironmentLoadPatch
+    internal class LobbyEnvironmentLoadPatch
     {
         static void Postfix(MultiplayerLobbyController __instance)
         {
@@ -14,7 +14,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     }
 
     [HarmonyPatch(typeof(MultiplayerBigAvatarAnimator), "InitIfNeeded", MethodType.Normal)]
-    class MultiplayerBigAvatarAnimator_Init
+    internal class MultiplayerBigAvatarAnimator_Init
     {
         static void Postfix(MultiplayerBigAvatarAnimator __instance)
         {
@@ -23,8 +23,27 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
+    [HarmonyPatch(typeof(MultiplayerLocalActiveLevelFailController), nameof(MultiplayerLocalActiveLevelFailController.HandlePlayerDidFinish), MethodType.Normal)]
+    internal class SpectateOnFinishPatch
+    {
+        static void Postfix(LevelCompletionResults levelCompletionResults, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
+        {
+            if (levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared)
+                ____multiplayerPlayersManager.SwitchLocalPlayerToInactive();
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerOutroAnimationController), nameof(MultiplayerOutroAnimationController.PlayOutroAnimation), MethodType.Normal)]
+    internal class CancelSpectateAnimationPatch
+    {
+        static void Prefix(ref float ____startDelay, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
+        {
+            ____multiplayerPlayersManager.StopAllCoroutines();
+        }
+    }
+
     [HarmonyPatch(typeof(CoreGameHUDController), "Start", MethodType.Normal)]
-    class CoreGameHUDController_Start
+    internal class CoreGameHUDController_Start
     {
         static void Postfix(CoreGameHUDController __instance)
         {

@@ -76,4 +76,21 @@ namespace MultiplayerExtensions.HarmonyPatches
             });
         }
     }
+
+    [HarmonyPatch(typeof(CenterStageScreenController), nameof(CenterStageScreenController.HandleLobbyPlayersDataModelDidChange), MethodType.Normal)]
+    internal class CenterStageGameDataPatch
+    {
+        /// <summary>
+        /// Replaces selected gameplay modifiers if freemod is enabled.
+        /// </summary>
+        static void Postfix(string userId, ref ILobbyPlayersDataModel ____lobbyPlayersDataModel, ref ModifiersSelectionView ____modifiersSelectionView)
+        {
+            if (userId == ____lobbyPlayersDataModel.localUserId && Plugin.Config.FreeMod)
+            {
+                GameplayModifiers gameplayModifiers = ____lobbyPlayersDataModel.GetPlayerGameplayModifiers(userId);
+                if (gameplayModifiers != null)
+                    ____modifiersSelectionView.SetGameplayModifiers(gameplayModifiers);
+            }
+        }
+    }
 }
