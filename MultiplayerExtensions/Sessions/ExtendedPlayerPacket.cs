@@ -23,7 +23,7 @@ namespace MultiplayerExtensions.Sessions
             if (!ColorUtility.TryParseHtmlString(reader.GetString(), out playerColor))
                 this.playerColor = new Color(0.031f, 0.752f, 1f);
 
-            Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
+            //Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
             if (reader.AvailableBytes >= 4) // Verify this works when the platform int exists.
                 this.platform = (Platform)reader.GetInt();
             else
