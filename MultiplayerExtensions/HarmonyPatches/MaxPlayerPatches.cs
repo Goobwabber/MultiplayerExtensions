@@ -29,6 +29,34 @@ namespace MultiplayerExtensions.HarmonyPatches
             return codes.AsEnumerable();
         }
     }
+    
+    [HarmonyPatch(typeof(MultiplayerLayoutProvider), "CalculateLayout", MethodType.Normal)]
+    internal class PlayerLayoutSpotsCountPatch
+    {
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            bool flag = false;
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ldc_I4_1)
+                {
+                    flag = true;
+                    continue;
+                }
+
+                if (codes[i].opcode == OpCodes.Add && flag)
+                {
+                    codes.RemoveAt(i);
+                    codes.RemoveAt(i - 1);
+                    break;
+                }
+
+                flag = false;
+            }
+            return codes.AsEnumerable();
+        }
+    }
 
     [HarmonyPatch(typeof(CreateServerFormController), "formData", MethodType.Getter)]
     internal class IncreaseMaxPlayersClampPatch
