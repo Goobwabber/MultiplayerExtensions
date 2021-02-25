@@ -35,12 +35,13 @@ namespace MultiplayerExtensions.Sessions
             this.platformID = platformID;
             this.mpexVersion = Plugin.PluginMetadata.Version.ToString();
             this.playerColor = playerColor;
+            this.platform = platform;
             return this;
         }
 
-        public string platformID;
+        public string platformID = null!;
         public Platform platform;
-        public string mpexVersion;
+        public string mpexVersion = null!;
         public Color playerColor;
     }
 
