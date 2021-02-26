@@ -75,6 +75,10 @@ namespace MultiplayerExtensions
                     Log?.Warn($"Beatmap Cleared by '{e.UserId}|{e.UserType.ToString()}'");
             };
         }
+        [Conditional("DEBUG")]
+        public static void DebugLog(string s) => Log.Debug(s);
+        [Conditional("DEBUG")]
+        public static void DebugLog(Exception ex) => Log.Debug(ex);
 
         [OnExit]
         public void OnApplicationQuit()
