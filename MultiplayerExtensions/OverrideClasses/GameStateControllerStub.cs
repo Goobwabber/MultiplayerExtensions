@@ -150,6 +150,7 @@ namespace MultiplayerExtensions.OverrideClasses
             }
             else
             {
+                Plugin.Log?.Debug($"Starting level in a maybe bad way. levelStartedOnTime:{_levelStartedOnTime} | difficultyBeatmap:{difficultyBeatmap?.level?.songName ?? "NULL"} | localPlayer.WantsToPlayNextLevel:{_multiplayerSessionManager.localPlayer.WantsToPlayNextLevel()}");
                 StartLevel();
             }
         }
@@ -162,10 +163,10 @@ namespace MultiplayerExtensions.OverrideClasses
 
         private bool starting;
 
-        private IPreviewBeatmapLevel previewBeatmapLevel;
+        private IPreviewBeatmapLevel? previewBeatmapLevel;
         private BeatmapDifficulty beatmapDifficulty;
-        private BeatmapCharacteristicSO beatmapCharacteristic;
-        private IDifficultyBeatmap difficultyBeatmap;
-        private GameplayModifiers gameplayModifiers;
+        private BeatmapCharacteristicSO? beatmapCharacteristic;
+        private IDifficultyBeatmap? difficultyBeatmap;
+        private GameplayModifiers? gameplayModifiers;
     }
 }
