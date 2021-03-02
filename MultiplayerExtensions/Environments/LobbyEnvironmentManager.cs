@@ -7,7 +7,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Environments
 {
-    public class LobbyPlaceManager : IInitializable, IDisposable
+    public class LobbyEnvironmentManager : IInitializable, IDisposable
     {
 		protected readonly IMultiplayerSessionManager _sessionManager;
 		protected readonly ILobbyStateDataModel _lobbyStateDataModel;
@@ -21,7 +21,7 @@ namespace MultiplayerExtensions.Environments
 		private float angleBetweenPlayersWithEvenAdjustment;
 		private float outerCircleRadius;
 
-		internal LobbyPlaceManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, ExtendedPlayerManager playerManager)
+		internal LobbyEnvironmentManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, ExtendedPlayerManager playerManager)
         {
 			_sessionManager = sessionManager;
 			_lobbyStateDataModel = lobbyStateDataModel;
