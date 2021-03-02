@@ -39,7 +39,19 @@ namespace MultiplayerExtensions.Sessions
         private void HandlePlayerStateChanged(IConnectedPlayer player)
         {
             if (player.isConnectionOwner)
-                MPState.CustomSongsEnabled = player.HasState("customsongs");
+            {
+                if (MPState.CustomSongsEnabled != player.HasState("customsongs"))
+                {
+                    MPState.CustomSongsEnabled = player.HasState("customsongs");
+                    MPEvents.RaiseCustomSongsChanged(this, player.HasState("customsongs"));
+                }
+                
+                if (MPState.FreeModEnabled != player.HasState("freemod"))
+                {
+                    MPState.FreeModEnabled = player.HasState("freemod");
+                    MPEvents.RaiseCustomSongsChanged(this, player.HasState("freemod"));
+                }
+            }
         }
     }
 }

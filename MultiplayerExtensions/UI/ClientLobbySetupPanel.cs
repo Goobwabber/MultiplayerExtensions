@@ -53,14 +53,26 @@ namespace MultiplayerExtensions.UI
         public bool CustomSongs
         {
             get => MPState.CustomSongsEnabled;
-            set { MPState.CustomSongsEnabled = value; }
+            set {
+                if (MPState.CustomSongsEnabled != value)
+                {
+                    MPState.CustomSongsEnabled = value;
+                    MPEvents.RaiseCustomSongsChanged(this, value);
+                }
+            }
         }
 
         [UIValue("FreeMod")]
         public bool FreeMod
         {
             get => MPState.FreeModEnabled;
-            set { MPState.FreeModEnabled = value; }
+            set { 
+                if (MPState.FreeModEnabled != value)
+                {
+                    MPState.FreeModEnabled = value;
+                    MPEvents.RaiseFreeModChanged(this, value);
+                }
+            }
         }
 
         [UIValue("VerticalHUD")]

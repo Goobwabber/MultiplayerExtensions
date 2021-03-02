@@ -52,7 +52,11 @@ namespace MultiplayerExtensions.UI
             get => Plugin.Config.CustomSongs;
             set { 
                 Plugin.Config.CustomSongs = value;
-                MPState.CustomSongsEnabled = value;
+                if (MPState.CustomSongsEnabled != value)
+                {
+                    MPState.CustomSongsEnabled = value;
+                    MPEvents.RaiseCustomSongsChanged(this, value);
+                }
             }
         }
 
@@ -62,7 +66,11 @@ namespace MultiplayerExtensions.UI
             get => Plugin.Config.FreeMod;
             set { 
                 Plugin.Config.FreeMod = value;
-                MPState.FreeModEnabled = value;
+                if (MPState.FreeModEnabled != value)
+                {
+                    MPState.FreeModEnabled = value;
+                    MPEvents.RaiseFreeModChanged(this, value);
+                }
             }
         }
 

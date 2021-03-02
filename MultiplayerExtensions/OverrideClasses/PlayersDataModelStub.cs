@@ -21,8 +21,9 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public new void Activate()
         {
+            MPEvents.CustomSongsChanged += HandleCustomSongsChanged;
+            MPEvents.FreeModChanged += HandleFreeModChanged;
             _packetManager.RegisterCallback<PreviewBeatmapPacket>(HandlePreviewBeatmapPacket);
-            _multiplayerSessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
             base.Activate();
 
             _menuRpcManager.selectedBeatmapEvent -= base.HandleMenuRpcManagerSelectedBeatmap;
@@ -39,8 +40,9 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public new void Deactivate()
         {
+            MPEvents.CustomSongsChanged -= HandleCustomSongsChanged;
+            MPEvents.FreeModChanged -= HandleFreeModChanged;
             _packetManager.UnregisterCallback<PreviewBeatmapPacket>();
-            _multiplayerSessionManager.playerStateChangedEvent -= HandlePlayerStateChanged;
 
             _menuRpcManager.selectedBeatmapEvent -= HandleMenuRpcManagerSelectedBeatmap;
             _menuRpcManager.selectedBeatmapEvent += base.HandleMenuRpcManagerSelectedBeatmap;
@@ -61,9 +63,17 @@ namespace MultiplayerExtensions.OverrideClasses
             Deactivate();
         }
 
-        private void HandlePlayerStateChanged(IConnectedPlayer player)
+        private void HandleCustomSongsChanged(object sender, bool value)
         {
-            if (player.isConnectionOwner && player.HasState("freemod"))
+            if (!value && GetPlayerBeatmapLevel(localUserId) is PreviewBeatmapStub)
+            {
+                base.ClearLocalPlayerBeatmapLevel();
+            }
+        }
+
+        private void HandleFreeModChanged(object sender, bool value)
+        {
+            if (value && localUserId != hostUserId)
             {
                 GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
                 GameplayModifiers hostModifiers = GetPlayerGameplayModifiers(hostUserId);
