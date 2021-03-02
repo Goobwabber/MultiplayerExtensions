@@ -23,7 +23,7 @@ namespace MultiplayerExtensions.Sessions
             if (!ColorUtility.TryParseHtmlString(reader.GetString(), out playerColor))
                 this.playerColor = new Color(0.031f, 0.752f, 1f);
 
-            Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
+            //Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
             if (reader.AvailableBytes >= 4) // Verify this works when the platform int exists.
                 this.platform = (Platform)reader.GetInt();
             else
@@ -35,12 +35,13 @@ namespace MultiplayerExtensions.Sessions
             this.platformID = platformID;
             this.mpexVersion = Plugin.PluginMetadata.Version.ToString();
             this.playerColor = playerColor;
+            this.platform = platform;
             return this;
         }
 
-        public string platformID;
+        public string platformID = null!;
         public Platform platform;
-        public string mpexVersion;
+        public string mpexVersion = null!;
         public Color playerColor;
     }
 

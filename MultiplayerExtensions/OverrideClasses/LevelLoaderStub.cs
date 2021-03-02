@@ -14,9 +14,14 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             string? levelId = beatmapId.levelID;
             string? hash = Utilities.Utils.LevelIdToHash(beatmapId.levelID);
-            if (SongCore.Collections.songWithHashPresent(hash) || hash == null)
+            if (hash == null || SongCore.Collections.songWithHashPresent(hash))
             {
-                Plugin.Log?.Debug($"(SongLoader) Level with ID '{levelId}' already exists.");
+                string? songStr = levelId;
+
+                var level = SongCore.Loader.GetLevelById(levelId);
+                if (level != null)
+                    songStr = $"{level.songName} by {level.levelAuthorName}";
+                Plugin.Log?.Debug($"(SongLoader) Loading existing level '{songStr}'.");
                 base.LoadLevel(beatmapId, gameplayModifiers, initialStartTime);
                 return;
             }
@@ -38,7 +43,7 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             try
             {
-                IPreviewBeatmapLevel? beatmap = await Downloader.TryDownloadSong(levelId, this, CancellationToken.None);
+                IPreviewBeatmapLevel? beatmap = await Downloader.TryDownloadSong(levelId, CancellationToken.None);
                 if (beatmap != null)
                 {
                     Plugin.Log?.Debug($"(SongLoader) Level with ID '{levelId}' was downloaded successfully.");

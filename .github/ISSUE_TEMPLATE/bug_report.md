@@ -6,6 +6,9 @@ labels: ''
 assignees: ''
 
 ---
+**Multiplayer Extensions Version and Download Source**
+<!--- i.e. v0.4.3 from Mod Assistant -->
+
 **Your Platform**
 <!--- PC/Quest, Steam/Oculus store. Also include other information such as if you're using Revive or Oculus Link, custom launch options. -->
 

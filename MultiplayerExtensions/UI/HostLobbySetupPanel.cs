@@ -23,8 +23,6 @@ namespace MultiplayerExtensions.UI
             base.DidActivate(true, false, true);
 
             hostViewController.didActivateEvent += OnActivate;
-            if (levelLoader is LevelLoaderStub levelLoaderStub)
-                levelLoaderStub.progressUpdated += progress => UpdateDownloadProgress(progress);
         }
 
         #region UIComponents
@@ -158,11 +156,6 @@ namespace MultiplayerExtensions.UI
         {
             sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
             sessionManager?.SetLocalPlayerState("freemod", FreeMod);
-        }
-
-        private void UpdateDownloadProgress(double progress)
-        {
-            DownloadProgress = progress != 0 ? "Downloading... " + progress + "%" : "";
         }
 
         private void SetModifierText()

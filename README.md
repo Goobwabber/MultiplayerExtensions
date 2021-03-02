@@ -26,7 +26,7 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 * BeatSaverSharp v2.0.1+
 * BeatSaberMarkupLanguage v1.4.5+
 * SiraUtil 2.4.0+
-* BeatTogether 1.0.2+ (Only required for 10 player lobbies)
+* BeatTogether 1.1.0+ (Only required for 10 player lobbies)
 
 ## Troubleshooting
 #### Custom Songs button not appearing

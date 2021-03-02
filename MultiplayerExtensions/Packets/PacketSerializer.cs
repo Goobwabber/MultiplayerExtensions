@@ -66,7 +66,9 @@ namespace MultiplayerExtensions.Packets
                 {
                     packet.Deserialize(reader);
                 }
+#pragma warning disable CS8603 // Possible null reference return. Null isn't possible, but ok
                 return packet;
+#pragma warning restore CS8603 // Possible null reference return.
             };
 
             packetHandlers[typeof(TPacket).ToString()] = delegate (NetDataReader reader, int size, IConnectedPlayer player)
