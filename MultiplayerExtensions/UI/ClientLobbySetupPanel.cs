@@ -61,8 +61,8 @@ namespace MultiplayerExtensions.UI
         [UIValue("FreeMod")]
         public bool FreeMod
         {
-            get => Plugin.Config.FreeMod;
-            set { Plugin.Config.FreeMod = value; }
+            get => MPState.FreeModEnabled;
+            set { MPState.FreeModEnabled = value; }
         }
 
         [UIValue("VerticalHUD")]
@@ -179,7 +179,7 @@ namespace MultiplayerExtensions.UI
             }
 
             if (modifierText != null)
-                modifierText.text = Plugin.Config.FreeMod ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
+                modifierText.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
         }
     }
 }

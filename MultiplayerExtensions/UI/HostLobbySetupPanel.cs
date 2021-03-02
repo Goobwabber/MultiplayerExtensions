@@ -62,7 +62,10 @@ namespace MultiplayerExtensions.UI
         public bool FreeMod
         {
             get => Plugin.Config.FreeMod;
-            set { Plugin.Config.FreeMod = value; }
+            set { 
+                Plugin.Config.FreeMod = value;
+                MPState.FreeModEnabled = value;
+            }
         }
 
         [UIValue("VerticalHUD")]
@@ -168,7 +171,7 @@ namespace MultiplayerExtensions.UI
             foreach(CurvedTextMeshPro text in modifierTexts)
             {
                 Destroy(text.gameObject.GetComponent<LocalizedTextMeshProUGUI>());
-                text.text = Plugin.Config.FreeMod ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
+                text.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
             }
         }
     }

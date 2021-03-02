@@ -22,6 +22,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void Activate()
         {
             _packetManager.RegisterCallback<PreviewBeatmapPacket>(HandlePreviewBeatmapPacket);
+            _multiplayerSessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
             base.Activate();
 
             _menuRpcManager.selectedBeatmapEvent -= base.HandleMenuRpcManagerSelectedBeatmap;
@@ -39,6 +40,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void Deactivate()
         {
             _packetManager.UnregisterCallback<PreviewBeatmapPacket>();
+            _multiplayerSessionManager.playerStateChangedEvent -= HandlePlayerStateChanged;
 
             _menuRpcManager.selectedBeatmapEvent -= HandleMenuRpcManagerSelectedBeatmap;
             _menuRpcManager.selectedBeatmapEvent += base.HandleMenuRpcManagerSelectedBeatmap;
@@ -59,10 +61,21 @@ namespace MultiplayerExtensions.OverrideClasses
             Deactivate();
         }
 
+        private void HandlePlayerStateChanged(IConnectedPlayer player)
+        {
+            if (player.isConnectionOwner && player.HasState("freemod"))
+            {
+                GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
+                GameplayModifiers hostModifiers = GetPlayerGameplayModifiers(hostUserId);
+                if (localModifiers.songSpeed != hostModifiers.songSpeed)
+                    base.SetLocalPlayerGameplayModifiers(localModifiers.CopyWith(songSpeed: hostModifiers.songSpeed));
+            }
+        }
+
         /// <summary>
         /// Handles a <see cref="MultiplayerExtensions.Beatmaps.PreviewBeatmapPacket"/> used to transmit data about a custom song.
         /// </summary>
-        public void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, IConnectedPlayer player)
+        private void HandlePreviewBeatmapPacket(PreviewBeatmapPacket packet, IConnectedPlayer player)
         {
             string? hash = Utilities.Utils.LevelIdToHash(packet.levelId);
             if (hash != null)
@@ -167,6 +180,12 @@ namespace MultiplayerExtensions.OverrideClasses
             if (player != null)
                 player.lastModifiers = gameplayModifiers;
             base.HandleMenuRpcManagerSelectedGameplayModifiers(userId, gameplayModifiers);
+            if (userId == hostUserId && MPState.FreeModEnabled)
+            {
+                GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
+                if (localModifiers.songSpeed != gameplayModifiers.songSpeed)
+                    base.SetLocalPlayerGameplayModifiers(localModifiers.CopyWith(songSpeed: gameplayModifiers.songSpeed));
+            }
         }
 
         public override void HandleMenuRpcManagerClearSelectedGameplayModifiers(string userId)
@@ -175,6 +194,12 @@ namespace MultiplayerExtensions.OverrideClasses
             if (player != null)
                 player.lastModifiers = null;
             base.HandleMenuRpcManagerClearSelectedGameplayModifiers(userId);
+            if (userId == hostUserId && MPState.FreeModEnabled)
+            {
+                GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
+                if (localModifiers.songSpeed != GameplayModifiers.SongSpeed.Normal)
+                    base.SetLocalPlayerGameplayModifiers(localModifiers.CopyWith(songSpeed: GameplayModifiers.SongSpeed.Normal));
+            }
         }
 
         /// <summary>

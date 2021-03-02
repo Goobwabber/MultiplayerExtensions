@@ -100,7 +100,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             ExtendedPlayer? hostPlayer = exPlayerManager.GetExtendedPlayer(Container.Resolve<IMultiplayerSessionManager>().connectionOwner);
 
             GameplayModifiers? newModifiers;
-            if (____connectedPlayer.HasState("modded") && Plugin.Config.FreeMod && exPlayer?.mpexVersion >= _minVersionFreeMod)
+            if (____connectedPlayer.HasState("modded") && MPState.FreeModEnabled && exPlayer?.mpexVersion >= _minVersionFreeMod)
                 newModifiers = exPlayer.lastModifiers;
             else
                 newModifiers = hostPlayer?.lastModifiers;

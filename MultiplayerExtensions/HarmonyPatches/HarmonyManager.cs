@@ -43,10 +43,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<MissingLevelStartPatch>();
             AddDefaultPatch<ConnectedPlayerInstallerPatch>();
             AddDefaultPatch<CenterStageGameDataPatch>();
-            AddDefaultPatch<SpectateOnFinishPatch>();
-            AddDefaultPatch<CancelSpectateAnimationPatch>();
-            AddDefaultPatch<CancelResultsAnimationPatch>();
-            AddDefaultPatch<InvokeResultsAnimationPatch>();
+            AddDefaultPatch<DisableSpeedModifiersPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 

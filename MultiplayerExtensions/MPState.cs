@@ -78,7 +78,39 @@
                 if (_customSongsEnabled == value)
                     return;
                 _customSongsEnabled = value;
-                Plugin.Log?.Debug($"Update custom songs to '{value}'");
+                Plugin.Log?.Debug($"Updated custom songs to '{value}'");
+            }
+        }
+
+        private static bool _freeModEnabled;
+        /// <summary>
+        /// Whether free mod is enabled in the current lobby.
+        /// </summary>
+        public static bool FreeModEnabled
+        {
+            get => _freeModEnabled;
+            internal set
+            {
+                if (_freeModEnabled == value)
+                    return;
+                _freeModEnabled = value;
+                Plugin.Log?.Debug($"Updated free mod to '{value}'");
+            }
+        }
+
+        private static bool _localPlayerIsHost = false;
+        /// <summary>
+        /// Whether the local player is the lobby host.
+        /// </summary>
+        public static bool LocalPlayerIsHost
+        {
+            get => _localPlayerIsHost;
+            internal set
+            {
+                if (_localPlayerIsHost == value)
+                    return;
+                _localPlayerIsHost = value;
+                Plugin.Log?.Debug($"Local player is{(_localPlayerIsHost ? " " : " not ")}host.");
             }
         }
     }

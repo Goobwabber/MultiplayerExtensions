@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System.Threading.Tasks;
 using BeatSaverSharp;
+using System.Linq;
 
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
@@ -85,12 +86,23 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static void Postfix(string userId, ref ILobbyPlayersDataModel ____lobbyPlayersDataModel, ref ModifiersSelectionView ____modifiersSelectionView)
         {
-            if (userId == ____lobbyPlayersDataModel.localUserId && Plugin.Config.FreeMod)
+            if (userId == ____lobbyPlayersDataModel.localUserId && MPState.FreeModEnabled)
             {
                 GameplayModifiers gameplayModifiers = ____lobbyPlayersDataModel.GetPlayerGameplayModifiers(userId);
                 if (gameplayModifiers != null)
                     ____modifiersSelectionView.SetGameplayModifiers(gameplayModifiers);
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(GameplayModifiersPanelController), nameof(GameplayModifiersPanelController.RefreshTotalMultiplierAndRankUI), MethodType.Normal)]
+    internal class DisableSpeedModifiersPatch
+    {
+        static void Postfix(ref GameplayModifierToggle[] ____gameplayModifierToggles)
+        {
+            bool speedModsEnabled = MPState.CurrentGameType != MultiplayerGameType.Private || !MPState.FreeModEnabled || MPState.LocalPlayerIsHost;
+            ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_FASTER_SONG").toggle.interactable = speedModsEnabled;
+            ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SLOWER_SONG").toggle.interactable = speedModsEnabled;
         }
     }
 }

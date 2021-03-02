@@ -17,17 +17,23 @@ namespace MultiplayerExtensions.Sessions
             Plugin.Log?.Info("Setting up SessionManager");
 
             MPState.CustomSongsEnabled = Plugin.Config.CustomSongs;
-            Plugin.Config.FreeMod = false;
+            MPState.FreeModEnabled = Plugin.Config.FreeMod;
 
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
-            _sessionManager.SetLocalPlayerState("freemod", false);
+            _sessionManager.SetLocalPlayerState("freemod", Plugin.Config.FreeMod);
+            _sessionManager.connectedEvent += HandleConnected;
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
 
         public void Dispose()
         {
             _sessionManager.playerStateChangedEvent -= HandlePlayerStateChanged;
+        }
+
+        private void HandleConnected()
+        {
+            MPState.LocalPlayerIsHost = _sessionManager.localPlayer.isConnectionOwner;
         }
 
         private void HandlePlayerStateChanged(IConnectedPlayer player)
