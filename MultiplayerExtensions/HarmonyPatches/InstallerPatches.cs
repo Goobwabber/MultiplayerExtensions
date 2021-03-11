@@ -10,7 +10,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(LobbyDataModelInstaller), "InstallBindings")]
+    [HarmonyPatch(typeof(LobbyDataModelInstaller), nameof(LobbyDataModelInstaller.InstallBindings))]
     class LobbyPlayersDataModelPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(ConcreteBinderNonGeneric).GetMethod(nameof(ConcreteBinderNonGeneric.To), Array.Empty<Type>());
@@ -58,7 +58,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(MultiplayerMenuInstaller), "InstallBindings")]
+    [HarmonyPatch(typeof(MultiplayerMenuInstaller), nameof(MultiplayerMenuInstaller.InstallBindings))]
     class LevelLoaderPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(DiContainer).GetMethod(nameof(DiContainer.BindInterfacesAndSelfTo), Array.Empty<Type>());
@@ -112,11 +112,13 @@ namespace MultiplayerExtensions.HarmonyPatches
             if (newModifiers != null)
                 ____sceneSetupData = new GameplayCoreSceneSetupData(
                   ____sceneSetupData.difficultyBeatmap,
+                  ____sceneSetupData.previewBeatmapLevel,
                   newModifiers,
                   ____sceneSetupData.playerSpecificSettings,
                   ____sceneSetupData.practiceSettings,
                   ____sceneSetupData.useTestNoteCutSoundEffects,
-                  ____sceneSetupData.environmentInfo
+                  ____sceneSetupData.environmentInfo,
+                  ____sceneSetupData.colorScheme
                 );
         }
     }

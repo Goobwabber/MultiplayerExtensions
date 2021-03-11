@@ -21,7 +21,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(HostLobbySetupViewController), "SetPlayersMissingLevelText", MethodType.Normal)]
+    [HarmonyPatch(typeof(HostLobbySetupViewController), nameof(HostLobbySetupViewController.SetPlayersMissingLevelText), MethodType.Normal)]
     internal class MissingLevelStartPatch
     {
         /// <summary>
@@ -33,7 +33,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), "GetEntitlementStatus", MethodType.Normal)]
+    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), nameof(NetworkPlayerEntitlementChecker.GetEntitlementStatus), MethodType.Normal)]
     internal class CustomLevelEntitlementPatch
     {
         /// <summary>
@@ -60,7 +60,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), "GetPlayerLevelEntitlementsAsync", MethodType.Normal)]
+    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), nameof(NetworkPlayerEntitlementChecker.GetPlayerLevelEntitlementsAsync), MethodType.Normal)]
     internal class StartGameLevelEntitlementPatch
     {
         /// <summary>

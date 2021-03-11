@@ -53,8 +53,8 @@ namespace MultiplayerExtensions.Environments
 			outerCircleRadius = Mathf.Max(MultiplayerPlayerPlacement.GetOuterCircleRadius(angleBetweenPlayersWithEvenAdjustment, innerCircleRadius), minOuterCircleRadius);
 
 			bool buildingsEnabled = _sessionManager.maxPlayerCount <= 30;
-			_menuEnvironmentManager.transform.Find("NearBuildingLeft").gameObject.SetActive(buildingsEnabled);
-			_menuEnvironmentManager.transform.Find("NearBuildingRight").gameObject.SetActive(buildingsEnabled);
+			_menuEnvironmentManager.transform.Find("Construction")?.gameObject?.SetActive(buildingsEnabled);
+			_menuEnvironmentManager.transform.Find("Construction (1)")?.gameObject?.SetActive(buildingsEnabled);
 
 			float centerScreenScale = outerCircleRadius / minOuterCircleRadius;
 			MultiplayerLobbyCenterStageManager[] centerscreens = Resources.FindObjectsOfTypeAll<MultiplayerLobbyCenterStageManager>();

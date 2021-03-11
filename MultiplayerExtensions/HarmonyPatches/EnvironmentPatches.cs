@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
-    [HarmonyPatch(typeof(MultiplayerLobbyController), "ActivateMultiplayerLobby", MethodType.Normal)]
+    [HarmonyPatch(typeof(MultiplayerLobbyController), nameof(MultiplayerLobbyController.ActivateMultiplayerLobby), MethodType.Normal)]
     internal class LobbyEnvironmentLoadPatch
     {
         static void Postfix(MultiplayerLobbyController __instance)
@@ -16,7 +16,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(MultiplayerBigAvatarAnimator), "InitIfNeeded", MethodType.Normal)]
+    [HarmonyPatch(typeof(MultiplayerBigAvatarAnimator), nameof(MultiplayerBigAvatarAnimator.InitIfNeeded), MethodType.Normal)]
     internal class MultiplayerBigAvatarAnimator_Init
     {
         static void Postfix(MultiplayerBigAvatarAnimator __instance)
@@ -26,7 +26,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(CoreGameHUDController), "Start", MethodType.Normal)]
+    [HarmonyPatch(typeof(CoreGameHUDController), nameof(CoreGameHUDController.Start), MethodType.Normal)]
     internal class CoreGameHUDController_Start
     {
         static void Postfix(CoreGameHUDController __instance, ref GameObject ____songProgressPanelGO, ref GameObject ____energyPanelGO)
