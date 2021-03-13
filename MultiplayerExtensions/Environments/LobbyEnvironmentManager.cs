@@ -13,6 +13,7 @@ namespace MultiplayerExtensions.Environments
 		protected readonly ILobbyStateDataModel _lobbyStateDataModel;
 		protected readonly MenuEnvironmentManager _menuEnvironmentManager;
 		protected readonly MultiplayerLobbyAvatarPlaceManager _placeManager;
+		protected readonly MultiplayerLobbyCenterStageManager _stageManager;
 		protected readonly ExtendedPlayerManager _playerManager;
 
 		private MultiplayerLobbyAvatarPlace[] avatarPlaces = Array.Empty<MultiplayerLobbyAvatarPlace>();
@@ -21,12 +22,13 @@ namespace MultiplayerExtensions.Environments
 		private float angleBetweenPlayersWithEvenAdjustment;
 		private float outerCircleRadius;
 
-		internal LobbyEnvironmentManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, ExtendedPlayerManager playerManager)
+		internal LobbyEnvironmentManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, MultiplayerLobbyCenterStageManager stageManager, ExtendedPlayerManager playerManager)
         {
 			_sessionManager = sessionManager;
 			_lobbyStateDataModel = lobbyStateDataModel;
 			_menuEnvironmentManager = menuEnvironmentManager;
 			_placeManager = placeManager;
+			_stageManager = stageManager;
 			_playerManager = playerManager;
         }
 
@@ -52,14 +54,12 @@ namespace MultiplayerExtensions.Environments
 			angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(_lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
 			outerCircleRadius = Mathf.Max(MultiplayerPlayerPlacement.GetOuterCircleRadius(angleBetweenPlayersWithEvenAdjustment, innerCircleRadius), minOuterCircleRadius);
 
-			bool buildingsEnabled = _sessionManager.maxPlayerCount <= 30;
+			bool buildingsEnabled = _sessionManager.maxPlayerCount <= 18;
 			_menuEnvironmentManager.transform.Find("Construction")?.gameObject?.SetActive(buildingsEnabled);
 			_menuEnvironmentManager.transform.Find("Construction (1)")?.gameObject?.SetActive(buildingsEnabled);
 
 			float centerScreenScale = outerCircleRadius / minOuterCircleRadius;
-			MultiplayerLobbyCenterStageManager[] centerscreens = Resources.FindObjectsOfTypeAll<MultiplayerLobbyCenterStageManager>();
-			if (centerscreens.Length != 0)
-				centerscreens.First().transform.localScale = new Vector3(centerScreenScale, centerScreenScale, centerScreenScale);
+			_stageManager.transform.localScale = new Vector3(centerScreenScale, centerScreenScale, centerScreenScale);
 
 			SetAllPlayerPlaceColors(Color.black);
 			SetPlayerPlaceColor(_sessionManager.localPlayer, _playerManager.localColor);

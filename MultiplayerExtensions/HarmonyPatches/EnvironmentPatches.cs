@@ -10,6 +10,12 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(MultiplayerLobbyController), nameof(MultiplayerLobbyController.ActivateMultiplayerLobby), MethodType.Normal)]
     internal class LobbyEnvironmentLoadPatch
     {
+        static void Prefix(ref float ____innerCircleRadius, ref float ____minOuterCircleRadius)
+        {
+            ____innerCircleRadius = 1f;
+            ____minOuterCircleRadius = 4.4f;
+        }
+
         static void Postfix(MultiplayerLobbyController __instance)
         {
             MPEvents.RaiseLobbyEnvironmentLoaded(__instance);

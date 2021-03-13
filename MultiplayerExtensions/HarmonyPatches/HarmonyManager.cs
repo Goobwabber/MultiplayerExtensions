@@ -45,6 +45,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<ConnectedPlayerInstallerPatch>();
             AddDefaultPatch<CenterStageGameDataPatch>();
             AddDefaultPatch<DisableSpeedModifiersPatch>();
+            AddDefaultPatch<AprilFoolsPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 

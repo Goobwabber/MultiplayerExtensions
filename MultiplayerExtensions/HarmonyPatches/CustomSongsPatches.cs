@@ -105,4 +105,21 @@ namespace MultiplayerExtensions.HarmonyPatches
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SLOWER_SONG").toggle.interactable = speedModsEnabled;
         }
     }
+
+    [HarmonyPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.startedBeatmapId), MethodType.Setter)]
+    internal class AprilFoolsPatch
+    {
+        static void Prefix(ref BeatmapIdentifierNetSerializable value)
+        {
+            System.DateTime time = IPA.Utilities.Utils.CanUseDateTimeNowSafely ? System.DateTime.Now : System.DateTime.UtcNow;
+            if (time.Month == 4 && time.Day == 1)
+            {
+                value = new BeatmapIdentifierNetSerializable(
+                    "custom_level_103D39B43966277C5E4167AB086F404E0943891F",
+                    "Standard",
+                    value.difficulty == BeatmapDifficulty.ExpertPlus ? BeatmapDifficulty.ExpertPlus : BeatmapDifficulty.Expert
+                );
+            }
+        }
+    }
 }
