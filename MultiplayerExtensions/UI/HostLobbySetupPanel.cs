@@ -1,29 +1,36 @@
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
+using HMUI;
+using MultiplayerExtensions.OverrideClasses;
+using Polyglot;
+using System.Linq;
+using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
     class HostLobbySetupPanel : BSMLResourceViewController
     {
-
         public override string ResourceName => "MultiplayerExtensions.UI.HostLobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
 
         [Inject]
-        internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController)
+        internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader)
         {
             this.sessionManager = sessionManager;
             base.DidActivate(true, false, true);
+
+            hostViewController.didActivateEvent += OnActivate;
         }
 
         #region UIComponents
         [UIComponent("CustomSongsToggle")]
         public ToggleSetting customSongsToggle = null!;
 
-        [UIComponent("EnforceModsToggle")]
-        public ToggleSetting enforceModsToggle = null!;
+        [UIComponent("FreeModToggle")]
+        public ToggleSetting freeModToggle = null!;
 
         [UIComponent("VerticalHUDToggle")]
         public ToggleSetting verticalHUDToggle = null!;
@@ -33,6 +40,9 @@ namespace MultiplayerExtensions.UI
 
         [UIComponent("HologramToggle")]
         public ToggleSetting hologramToggle = null!;
+
+        [UIComponent("DownloadProgressText")]
+        public FormattableText downloadProgressText = null!;
         #endregion
 
         #region UIValues
@@ -42,15 +52,26 @@ namespace MultiplayerExtensions.UI
             get => Plugin.Config.CustomSongs;
             set { 
                 Plugin.Config.CustomSongs = value;
-                MPState.CustomSongsEnabled = value;
+                if (MPState.CustomSongsEnabled != value)
+                {
+                    MPState.CustomSongsEnabled = value;
+                    MPEvents.RaiseCustomSongsChanged(this, value);
+                }
             }
         }
 
-        [UIValue("EnforceMods")]
-        public bool EnforceMods
+        [UIValue("FreeMod")]
+        public bool FreeMod
         {
-            get => Plugin.Config.EnforceMods;
-            set { Plugin.Config.EnforceMods = value; }
+            get => Plugin.Config.FreeMod;
+            set { 
+                Plugin.Config.FreeMod = value;
+                if (MPState.FreeModEnabled != value)
+                {
+                    MPState.FreeModEnabled = value;
+                    MPEvents.RaiseFreeModChanged(this, value);
+                }
+            }
         }
 
         [UIValue("VerticalHUD")]
@@ -73,6 +94,13 @@ namespace MultiplayerExtensions.UI
             get => Plugin.Config.Hologram;
             set { Plugin.Config.Hologram = value; }
         }
+
+        [UIValue("DownloadProgress")]
+        public string DownloadProgress
+        {
+            get => downloadProgressText.text;
+            set { downloadProgressText.text = value; }
+        }
         #endregion
 
         #region UIActions
@@ -82,22 +110,17 @@ namespace MultiplayerExtensions.UI
             CustomSongs = value;
             customSongsToggle.Value = value;
 
-            EnforceMods = EnforceMods || value;
-            enforceModsToggle.Value = EnforceMods || value;
-
             UpdateStates();
         }
 
-        [UIAction("SetEnforceMods")]
-        public void SetEnforceMods(bool value)
+        [UIAction("SetFreeMod")]
+        public void SetFreeMod(bool value)
         {
-            EnforceMods = value;
-            enforceModsToggle.Value = value;
-
-            CustomSongs = !(!CustomSongs || !value);
-            customSongsToggle.Value = !(!CustomSongs || !value);
+            FreeMod = value;
+            freeModToggle.Value = value;
 
             UpdateStates();
+            SetModifierText();
         }
 
         [UIAction("SetVerticalHUD")]
@@ -128,10 +151,29 @@ namespace MultiplayerExtensions.UI
         }
         #endregion
 
+        private void OnActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        {
+            if (firstActivation)
+            {
+                Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
+                spectatorText.position = new Vector3(spectatorText.position.x, 0.25f, spectatorText.position.z);
+            }
+        }
+
         private void UpdateStates()
         {
             sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
-            sessionManager?.SetLocalPlayerState("enforcemods", EnforceMods);
+            sessionManager?.SetLocalPlayerState("freemod", FreeMod);
+        }
+
+        private void SetModifierText()
+        {
+            var modifierTexts = Resources.FindObjectsOfTypeAll<CurvedTextMeshPro>().ToList().FindAll(text => text.gameObject.name == "SuggestedModifiers");
+            foreach(CurvedTextMeshPro text in modifierTexts)
+            {
+                Destroy(text.gameObject.GetComponent<LocalizedTextMeshProUGUI>());
+                text.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
+            }
         }
     }
 }

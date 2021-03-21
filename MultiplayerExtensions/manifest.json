@@ -3,14 +3,14 @@
   "id": "MultiplayerExtensions",
   "name": "MultiplayerExtensions",
   "author": "Zingabopp and Goobwabber",
-  "version": "0.4.5",
+  "version": "0.4.7",
   "description": "Expands the functionality of Beat Saber Multiplayer.",
-  "gameVersion": "1.13.2",
+  "gameVersion": "1.13.4",
   "dependsOn": {
-    "BSIPA": "^4.1.3",
-    "SongCore": "^3.0.3",
+    "BSIPA": "^4.1.4",
+    "SongCore": "^3.2.0",
     "BeatSaverSharp": "^2.0.1",
-    "BeatSaberMarkupLanguage":  "^1.4.5",
-    "SiraUtil": "^2.4.0"
+    "BeatSaberMarkupLanguage":  "^1.5.1",
+    "SiraUtil": "^2.5.2"
   }
 }

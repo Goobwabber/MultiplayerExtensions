@@ -1,4 +1,5 @@
-﻿using MultiplayerExtensions.Packets;
+﻿using IPA.Utilities;
+using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
 using System;
 using System.Linq;
@@ -7,22 +8,20 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class GameStateControllerStub : LobbyGameStateController, ILobbyHostGameStateController, ILobbyGameStateController, IDisposable
     {
-        protected readonly IMultiplayerSessionManager _sessionManager;
         protected readonly PacketManager _packetManager;
         protected readonly ExtendedPlayerManager _extendedPlayerManager;
 
-        private static readonly SemVer.Version _minVersionStartPrimed = new SemVer.Version("0.4.0");
+        private static readonly SemVer.Version _minVersionStartPrimed = new SemVer.Version("0.4.5");
         
-        internal GameStateControllerStub(IMultiplayerSessionManager sessionManager, PacketManager packetManager, ExtendedPlayerManager extendedPlayerManager)
+        internal GameStateControllerStub(PacketManager packetManager, ExtendedPlayerManager extendedPlayerManager)
         {
-            _sessionManager = sessionManager;
             _packetManager = packetManager;
             _extendedPlayerManager = extendedPlayerManager;
         }
 
         public new void Activate()
         {
-            _sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
+            _multiplayerSessionManager.playerStateChangedEvent += OnPlayerStateChanged;
             _lobbyGameState.gameStateDidChangeEvent -= base.HandleGameStateDidChange;
             _lobbyGameState.gameStateDidChangeEvent += HandleGameStateDidChange;
             base.Activate();
@@ -30,7 +29,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public new void Deactivate()
         {
-            _sessionManager.playerStateChangedEvent -= OnPlayerStateChanged;
+            _multiplayerSessionManager.playerStateChangedEvent -= OnPlayerStateChanged;
             _menuRpcManager.startedLevelEvent -= HandleRpcStartedLevel;
             _menuRpcManager.cancelledLevelStartEvent -= HandleRpcCancelledLevel;
             _lobbyGameState.gameStateDidChangeEvent -= HandleGameStateDidChange;
@@ -75,7 +74,7 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             if (starting)
             {
-                if (_sessionManager.connectedPlayers.All(IsPlayerReady) && _sessionManager.LocalPlayerHasState("start_primed"))
+                if (_multiplayerSessionManager.connectedPlayers.All(IsPlayerReady) && _multiplayerSessionManager.LocalPlayerHasState("start_primed"))
                 {
                     Plugin.Log.Debug("All players ready, starting game.");
                     StartLevel();
@@ -85,7 +84,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
         public new void StartGame()
         {
-            _sessionManager.SetLocalPlayerState("start_primed", false);
+            _multiplayerSessionManager.SetLocalPlayerState("start_primed", false);
             starting = true;
             base.StartGame();
             _multiplayerLevelLoader.countdownFinishedEvent -= base.HandleMultiplayerLevelLoaderCountdownFinished;
@@ -95,7 +94,7 @@ namespace MultiplayerExtensions.OverrideClasses
         public new void CancelGame()
         {
             starting = false;
-            _sessionManager.SetLocalPlayerState("start_primed", false);
+            _multiplayerSessionManager.SetLocalPlayerState("start_primed", false);
             _multiplayerLevelLoader.countdownFinishedEvent -= HandleCountdown;
             _multiplayerLevelLoader.countdownFinishedEvent += base.HandleMultiplayerLevelLoaderCountdownFinished;
             base.CancelGame();
@@ -116,8 +115,10 @@ namespace MultiplayerExtensions.OverrideClasses
 
         private void HandleRpcStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
         {
-            
-            _sessionManager.SetLocalPlayerState("start_primed", false);
+            if (_multiplayerSessionManager.connectionOwner.HasState("freemod"))
+                gameplayModifiers = _lobbyPlayersDataModel.GetPlayerGameplayModifiers(_lobbyPlayersDataModel.localUserId);
+
+            _multiplayerSessionManager.SetLocalPlayerState("start_primed", false);
             starting = true;
             base.HandleMenuRpcManagerStartedLevel(userId, beatmapId, gameplayModifiers, startTime);
             _multiplayerLevelLoader.countdownFinishedEvent -= base.HandleMultiplayerLevelLoaderCountdownFinished;
@@ -127,7 +128,7 @@ namespace MultiplayerExtensions.OverrideClasses
         private void HandleRpcCancelledLevel(string userId)
         {
             starting = false;
-            _sessionManager.SetLocalPlayerState("start_primed", false);
+            _multiplayerSessionManager.SetLocalPlayerState("start_primed", false);
             _multiplayerLevelLoader.countdownFinishedEvent -= HandleCountdown;
             _multiplayerLevelLoader.countdownFinishedEvent += base.HandleMultiplayerLevelLoaderCountdownFinished;
             base.HandleMenuRpcManagerCancelledLevelStart(userId);
@@ -143,13 +144,14 @@ namespace MultiplayerExtensions.OverrideClasses
             this.difficultyBeatmap = difficultyBeatmap;
             this.gameplayModifiers = gameplayModifiers;
 
-            _sessionManager.SetLocalPlayerState("start_primed", true);
+            _multiplayerSessionManager.SetLocalPlayerState("start_primed", true);
             if (this._levelStartedOnTime && difficultyBeatmap != null && this._multiplayerSessionManager.localPlayer.WantsToPlayNextLevel())
             {
-                OnPlayerStateChanged(_sessionManager.localPlayer);
+                OnPlayerStateChanged(_multiplayerSessionManager.localPlayer);
             }
             else
             {
+                Plugin.Log?.Debug($"Starting level in a maybe bad way. levelStartedOnTime:{_levelStartedOnTime} | difficultyBeatmap:{difficultyBeatmap?.level?.songName ?? "NULL"} | localPlayer.WantsToPlayNextLevel:{_multiplayerSessionManager.localPlayer.WantsToPlayNextLevel()}");
                 StartLevel();
             }
         }
@@ -162,10 +164,10 @@ namespace MultiplayerExtensions.OverrideClasses
 
         private bool starting;
 
-        private IPreviewBeatmapLevel previewBeatmapLevel;
+        private IPreviewBeatmapLevel? previewBeatmapLevel;
         private BeatmapDifficulty beatmapDifficulty;
-        private BeatmapCharacteristicSO beatmapCharacteristic;
-        private IDifficultyBeatmap difficultyBeatmap;
-        private GameplayModifiers gameplayModifiers;
+        private BeatmapCharacteristicSO? beatmapCharacteristic;
+        private IDifficultyBeatmap? difficultyBeatmap;
+        private GameplayModifiers? gameplayModifiers;
     }
 }

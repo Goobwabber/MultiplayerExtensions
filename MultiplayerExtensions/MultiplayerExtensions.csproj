@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>MultiplayerExtensions</AssemblyName>
-    <AssemblyVersion>0.4.5</AssemblyVersion>
+    <AssemblyVersion>0.4.6</AssemblyVersion>
     <TargetFramework>net472</TargetFramework>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -38,6 +38,7 @@
     <None Remove="UI\CenterScreenLoading.bsml" />
     <None Remove="UI\ClientLobbySetupPanel.bsml" />
     <None Remove="UI\HostLobbySetupPanel.bsml" />
+    <None Remove="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BeatmapCore">
@@ -49,6 +50,10 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Colors">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="GameplayCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
@@ -72,6 +77,10 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Polyglot">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SemVer">
       <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
@@ -184,6 +193,7 @@
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\CenterScreenLoading.bsml" />
     <EmbeddedResource Include="UI\HostLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
@@ -196,6 +206,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="UI\ClientLobbySetupPanel.bsml" />

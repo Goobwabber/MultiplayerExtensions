@@ -8,10 +8,14 @@ using MultiplayerExtensions.Installers;
 using SiraUtil.Zenject;
 using MultiplayerExtensions.Utilities;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using IPALogger = IPA.Logging.Logger;
 using BeatSaverSharp;
 using System.Diagnostics;
+using Zenject;
+using MultiplayerExtensions.UI;
+using BeatSaberMarkupLanguage.Settings;
 
 namespace MultiplayerExtensions
 {
@@ -45,6 +49,7 @@ namespace MultiplayerExtensions
             Config = conf.Generated<PluginConfig>();
             zenjector.OnApp<MPCoreInstaller>();
             zenjector.OnMenu<MPMenuInstaller>();
+            zenjector.OnGame<MPGameInstaller>();
             HttpOptions options = new HttpOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
             BeatSaver = new BeatSaver(options);
         }
@@ -53,11 +58,13 @@ namespace MultiplayerExtensions
         public void OnApplicationStart()
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
+            BSMLSettings.instance.AddSettingsMenu("Multiplayer", "MultiplayerExtensions.UI.settings.bsml", MPSettings.instance);
 
             if (Plugin.Config.MaxPlayers > 100)
                 Plugin.Config.MaxPlayers = 100;
             if (Plugin.Config.MaxPlayers < 10)
                 Plugin.Config.MaxPlayers = 10;
+            MPState.FreeModEnabled = false;
 
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
@@ -75,6 +82,10 @@ namespace MultiplayerExtensions
                     Log?.Warn($"Beatmap Cleared by '{e.UserId}|{e.UserType.ToString()}'");
             };
         }
+        [Conditional("DEBUG")]
+        public static void DebugLog(string s) => Log.Debug(s);
+        [Conditional("DEBUG")]
+        public static void DebugLog(Exception ex) => Log.Debug(ex);
 
         [OnExit]
         public void OnApplicationQuit()

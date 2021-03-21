@@ -26,6 +26,8 @@ namespace MultiplayerExtensions.Sessions
         /// </summary>
         public Color playerColor;
 
+        internal GameplayModifiers? lastModifiers;
+
         public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, SemVer.Version mpexVersion, Color playerColor)
         {
             _connectedPlayer = player;

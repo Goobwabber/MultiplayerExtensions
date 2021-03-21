@@ -26,7 +26,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 	}
 
 	/// <summary>
-	/// For retrieving the currently used Master Server Status URL.
+	/// For retrieving the Lobby code.
 	/// </summary>
 	[HarmonyPatch(typeof(MultiplayerSettingsPanelController), "SetLobbyCode", MethodType.Normal)]
 	internal class SetLobbyCodePatch

@@ -31,6 +31,16 @@ namespace MultiplayerExtensions
         /// </summary>
         public static event EventHandler<MultiplayerGameState>? GameStateChanged;
 
+        /// <summary>
+        /// Raised when the host toggles custom songs.
+        /// </summary>
+        public static event EventHandler<bool>? CustomSongsChanged;
+
+        /// <summary>
+        /// Raised when the host toggles free mod.
+        /// </summary>
+        public static event EventHandler<bool>? FreeModChanged;
+
         internal static void RaiseMasterServerChanged(object sender, MasterServerInfo info)
             => MasterServerChanged?.RaiseEventSafe(sender, info, nameof(MasterServerChanged));
         internal static void RaiseRoomCodeChanged(object sender, string code) 
@@ -41,6 +51,10 @@ namespace MultiplayerExtensions
             => LobbyEnvironmentLoaded.RaiseEventSafe(sender, nameof(LobbyEnvironmentLoaded));
         internal static void RaiseGameStateChanged(object sender, MultiplayerGameState state)
             => GameStateChanged.RaiseEventSafe(sender, state, nameof(GameStateChanged));
+        internal static void RaiseCustomSongsChanged(object sender, bool state)
+            => CustomSongsChanged.RaiseEventSafe(sender, state, nameof(CustomSongsChanged));
+        internal static void RaiseFreeModChanged(object sender, bool state)
+            => FreeModChanged.RaiseEventSafe(sender, state, nameof(FreeModChanged));
     }
 
     public class SelectedBeatmapEventArgs : EventArgs
