@@ -38,6 +38,7 @@
     <None Remove="UI\CenterScreenLoading.bsml" />
     <None Remove="UI\ClientLobbySetupPanel.bsml" />
     <None Remove="UI\HostLobbySetupPanel.bsml" />
+    <None Remove="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BeatmapCore">
@@ -192,6 +193,7 @@
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\CenterScreenLoading.bsml" />
     <EmbeddedResource Include="UI\HostLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />

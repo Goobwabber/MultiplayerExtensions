@@ -14,6 +14,8 @@ using IPALogger = IPA.Logging.Logger;
 using BeatSaverSharp;
 using System.Diagnostics;
 using Zenject;
+using MultiplayerExtensions.UI;
+using BeatSaberMarkupLanguage.Settings;
 
 namespace MultiplayerExtensions
 {
@@ -56,6 +58,7 @@ namespace MultiplayerExtensions
         public void OnApplicationStart()
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
+            BSMLSettings.instance.AddSettingsMenu("Multiplayer", "MultiplayerExtensions.UI.settings.bsml", MPSettings.instance);
 
             if (Plugin.Config.MaxPlayers > 100)
                 Plugin.Config.MaxPlayers = 100;

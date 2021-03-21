@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using BeatSaverSharp;
 using System.Linq;
+using UnityEngine.UI;
 
 /// <summary>
 /// See https://github.com/pardeike/Harmony/wiki for a full reference on Harmony.
@@ -27,9 +28,10 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// <summary>
         /// Disables starting of game if not all players have song.
         /// </summary>
-        static void Prefix(HostLobbySetupViewController __instance, string playersMissingLevelText)
+        static void Prefix(HostLobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameButton)
         {
-            __instance.SetStartGameEnabled(playersMissingLevelText == null, HostLobbySetupViewController.CannotStartGameReason.None);
+            if (____startGameButton.interactable)
+                __instance.SetStartGameEnabled(playersMissingLevelText == null, HostLobbySetupViewController.CannotStartGameReason.None);
         }
     }
 
@@ -100,25 +102,32 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Postfix(ref GameplayModifierToggle[] ____gameplayModifierToggles)
         {
+            foreach(GameplayModifierToggle toggle in ____gameplayModifierToggles)
+            {
+                Plugin.Log.Warn(toggle.gameplayModifier.modifierNameLocalizationKey);
+            }
+
             bool speedModsEnabled = MPState.CurrentGameType != MultiplayerGameType.Private || !MPState.FreeModEnabled || MPState.LocalPlayerIsHost;
+            ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SUPER_FAST_SONG").toggle.interactable = speedModsEnabled;
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_FASTER_SONG").toggle.interactable = speedModsEnabled;
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SLOWER_SONG").toggle.interactable = speedModsEnabled;
         }
     }
 
-    [HarmonyPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.startedBeatmapId), MethodType.Setter)]
+    [HarmonyPatch(typeof(LobbyGameStateController), nameof(LobbyGameStateController.startedBeatmapId), MethodType.Getter)]
     internal class AprilFoolsPatch
     {
-        static void Prefix(ref BeatmapIdentifierNetSerializable value)
+        static void Postfix(ref BeatmapIdentifierNetSerializable __result)
         {
             System.DateTime time = IPA.Utilities.Utils.CanUseDateTimeNowSafely ? System.DateTime.Now : System.DateTime.UtcNow;
-            if (time.Month == 4 && time.Day == 1)
+            if (MPState.EasterEggsEnabled && time.Month == 4 && time.Day == 1)
             {
-                value = new BeatmapIdentifierNetSerializable(
-                    "custom_level_103D39B43966277C5E4167AB086F404E0943891F",
-                    "Standard",
-                    value.difficulty == BeatmapDifficulty.ExpertPlus ? BeatmapDifficulty.ExpertPlus : BeatmapDifficulty.Expert
-                );
+                if (__result != null)
+                    __result = new BeatmapIdentifierNetSerializable(
+                        "custom_level_103D39B43966277C5E4167AB086F404E0943891F",
+                        "Standard",
+                        __result.difficulty == BeatmapDifficulty.ExpertPlus ? BeatmapDifficulty.ExpertPlus : BeatmapDifficulty.Expert
+                    );
             }
         }
     }

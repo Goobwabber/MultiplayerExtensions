@@ -98,6 +98,22 @@
             }
         }
 
+        private static bool _easterEggsEnabled = true;
+        /// <summary>
+        /// Whether easter eggs in multiplayer are enabled.
+        /// </summary>
+        public static bool EasterEggsEnabled
+        {
+            get => _easterEggsEnabled;
+            internal set
+            {
+                if (_easterEggsEnabled == value)
+                    return;
+                _easterEggsEnabled = value;
+                Plugin.Log?.Debug($"Easter Eggs {(value ? "enabled" : "disabled")}.");
+            }
+        }
+
         private static bool _localPlayerIsHost = false;
         /// <summary>
         /// Whether the local player is the lobby host.

@@ -1,0 +1,3 @@
+﻿<settings-container>
+    <checkbox-setting text='Easter Eggs' value='eastereggs' hover-hint='Enable Easter Eggs in multiplayer.'></checkbox-setting>
+</settings-container>
