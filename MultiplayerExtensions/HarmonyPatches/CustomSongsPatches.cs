@@ -102,10 +102,10 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Postfix(ref GameplayModifierToggle[] ____gameplayModifierToggles)
         {
-            foreach(GameplayModifierToggle toggle in ____gameplayModifierToggles)
-            {
-                Plugin.Log.Warn(toggle.gameplayModifier.modifierNameLocalizationKey);
-            }
+            //foreach(GameplayModifierToggle toggle in ____gameplayModifierToggles)
+            //{
+            //    Plugin.Log.Warn(toggle.gameplayModifier.modifierNameLocalizationKey);
+            //}
 
             bool speedModsEnabled = MPState.CurrentGameType != MultiplayerGameType.Private || !MPState.FreeModEnabled || MPState.LocalPlayerIsHost;
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SUPER_FAST_SONG").toggle.interactable = speedModsEnabled;

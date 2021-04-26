@@ -11,8 +11,8 @@ namespace MultiplayerExtensions.Installers
 
         public override void Start()
         {
-            List<SimpleColorSO> colors = Resources.FindObjectsOfTypeAll<SimpleColorSO>().ToList();
-            colors.Find(color => color.name == "MultiplayerFailedPlayerColor").SetColor(new Color(1f, 0f, 0f, 0.5f));
+            //List<SimpleColorSO> colors = Resources.FindObjectsOfTypeAll<SimpleColorSO>().ToList();
+            //colors.Find(color => color.name == "MultiplayerFailedPlayerColor").SetColor(new Color(1f, 0f, 0f, 0.5f));
         }
     }
 }

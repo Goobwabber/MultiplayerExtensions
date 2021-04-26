@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using MultiplayerExtensions.OverrideClasses;
 using Polyglot;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
@@ -15,6 +16,8 @@ namespace MultiplayerExtensions.UI
     {
         public override string ResourceName => "MultiplayerExtensions.UI.HostLobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
+
+        CurvedTextMeshPro? modifierText;
 
         [Inject]
         internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader)
@@ -168,12 +171,14 @@ namespace MultiplayerExtensions.UI
 
         private void SetModifierText()
         {
-            var modifierTexts = Resources.FindObjectsOfTypeAll<CurvedTextMeshPro>().ToList().FindAll(text => text.gameObject.name == "SuggestedModifiers");
-            foreach(CurvedTextMeshPro text in modifierTexts)
+            if (modifierText == null)
             {
-                Destroy(text.gameObject.GetComponent<LocalizedTextMeshProUGUI>());
-                text.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
+                modifierText = Resources.FindObjectsOfTypeAll<CurvedTextMeshPro>().ToList().Find(text => text.gameObject.name == "SuggestedModifiers");
+                Destroy(modifierText.gameObject.GetComponent<LocalizedTextMeshPro>());
             }
+
+            if (modifierText != null)
+                modifierText.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
         }
     }
 }
