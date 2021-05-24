@@ -35,6 +35,9 @@ namespace MultiplayerExtensions.UI
         [UIComponent("FreeModToggle")]
         public ToggleSetting freeModToggle = null!;
 
+        [UIComponent("HostPickToggle")]
+        public ToggleSetting hostPickToggle = null!;
+
         [UIComponent("VerticalHUDToggle")]
         public ToggleSetting verticalHUDToggle = null!;
 
@@ -76,6 +79,21 @@ namespace MultiplayerExtensions.UI
                 {
                     MPState.FreeModEnabled = value;
                     MPEvents.RaiseFreeModChanged(this, value);
+                }
+            }
+        }
+
+        [UIValue("HostPick")]
+        public bool HostPick
+        {
+            get => Plugin.Config.HostPick;
+            set
+            {
+                Plugin.Config.HostPick = value;
+                if (MPState.HostPickEnabled != value)
+                {
+                    MPState.HostPickEnabled = value;
+                    MPEvents.RaiseHostPickChanged(this, value);
                 }
             }
         }
@@ -136,6 +154,15 @@ namespace MultiplayerExtensions.UI
             SetModifierText();
         }
 
+        [UIAction("SetHostPick")]
+        public void SetHostPick(bool value)
+        {
+            HostPick = value;
+            hostPickToggle.Value = value;
+
+            UpdateStates();
+        }
+
         [UIAction("SetVerticalHUD")]
         public void SetVerticalHUD(bool value)
         {
@@ -184,6 +211,7 @@ namespace MultiplayerExtensions.UI
         {
             sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
             sessionManager?.SetLocalPlayerState("freemod", FreeMod);
+            sessionManager?.SetLocalPlayerState("hostpick", HostPick);
         }
 
         private void SetModifierText()

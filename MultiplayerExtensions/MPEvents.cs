@@ -41,6 +41,11 @@ namespace MultiplayerExtensions
         /// </summary>
         public static event EventHandler<bool>? FreeModChanged;
 
+        /// <summary>
+        /// Raised when the host toggles host pick.
+        /// </summary>
+        public static event EventHandler<bool>? HostPickChanged;
+
         internal static void RaiseMasterServerChanged(object sender, MasterServerInfo info)
             => MasterServerChanged?.RaiseEventSafe(sender, info, nameof(MasterServerChanged));
         internal static void RaiseRoomCodeChanged(object sender, string code) 
@@ -55,6 +60,8 @@ namespace MultiplayerExtensions
             => CustomSongsChanged.RaiseEventSafe(sender, state, nameof(CustomSongsChanged));
         internal static void RaiseFreeModChanged(object sender, bool state)
             => FreeModChanged.RaiseEventSafe(sender, state, nameof(FreeModChanged));
+        internal static void RaiseHostPickChanged(object sender, bool state)
+            => HostPickChanged.RaiseEventSafe(sender, state, nameof(HostPickChanged));
     }
 
     public class SelectedBeatmapEventArgs : EventArgs

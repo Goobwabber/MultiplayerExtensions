@@ -98,6 +98,22 @@
             }
         }
 
+        private static bool _hostPickEnabled;
+        /// <summary>
+        /// Whether host pick is enabled in the current lobby.
+        /// </summary>
+        public static bool HostPickEnabled
+        {
+            get => _hostPickEnabled;
+            internal set
+            {
+                if (_hostPickEnabled == value)
+                    return;
+                _hostPickEnabled = value;
+                Plugin.Log?.Debug($"Updated host pick to '{value}'");
+            }
+        }
+
         private static bool _easterEggsEnabled = true;
         /// <summary>
         /// Whether easter eggs in multiplayer are enabled.

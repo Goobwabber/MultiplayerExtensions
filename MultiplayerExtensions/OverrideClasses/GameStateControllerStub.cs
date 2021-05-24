@@ -2,6 +2,7 @@
 using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MultiplayerExtensions.OverrideClasses
@@ -86,6 +87,18 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             _multiplayerSessionManager.SetLocalPlayerState("start_primed", false);
             starting = true;
+
+            if (!Plugin.Config.HostPick)
+            {
+                ILobbyPlayerDataModel localPlayerDataModel = _lobbyPlayersDataModel.GetLobbyPlayerDataModel(_lobbyPlayersDataModel.localUserId);
+                IEnumerable<ILobbyPlayerDataModel> validDataModels = _lobbyPlayersDataModel.playersData.Values.Where(data => data.beatmapLevel != null);
+                ILobbyPlayerDataModel chosenPlayerDataModel = validDataModels.ElementAt(new Random().Next(0, validDataModels.Count()));
+                localPlayerDataModel.beatmapLevel = chosenPlayerDataModel.beatmapLevel;
+                localPlayerDataModel.beatmapCharacteristic = chosenPlayerDataModel.beatmapCharacteristic;
+                localPlayerDataModel.beatmapDifficulty = chosenPlayerDataModel.beatmapDifficulty;
+                localPlayerDataModel.gameplayModifiers = chosenPlayerDataModel.gameplayModifiers;
+            }
+
             base.StartGame();
             _multiplayerLevelLoader.countdownFinishedEvent -= base.HandleMultiplayerLevelLoaderCountdownFinished;
             _multiplayerLevelLoader.countdownFinishedEvent += HandleCountdown;
