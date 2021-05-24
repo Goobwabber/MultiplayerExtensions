@@ -44,6 +44,9 @@ namespace MultiplayerExtensions.UI
         [UIComponent("HologramToggle")]
         public ToggleSetting hologramToggle = null!;
 
+        [UIComponent("LagReducerToggle")]
+        public ToggleSetting lagReducerToggle = null!;
+
         [UIComponent("DownloadProgressText")]
         public FormattableText downloadProgressText = null!;
         #endregion
@@ -96,6 +99,13 @@ namespace MultiplayerExtensions.UI
             set { Plugin.Config.Hologram = value; }
         }
 
+        [UIValue("LagReducer")]
+        public bool LagReducer
+        {
+            get => Plugin.Config.LagReducer;
+            set { Plugin.Config.LagReducer = value; }
+        }
+
         [UIValue("DownloadProgress")]
         public string DownloadProgress
         {
@@ -145,6 +155,13 @@ namespace MultiplayerExtensions.UI
         {
             Hologram = value;
             hologramToggle.Value = value;
+        }
+
+        [UIAction("SetLagReducer")]
+        public void SetLagReducer(bool value)
+        {
+            LagReducer = value;
+            lagReducerToggle.Value = value;
         }
         #endregion
 
