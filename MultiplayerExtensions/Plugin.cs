@@ -16,6 +16,7 @@ using System.Diagnostics;
 using Zenject;
 using MultiplayerExtensions.UI;
 using BeatSaberMarkupLanguage.Settings;
+using System.Net.Http;
 
 namespace MultiplayerExtensions
 {
@@ -23,10 +24,15 @@ namespace MultiplayerExtensions
     public class Plugin
     {
         public static readonly string HarmonyId = "com.github.Zingabopp.MultiplayerExtensions";
+
         internal static Plugin Instance { get; private set; } = null!;
         internal static PluginMetadata PluginMetadata = null!;
-        internal static Harmony? _harmony;
+        internal static IPALogger Log { get; private set; } = null!;
+        internal static PluginConfig Config = null!;
+
+        internal static HttpClient HttpClient { get; private set; } = null!;
         internal static BeatSaver BeatSaver = null!;
+        internal static Harmony? _harmony;
         internal static Harmony Harmony
         {
             get
@@ -34,11 +40,19 @@ namespace MultiplayerExtensions
                 return _harmony ??= new Harmony(HarmonyId);
             }
         }
-        /// <summary>
-        /// Use to send log messages through BSIPA.
-        /// </summary>
-        internal static IPALogger Log { get; private set; } = null!;
-        internal static PluginConfig Config = null!;
+
+        public static string UserAgent
+        {
+            get
+            {
+                var modVersion = PluginMetadata.Version.ToString();
+                var bsVersion = IPA.Utilities.UnityGame.GameVersion.ToString();
+                return $"MultiplayerExtensions/{modVersion} (BeatSaber/{bsVersion})";
+            }
+        }
+
+        private const int MaxPlayers = 100;
+        private const int MinPlayers = 10;
 
         [Init]
         public Plugin(IPALogger logger, Config conf, Zenjector zenjector, PluginMetadata pluginMetadata)
@@ -47,11 +61,15 @@ namespace MultiplayerExtensions
             PluginMetadata = pluginMetadata;
             Log = logger;
             Config = conf.Generated<PluginConfig>();
+
             zenjector.OnApp<MPCoreInstaller>();
             zenjector.OnMenu<MPMenuInstaller>();
             zenjector.OnGame<MPGameInstaller>();
+
             HttpOptions options = new HttpOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
             BeatSaver = new BeatSaver(options);
+            HttpClient = new HttpClient();
+            HttpClient.DefaultRequestHeaders.Add("User-Agent", Plugin.UserAgent);
         }
 
         [OnStart]
@@ -60,10 +78,7 @@ namespace MultiplayerExtensions
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
             BSMLSettings.instance.AddSettingsMenu("Multiplayer", "MultiplayerExtensions.UI.settings.bsml", MPSettings.instance);
 
-            if (Plugin.Config.MaxPlayers > 100)
-                Plugin.Config.MaxPlayers = 100;
-            if (Plugin.Config.MaxPlayers < 10)
-                Plugin.Config.MaxPlayers = 10;
+            Plugin.Config.MaxPlayers = Math.Max(Math.Min(Config.MaxPlayers, MaxPlayers), MinPlayers);
             MPState.FreeModEnabled = false;
 
             HarmonyManager.ApplyDefaultPatches();

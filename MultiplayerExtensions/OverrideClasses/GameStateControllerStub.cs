@@ -1,6 +1,7 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
+using MultiplayerExtensions.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -172,6 +173,12 @@ namespace MultiplayerExtensions.OverrideClasses
         private void StartLevel()
         {
             starting = false;
+            if (previewBeatmapLevel != null)
+            {
+                string? hash = Utilities.Utils.LevelIdToHash(previewBeatmapLevel.levelID);
+                if (hash != null)
+                    _ = Statistics.PlayMap(hash);
+            }
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
         }
 

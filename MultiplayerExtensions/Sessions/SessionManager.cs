@@ -18,6 +18,7 @@ namespace MultiplayerExtensions.Sessions
 
             MPState.CustomSongsEnabled = Plugin.Config.CustomSongs;
             MPState.FreeModEnabled = Plugin.Config.FreeMod;
+            MPState.HostPickEnabled = Plugin.Config.HostPick;
 
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
