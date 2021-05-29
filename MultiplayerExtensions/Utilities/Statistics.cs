@@ -64,9 +64,16 @@ namespace MultiplayerExtensions.Utilities
             return await PerformWebRequest("POST", $"/adduser?userId={userId}&platform={platform}") != null;
         }
 
-        public static async Task<bool> PlayMap(string hash)
+        public static async Task<bool> PlayMap(string hash, string difficulty, string characteristic, int timePlayed, int platform, string hostname)
         {
-            return await PerformWebRequest("POST", $"/playmap?mapHash={hash}") != null;
+            return await PerformWebRequest("POST", $"/playmap?hash={hash}&difficulty={difficulty}&characteristic={characteristic}&timePlayed={timePlayed}&platform={platform}&hostname={hostname}") != null;
+        }
+
+        public static async Task<bool> UseMaster(string hostname, int platform, string? userId = null, bool host = false)
+        {
+            if (userId != null)
+                return await PerformWebRequest("POST", $"/usemaster?hostname={hostname}&userId={userId}&platform={platform}&host={host}") != null;
+            return await PerformWebRequest("POST", $"/usemaster?hostname={hostname}&platform={platform}&host={host}") != null;
         }
     }
 }

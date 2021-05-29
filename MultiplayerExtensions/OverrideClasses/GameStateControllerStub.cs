@@ -2,6 +2,7 @@
 using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
 using MultiplayerExtensions.Utilities;
+using Polyglot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace MultiplayerExtensions.OverrideClasses
             _lobbyGameState.gameStateDidChangeEvent -= base.HandleGameStateDidChange;
             _lobbyGameState.gameStateDidChangeEvent += HandleGameStateDidChange;
             base.Activate();
+
+            (this as ILobbyGameStateController).levelFinishedEvent += handleLevelFinished;
         }
 
         public new void Deactivate()
@@ -37,6 +40,8 @@ namespace MultiplayerExtensions.OverrideClasses
             _lobbyGameState.gameStateDidChangeEvent -= HandleGameStateDidChange;
             _lobbyGameState.gameStateDidChangeEvent += base.HandleGameStateDidChange;
             base.Deactivate();
+
+            (this as ILobbyGameStateController).levelFinishedEvent -= handleLevelFinished;
         }
 
         public new void StartListeningToGameStart()
@@ -173,13 +178,14 @@ namespace MultiplayerExtensions.OverrideClasses
         private void StartLevel()
         {
             starting = false;
-            if (previewBeatmapLevel != null)
-            {
-                string? hash = Utilities.Utils.LevelIdToHash(previewBeatmapLevel.levelID);
-                if (hash != null)
-                    _ = Statistics.PlayMap(hash);
-            }
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
+        }
+
+        private void handleLevelFinished(MultiplayerLevelScenesTransitionSetupDataSO sceneSetupData, MultiplayerResultsData resultsData)
+        {
+            string? hash = Utilities.Utils.LevelIdToHash(sceneSetupData.previewBeatmapLevel.levelID);
+            if (hash != null)
+                _ = Statistics.PlayMap(hash, sceneSetupData.beatmapDifficulty.ToString(), sceneSetupData.beatmapCharacteristic.serializedName, (int)Math.Floor(resultsData.localPlayerResultData.levelCompletionResults.endSongTime), (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname);
         }
 
         private bool starting;

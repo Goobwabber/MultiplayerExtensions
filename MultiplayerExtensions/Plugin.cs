@@ -17,6 +17,7 @@ using Zenject;
 using MultiplayerExtensions.UI;
 using BeatSaberMarkupLanguage.Settings;
 using System.Net.Http;
+using MultiplayerExtensions.Sessions;
 
 namespace MultiplayerExtensions
 {
