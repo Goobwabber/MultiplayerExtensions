@@ -72,7 +72,7 @@ namespace MultiplayerExtensions.Beatmaps
             packet.beatsPerMinute = preview.beatsPerMinute;
             packet.songDuration = preview.songDuration;
 
-            packet.coverImage = await preview.GetRawCoverAsync(CancellationToken.None);
+            //packet.coverImage = await preview.GetRawCoverAsync(CancellationToken.None);
 
             packet.characteristic = characteristic;
             packet.difficulty = difficulty;

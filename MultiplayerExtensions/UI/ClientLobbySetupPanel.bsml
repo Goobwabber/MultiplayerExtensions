@@ -1,13 +1,15 @@
 <vertical>
-  <horizontal pad-top='10'>
+  <horizontal pad-top='12'>
     <vertical min-width='45' horizontal-fit='MinSize'>
       <toggle-setting id='CustomSongsToggle' value='CustomSongs' on-change='SetCustomSongs' text='Custom Songs' interactable='false' hover-hint='Whether the host has custom songs enabled'></toggle-setting>
-	  <toggle-setting id='FreeModToggle' value='FreeMod' on-change='SetFreeMod' text='Free Mod' interactable='false' hover-hint='Whether players can pick their own modifiers.'></toggle-setting>
+	    <toggle-setting id='FreeModToggle' value='FreeMod' on-change='SetFreeMod' text='Free Mod' interactable='false' hover-hint='Whether players can pick their own modifiers.'></toggle-setting>
+      <toggle-setting id='HostPickToggle' value='HostPick' on-change='SetHostPick' text='Host Picks' interactable='false' hover-hint='Host picks the song to be played.'></toggle-setting>
     </vertical>
     <vertical min-width='45' horizontal-fit='MinSize'>
       <toggle-setting id="DefaultHUDToggle" value='DefaultHUD' on-change='SetDefaultHUD' text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer'></toggle-setting>
       <toggle-setting id="VerticalHUDToggle" value='VerticalHUD' on-change='SetVerticalHUD' text='Vertical HUD' hover-hint='Moves the HUD so that it is vertical'></toggle-setting>
       <toggle-setting id="HologramToggle" value='Hologram' on-change='SetHologram' text='Hologram' hover-hint='Toggles the hologram showing the player in first place'></toggle-setting>
+      <toggle-setting id="LagReducerToggle" value='LagReducer' on-change='SetLagReducer' text='Lag Reducer' hover-hint='Makes multiplayer easier for computers to handle'></toggle-setting>
     </vertical>
   </horizontal>
   <text id='DownloadProgressText' value='DownloadProgress' text='' align='Center'></text>

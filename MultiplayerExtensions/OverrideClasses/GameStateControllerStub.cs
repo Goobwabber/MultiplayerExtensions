@@ -1,7 +1,10 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Packets;
 using MultiplayerExtensions.Sessions;
+using MultiplayerExtensions.Utilities;
+using Polyglot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MultiplayerExtensions.OverrideClasses
@@ -25,6 +28,8 @@ namespace MultiplayerExtensions.OverrideClasses
             _lobbyGameState.gameStateDidChangeEvent -= base.HandleGameStateDidChange;
             _lobbyGameState.gameStateDidChangeEvent += HandleGameStateDidChange;
             base.Activate();
+
+            (this as ILobbyGameStateController).levelFinishedEvent += handleLevelFinished;
         }
 
         public new void Deactivate()
@@ -35,6 +40,8 @@ namespace MultiplayerExtensions.OverrideClasses
             _lobbyGameState.gameStateDidChangeEvent -= HandleGameStateDidChange;
             _lobbyGameState.gameStateDidChangeEvent += base.HandleGameStateDidChange;
             base.Deactivate();
+
+            (this as ILobbyGameStateController).levelFinishedEvent -= handleLevelFinished;
         }
 
         public new void StartListeningToGameStart()
@@ -86,6 +93,18 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             _multiplayerSessionManager.SetLocalPlayerState("start_primed", false);
             starting = true;
+
+            if (!Plugin.Config.HostPick)
+            {
+                ILobbyPlayerDataModel localPlayerDataModel = _lobbyPlayersDataModel.GetLobbyPlayerDataModel(_lobbyPlayersDataModel.localUserId);
+                IEnumerable<ILobbyPlayerDataModel> validDataModels = _lobbyPlayersDataModel.playersData.Values.Where(data => data.beatmapLevel != null);
+                ILobbyPlayerDataModel chosenPlayerDataModel = validDataModels.ElementAt(new Random().Next(0, validDataModels.Count()));
+                localPlayerDataModel.beatmapLevel = chosenPlayerDataModel.beatmapLevel;
+                localPlayerDataModel.beatmapCharacteristic = chosenPlayerDataModel.beatmapCharacteristic;
+                localPlayerDataModel.beatmapDifficulty = chosenPlayerDataModel.beatmapDifficulty;
+                localPlayerDataModel.gameplayModifiers = chosenPlayerDataModel.gameplayModifiers;
+            }
+
             base.StartGame();
             _multiplayerLevelLoader.countdownFinishedEvent -= base.HandleMultiplayerLevelLoaderCountdownFinished;
             _multiplayerLevelLoader.countdownFinishedEvent += HandleCountdown;
@@ -160,6 +179,13 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             starting = false;
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
+        }
+
+        private void handleLevelFinished(MultiplayerLevelScenesTransitionSetupDataSO sceneSetupData, MultiplayerResultsData resultsData)
+        {
+            string? hash = Utilities.Utils.LevelIdToHash(sceneSetupData.previewBeatmapLevel.levelID);
+            if (hash != null)
+                _ = Statistics.PlayMap(hash, sceneSetupData.beatmapDifficulty.ToString(), sceneSetupData.beatmapCharacteristic.serializedName, (int)Math.Floor(resultsData.localPlayerResultData.levelCompletionResults.endSongTime), (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname);
         }
 
         private bool starting;

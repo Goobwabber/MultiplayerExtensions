@@ -108,18 +108,23 @@ namespace MultiplayerExtensions.HarmonyPatches
                 newModifiers = exPlayer.lastModifiers;
             else
                 newModifiers = hostPlayer?.lastModifiers;
-                
-            if (newModifiers != null)
-                ____sceneSetupData = new GameplayCoreSceneSetupData(
-                  ____sceneSetupData.difficultyBeatmap,
-                  ____sceneSetupData.previewBeatmapLevel,
-                  newModifiers,
-                  ____sceneSetupData.playerSpecificSettings,
-                  ____sceneSetupData.practiceSettings,
-                  ____sceneSetupData.useTestNoteCutSoundEffects,
-                  ____sceneSetupData.environmentInfo,
-                  ____sceneSetupData.colorScheme
-                );
+
+            if (Plugin.Config.LagReducer && newModifiers != null)
+                newModifiers = newModifiers.CopyWith(zenMode: true);
+
+            if (newModifiers == null)
+                newModifiers = ____sceneSetupData.gameplayModifiers;
+
+            ____sceneSetupData = new GameplayCoreSceneSetupData(
+                ____sceneSetupData.difficultyBeatmap,
+                ____sceneSetupData.previewBeatmapLevel,
+                newModifiers.CopyWith(zenMode: true),
+                ____sceneSetupData.playerSpecificSettings,
+                ____sceneSetupData.practiceSettings,
+                ____sceneSetupData.useTestNoteCutSoundEffects,
+                ____sceneSetupData.environmentInfo,
+                ____sceneSetupData.colorScheme
+            );
         }
     }
 }

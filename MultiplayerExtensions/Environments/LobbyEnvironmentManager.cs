@@ -62,7 +62,7 @@ namespace MultiplayerExtensions.Environments
 			_stageManager.transform.localScale = new Vector3(centerScreenScale, centerScreenScale, centerScreenScale);
 
 			SetAllPlayerPlaceColors(Color.black);
-			SetPlayerPlaceColor(_sessionManager.localPlayer, _playerManager.localColor);
+			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedPlayerManager.localColor);
 			foreach (ExtendedPlayer player in _playerManager.players.Values)
 				SetPlayerPlaceColor(player, player.playerColor);
 		}

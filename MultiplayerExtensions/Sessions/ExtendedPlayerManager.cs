@@ -14,9 +14,9 @@ namespace MultiplayerExtensions.Sessions
 		protected readonly IPlatformUserModel _platformUserModel;
 
 		private Dictionary<string, ExtendedPlayer> _players = new Dictionary<string, ExtendedPlayer>();
-		internal string? localPlatformID;
-		internal Platform localPlatform;
-		internal Color localColor;
+		internal static string? localPlatformID;
+		internal static Platform localPlatform;
+		internal static Color localColor;
 
 		public Dictionary<string, ExtendedPlayer> players { get => _players; }
 		public event Action<ExtendedPlayer>? extendedPlayerConnectedEvent;
@@ -44,6 +44,8 @@ namespace MultiplayerExtensions.Sessions
 			{
 				localPlatformID = r.Result.platformUserId;
 				localPlatform = r.Result.platform.ToPlatform();
+
+				_ = Statistics.AddUser(localPlatformID, (int)localPlatform);
 			});
 		}
 

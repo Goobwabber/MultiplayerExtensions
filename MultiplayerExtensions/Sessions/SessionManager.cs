@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MultiplayerExtensions.Utilities;
+using System;
 using Zenject;
 
 namespace MultiplayerExtensions.Sessions
@@ -18,6 +19,7 @@ namespace MultiplayerExtensions.Sessions
 
             MPState.CustomSongsEnabled = Plugin.Config.CustomSongs;
             MPState.FreeModEnabled = Plugin.Config.FreeMod;
+            MPState.HostPickEnabled = Plugin.Config.HostPick;
 
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
@@ -34,6 +36,7 @@ namespace MultiplayerExtensions.Sessions
         private void HandleConnected()
         {
             MPState.LocalPlayerIsHost = _sessionManager.localPlayer.isConnectionOwner;
+            _ = Statistics.UseMaster(MPState.CurrentMasterServer.hostname, (int)ExtendedPlayerManager.localPlatform, ExtendedPlayerManager.localPlatformID, MPState.LocalPlayerIsHost);
         }
 
         private void HandlePlayerStateChanged(IConnectedPlayer player)
