@@ -64,16 +64,18 @@ namespace MultiplayerExtensions.Utilities
             return await PerformWebRequest("POST", $"/adduser?userId={userId}&platform={platform}") != null;
         }
 
-        public static async Task<bool> PlayMap(string hash, string difficulty, string characteristic, int timePlayed, int platform, string hostname)
-        {
-            return await PerformWebRequest("POST", $"/playmap?hash={hash}&difficulty={difficulty}&characteristic={characteristic}&timePlayed={timePlayed}&platform={platform}&hostname={hostname}") != null;
-        }
-
-        public static async Task<bool> UseMaster(string hostname, int platform, string? userId = null, bool host = false)
+        public static async Task<bool> PlayMap(string? userId, int platform, string hostname, string hash, string difficulty, string characteristic, int timePlayed, bool pass, int cutNotes, int missedNotes, int score, double accuracy)
         {
             if (userId != null)
-                return await PerformWebRequest("POST", $"/usemaster?hostname={hostname}&userId={userId}&platform={platform}&host={host}") != null;
-            return await PerformWebRequest("POST", $"/usemaster?hostname={hostname}&platform={platform}&host={host}") != null;
+                return await PerformWebRequest("POST", $"/playmap?userId={userId}&platform={platform}&hostname={hostname}&hash={hash}&difficulty={difficulty}&characteristic={characteristic}&timePlayed={timePlayed}&pass={pass}&cutNotes={cutNotes}&missedNotes={missedNotes}&score={score}&accuracy={accuracy}") != null;
+            return true;
+        }
+
+        public static async Task<bool> UseMaster(string? userId, int platform, string hostname, bool host = false)
+        {
+            if (userId != null)
+                return await PerformWebRequest("POST", $"/usemaster?userId={userId}&hostname={hostname}&platform={platform}&host={host}&disableNewMaster={!Plugin.Config.ReportMasterServer}") != null;
+            return true;
         }
     }
 }
