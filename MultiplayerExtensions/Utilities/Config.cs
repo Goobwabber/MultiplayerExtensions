@@ -13,6 +13,7 @@ namespace MultiplayerExtensions
         public virtual bool HostPick { get; set; } = true;
         public virtual string Color { get; set; } = "#08C0FF";
         public virtual int MaxPlayers { get; set; } = 10;
+        public virtual bool ReportMasterServer { get; set; } = true;
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public virtual DebugConfig? DebugConfig { get; set; }

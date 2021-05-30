@@ -185,11 +185,19 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             if (resultsData.localPlayerResultData.levelCompletionResults == null)
                 return;
-            
-            string? hash = Utilities.Utils.LevelIdToHash(sceneSetupData.previewBeatmapLevel.levelID);
-            
+
+            string difficulty = sceneSetupData.beatmapDifficulty.ToString();
+            string characteristic = sceneSetupData.beatmapCharacteristic.serializedName;
+            int timePlayed = (int)Math.Floor(resultsData.localPlayerResultData.levelCompletionResults.endSongTime);
+            bool pass = resultsData.localPlayerResultData.levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared;
+            int cutNotes = resultsData.localPlayerResultData.levelCompletionResults.badCutsCount + resultsData.localPlayerResultData.levelCompletionResults.notGoodCount + resultsData.localPlayerResultData.levelCompletionResults.okCount + resultsData.localPlayerResultData.levelCompletionResults.goodCutsCount;
+            int missedNotes = resultsData.localPlayerResultData.levelCompletionResults.missedCount;
+            int score = resultsData.localPlayerResultData.levelCompletionResults.rawScore;
+            double accuracy = score != 0 ? Math.Floor(100 *((double)ScoreModel.MaxRawScoreForNumberOfNotes(sceneSetupData.difficultyBeatmap.beatmapData.cuttableNotesType) / score))/100 : 0;
+            string ? hash = Utilities.Utils.LevelIdToHash(sceneSetupData.previewBeatmapLevel.levelID);
             if (hash != null)
-                _ = Statistics.PlayMap(hash, sceneSetupData.beatmapDifficulty.ToString(), sceneSetupData.beatmapCharacteristic.serializedName, (int)Math.Floor(resultsData.localPlayerResultData.levelCompletionResults.endSongTime), (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname);
+                _ = Statistics.PlayMap(ExtendedPlayerManager.localPlatformID, (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname, hash, difficulty, characteristic, timePlayed, pass, cutNotes, missedNotes, score, accuracy);
+                //_ = Statistics.PlayMap(hash, sceneSetupData.beatmapDifficulty.ToString(), sceneSetupData.beatmapCharacteristic.serializedName, (int)Math.Floor(resultsData.localPlayerResultData.levelCompletionResults.endSongTime), (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname);
         }
 
         private bool starting;
