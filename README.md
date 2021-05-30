@@ -8,6 +8,7 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 * Adds HUD configuration options.
 * Kicks unmodded players when custom levels are enabled.
 * 10 player lobbies __(BeatTogether Exclusive feature)__
+* [Cool stats page](https://mpex.goobwabber.com)
 
 ## Installation
 1. Ensure you have the [required mods](https://github.com/Zingabopp/MultiplayerExtensions#requirements).
