@@ -184,7 +184,7 @@ namespace MultiplayerExtensions.OverrideClasses
         private void handleLevelFinished(MultiplayerLevelScenesTransitionSetupDataSO sceneSetupData, MultiplayerResultsData resultsData)
         {
             string? hash = Utilities.Utils.LevelIdToHash(sceneSetupData.previewBeatmapLevel.levelID);
-            if (hash != null)
+            if (hash != null && resultsData != null && resultsData.localPlayerResultData?.levelCompletionResults != null)
                 _ = Statistics.PlayMap(hash, sceneSetupData.beatmapDifficulty.ToString(), sceneSetupData.beatmapCharacteristic.serializedName, (int)Math.Floor(resultsData.localPlayerResultData.levelCompletionResults.endSongTime), (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname);
         }
 
