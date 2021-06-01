@@ -14,7 +14,7 @@ namespace MultiplayerExtensions.UI
             }
         }
 
-        [UIValue("Statistics")]
+        [UIValue("statistics")]
         public bool StatisticsEnabled
         {
             get => Plugin.Config.Statistics;
