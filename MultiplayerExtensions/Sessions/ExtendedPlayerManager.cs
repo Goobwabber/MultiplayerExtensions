@@ -45,7 +45,10 @@ namespace MultiplayerExtensions.Sessions
 				localPlatformID = r.Result.platformUserId;
 				localPlatform = r.Result.platform.ToPlatform();
 
-				_ = Statistics.AddUser(localPlatformID, (int)localPlatform);
+				if (Plugin.Config.Statistics)
+				{
+					_ = Statistics.AddUser(localPlatformID, (int)localPlatform);
+				}
 			});
 		}
 

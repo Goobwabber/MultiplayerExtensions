@@ -35,8 +35,11 @@ namespace MultiplayerExtensions.Sessions
 
         private void HandleConnected()
         {
-            MPState.LocalPlayerIsHost = _sessionManager.localPlayer.isConnectionOwner;
-            _ = Statistics.UseMaster(ExtendedPlayerManager.localPlatformID, (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname, MPState.LocalPlayerIsHost);
+            if (Plugin.Config.Statistics)
+            {
+                MPState.LocalPlayerIsHost = _sessionManager.localPlayer.isConnectionOwner;
+                _ = Statistics.UseMaster(ExtendedPlayerManager.localPlatformID, (int)ExtendedPlayerManager.localPlatform, MPState.CurrentMasterServer.hostname, MPState.LocalPlayerIsHost);
+            }
         }
 
         private void HandlePlayerStateChanged(IConnectedPlayer player)

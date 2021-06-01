@@ -14,6 +14,7 @@ namespace MultiplayerExtensions
         public virtual string Color { get; set; } = "#08C0FF";
         public virtual int MaxPlayers { get; set; } = 10;
         public virtual bool ReportMasterServer { get; set; } = true;
+        public virtual bool Statistics { get; set; } = true;
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public virtual DebugConfig? DebugConfig { get; set; }

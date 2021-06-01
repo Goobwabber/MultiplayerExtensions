@@ -183,7 +183,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
         private void handleLevelFinished(MultiplayerLevelScenesTransitionSetupDataSO sceneSetupData, MultiplayerResultsData resultsData)
         {
-            if (resultsData.localPlayerResultData.levelCompletionResults == null)
+            if (resultsData.localPlayerResultData.levelCompletionResults == null || !Plugin.Config.Statistics)
                 return;
 
             string difficulty = sceneSetupData.beatmapDifficulty.ToString();
