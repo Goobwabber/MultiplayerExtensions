@@ -46,6 +46,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<CenterStageGameDataPatch>();
             AddDefaultPatch<DisableSpeedModifiersPatch>();
             AddDefaultPatch<AprilFoolsPatch>();
+            AddDefaultPatch<ShortCircuitPlatformLightRegistry>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }
 

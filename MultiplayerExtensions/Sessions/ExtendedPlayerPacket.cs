@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Sessions
         {
             writer.Put(platformID);
             writer.Put(mpexVersion);
-            writer.Put(ColorUtility.ToHtmlStringRGB(playerColor));
+            writer.Put("#" + ColorUtility.ToHtmlStringRGB(playerColor));
             writer.Put((int)platform);
         }
 

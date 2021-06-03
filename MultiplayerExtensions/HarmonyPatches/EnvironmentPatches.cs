@@ -32,6 +32,15 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
+    [HarmonyPatch(typeof(TubeBloomPrePassLightWithId), "RegisterLight", MethodType.Normal)]
+    internal class ShortCircuitPlatformLightRegistry
+    {
+        static bool Prefix(TubeBloomPrePassLightWithId __instance)
+        {
+            return __instance.transform.name != "Laser";
+        }
+    }
+
     [HarmonyPatch(typeof(CoreGameHUDController), nameof(CoreGameHUDController.Start), MethodType.Normal)]
     internal class CoreGameHUDController_Start
     {

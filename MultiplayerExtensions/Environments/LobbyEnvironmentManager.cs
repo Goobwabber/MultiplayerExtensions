@@ -16,7 +16,7 @@ namespace MultiplayerExtensions.Environments
 		protected readonly MultiplayerLobbyCenterStageManager _stageManager;
 		protected readonly ExtendedPlayerManager _playerManager;
 
-		private MultiplayerLobbyAvatarPlace[] avatarPlaces = Array.Empty<MultiplayerLobbyAvatarPlace>();
+		private LobbyAvatarPlaceLighting[] avatarPlaces = Array.Empty<LobbyAvatarPlaceLighting>();
 		private float innerCircleRadius;
 		private float minOuterCircleRadius;
 		private float angleBetweenPlayersWithEvenAdjustment;
@@ -47,8 +47,8 @@ namespace MultiplayerExtensions.Environments
 		}
 
 		private void HandleLobbyEnvironmentLoaded(object sender, System.EventArgs e)
-		{ 
-			avatarPlaces = Resources.FindObjectsOfTypeAll<MultiplayerLobbyAvatarPlace>();
+		{
+			avatarPlaces = (from place in Resources.FindObjectsOfTypeAll<MultiplayerLobbyAvatarPlace>() select place.gameObject.AddComponent<LobbyAvatarPlaceLighting>()).ToArray();
 			innerCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_innerCircleRadius");
 			minOuterCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_minOuterCircleRadius");
 			angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(_lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
@@ -75,30 +75,22 @@ namespace MultiplayerExtensions.Environments
 
 		public void SetAllPlayerPlaceColors(Color color)
         {
-			foreach (MultiplayerLobbyAvatarPlace place in avatarPlaces)
+			foreach (LobbyAvatarPlaceLighting place in avatarPlaces)
             {
-				foreach (TubeBloomPrePassLight light in place.GetComponentsInChildren<TubeBloomPrePassLight>())
-                {
-					light.color = color;
-					light.Refresh();
-                }
+				place.SetColor(color, false);
             }
 		}
 
 		public void SetPlayerPlaceColor(IConnectedPlayer player, Color color)
 		{
-			MultiplayerLobbyAvatarPlace place = GetConnectedPlayerPlace(player);
+			LobbyAvatarPlaceLighting place = GetConnectedPlayerPlace(player);
 			if (place != null)
 			{
-				foreach (TubeBloomPrePassLight light in place.GetComponentsInChildren<TubeBloomPrePassLight>())
-				{
-					light.color = color;
-					light.Refresh();
-				}
+				place.SetColor(color, false);
 			}
 		}
 
-		public MultiplayerLobbyAvatarPlace GetConnectedPlayerPlace(IConnectedPlayer player)
+		public LobbyAvatarPlaceLighting GetConnectedPlayerPlace(IConnectedPlayer player)
 		{
 			int sortIndex = _lobbyStateDataModel.localPlayer.sortIndex;
 			float outerCirclePositionAngleForPlayer = MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer(player.sortIndex, sortIndex, angleBetweenPlayersWithEvenAdjustment);
