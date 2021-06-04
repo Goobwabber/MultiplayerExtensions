@@ -1,18 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using IPA.Utilities;
+using MultiplayerExtensions.Environments;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
 {
     class MPGameInstaller : MonoInstaller
     {
-        public override void InstallBindings() { }
-
-        public override void Start()
+        public override void InstallBindings()
         {
-            //List<SimpleColorSO> colors = Resources.FindObjectsOfTypeAll<SimpleColorSO>().ToList();
-            //colors.Find(color => color.name == "MultiplayerFailedPlayerColor").SetColor(new Color(1f, 0f, 0f, 0.5f));
+            MultiplayerPlayersManager playersManager = Container.Resolve<MultiplayerPlayersManager>();
+            playersManager.GetField<MultiplayerLocalActivePlayerFacade, MultiplayerPlayersManager>("_activeLocalPlayerControllerPrefab").gameObject.AddComponent<MultiplayerActivePlayer>();
+            playersManager.GetField<MultiplayerLocalActivePlayerFacade, MultiplayerPlayersManager>("_activeLocalPlayerDuelControllerPrefab").gameObject.AddComponent<MultiplayerActivePlayer>();
+            playersManager.GetField<MultiplayerConnectedPlayerFacade, MultiplayerPlayersManager>("_connectedPlayerControllerPrefab").gameObject.AddComponent<MultiplayerActivePlayer>();
+            playersManager.GetField<MultiplayerConnectedPlayerFacade, MultiplayerPlayersManager>("_connectedPlayerDuelControllerPrefab").gameObject.AddComponent<MultiplayerActivePlayer>();
         }
     }
 }

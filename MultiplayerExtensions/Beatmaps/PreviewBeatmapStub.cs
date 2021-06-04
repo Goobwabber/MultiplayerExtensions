@@ -154,7 +154,7 @@ namespace MultiplayerExtensions.Beatmaps
             if (_coverTask != null)
                 cover = await _coverTask;
             else
-                Utilities.Sprites.GetSprite(await _rawCoverTask);
+                cover = Utilities.Sprites.GetSprite(await _rawCoverTask);
 
             if (cover == null)
                 cover = Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);

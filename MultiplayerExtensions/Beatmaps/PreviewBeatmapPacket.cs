@@ -56,8 +56,8 @@ namespace MultiplayerExtensions.Beatmaps
             this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
 
             this.coverImage = reader.GetBytesWithLength();
-            if (this.coverImage == null || this.coverImage.Length == 0)
-                Plugin.Log?.Debug($"Received a PreviewBeatmapPacket with an empty coverImage.");
+            //if (this.coverImage == null || this.coverImage.Length == 0)
+                //Plugin.Log?.Debug($"Received a PreviewBeatmapPacket with an empty coverImage.");
         }
 
         static async public Task<PreviewBeatmapPacket> FromPreview(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)

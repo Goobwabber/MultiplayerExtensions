@@ -32,12 +32,21 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(TubeBloomPrePassLightWithId), "RegisterLight", MethodType.Normal)]
+    [HarmonyPatch(typeof(LightWithIdMonoBehaviour), "RegisterLight", MethodType.Normal)]
     internal class ShortCircuitPlatformLightRegistry
     {
         static bool Prefix(TubeBloomPrePassLightWithId __instance)
         {
-            return __instance.transform.name != "Laser";
+            return !(__instance.transform.parent != null && __instance.transform.parent.name.Contains("LobbyAvatarPlace"));
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerResultsPyramidView), nameof(MultiplayerResultsPyramidView.SetupResults), MethodType.Normal)]
+    internal class MultiplayerResultsPyramidPatch
+    {
+        static void Prefix(ref IReadOnlyList<MultiplayerPlayerResultsData> resultsData)
+        {
+            resultsData = resultsData.Take(5).ToList();
         }
     }
 

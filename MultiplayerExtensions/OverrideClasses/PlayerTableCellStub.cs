@@ -102,6 +102,7 @@ namespace MultiplayerExtensions.OverrideClasses
 
         private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)
         {
+            Plugin.Log?.Debug($"{player.userId} has entitlement {status.ToString()}");
             Color backgroundColor = status switch
             {
                 EntitlementsStatus.Ok => green,
@@ -109,7 +110,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 _ => normal,
             };
 
-            backgroundColor.a = player.isMe ? 0.4f : 0.1f;
+            backgroundColor.a = player.isMe ? 0.4f : 0.2f;
             _localPlayerBackgroundImage.color = backgroundColor;
         }
 

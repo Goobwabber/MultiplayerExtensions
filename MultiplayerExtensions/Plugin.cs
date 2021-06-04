@@ -65,7 +65,7 @@ namespace MultiplayerExtensions
 
             zenjector.OnApp<MPCoreInstaller>();
             zenjector.OnMenu<MPMenuInstaller>();
-            zenjector.OnGame<MPGameInstaller>();
+            zenjector.OnGame<MPGameInstaller>().OnlyForMultiplayer();
 
             HttpOptions options = new HttpOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
             BeatSaver = new BeatSaver(options);
