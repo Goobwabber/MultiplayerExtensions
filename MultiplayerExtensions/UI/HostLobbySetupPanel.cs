@@ -50,6 +50,9 @@ namespace MultiplayerExtensions.UI
         [UIComponent("LagReducerToggle")]
         public ToggleSetting lagReducerToggle = null!;
 
+        [UIComponent("MissLightingToggle")]
+        public ToggleSetting missLightingToggle = null!;
+
         [UIComponent("DownloadProgressText")]
         public FormattableText downloadProgressText = null!;
         #endregion
@@ -126,6 +129,13 @@ namespace MultiplayerExtensions.UI
             set { Plugin.Config.LagReducer = value; }
         }
 
+        [UIValue("MissLighting")]
+        public bool MissLighting
+        {
+            get => Plugin.Config.MissLighting;
+            set { Plugin.Config.MissLighting = value; }
+        }
+
         [UIValue("DownloadProgress")]
         public string DownloadProgress
         {
@@ -195,6 +205,13 @@ namespace MultiplayerExtensions.UI
         {
             LagReducer = value;
             lagReducerToggle.Value = value;
+        }
+
+        [UIAction("SetMissLighting")]
+        public void SetMissLighting(bool value)
+        {
+            MissLighting = value;
+            missLightingToggle.Value = value;
         }
         #endregion
 

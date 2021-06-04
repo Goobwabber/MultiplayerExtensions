@@ -10,6 +10,7 @@
       <toggle-setting id="VerticalHUDToggle" value='VerticalHUD' on-change='SetVerticalHUD' text='Vertical HUD' hover-hint='Moves the HUD so that it is vertical.'></toggle-setting>
       <toggle-setting id="HologramToggle" value='Hologram' on-change='SetHologram' text='Hologram' hover-hint='Toggles the hologram showing the player in first place.'></toggle-setting>
       <toggle-setting id="LagReducerToggle" value='LagReducer' on-change='SetLagReducer' text='Lag Reducer' hover-hint='Makes multiplayer easier for computers to handle.'></toggle-setting>
+      <toggle-setting id="MissLightingToggle" value='MissLighting' on-change='SetMissLighting' text='Miss Lighting' hover-hint='Enables special lighting when someone misses a note.'></toggle-setting>
     </vertical>
   </horizontal>
   <text id='DownloadProgressText' value='DownloadProgress' text='' align='Center'></text>
