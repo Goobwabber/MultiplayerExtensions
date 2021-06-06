@@ -1,11 +1,11 @@
 using HarmonyLib;
 using HMUI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Timeline;
 using UnityEngine.Playables;
 
 namespace MultiplayerExtensions.HarmonyPatches
@@ -56,21 +56,31 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(MultiplayerIntroAnimationController), nameof(MultiplayerIntroAnimationController.PlayIntroAnimation), MethodType.Normal)]
     internal class IntroAnimationPatch
     {
-        private static PlayableDirector lastDirector;
+        private static PlayableDirector lastDirector = null!;
         internal static int targetIterations = 0;
 
-        static void Prefix(ref PlayableDirector ____introPlayableDirector, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
+        static void Prefix(MultiplayerIntroAnimationController __instance, ref bool ____bindingFinished, ref PlayableDirector ____introPlayableDirector, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
         {
             lastDirector = ____introPlayableDirector;
+
             if (targetIterations == 0)
             {
-                targetIterations = (int)Math.Floor(____multiplayerPlayersManager.allActiveAtGameStartPlayers.Count / 4f) + 1;
+                targetIterations = (int)Math.Floor((____multiplayerPlayersManager.allActiveAtGameStartPlayers.Count - 1) / 4f) + 1;
             }
-            else
+            if (targetIterations != 1)
             {
-                ____introPlayableDirector = new PlayableDirector();
+                GameObject newPlayableGameObject = new GameObject();
+                ____introPlayableDirector = newPlayableGameObject.AddComponent<PlayableDirector>();
                 ____introPlayableDirector.playableAsset = lastDirector.playableAsset;
             }
+
+            TimelineAsset mutedTimeline = (TimelineAsset)____introPlayableDirector.playableAsset;
+            foreach (TrackAsset track in mutedTimeline.GetOutputTracks())
+            {
+                track.muted = track is AudioTrack && targetIterations != 1;
+            }
+
+            ____bindingFinished = false;
         }
 
         static void Postfix(MultiplayerIntroAnimationController __instance, float maxDesiredIntroAnimationDuration, Action onCompleted, ref PlayableDirector ____introPlayableDirector)
@@ -91,7 +101,18 @@ namespace MultiplayerExtensions.HarmonyPatches
             string methodName = stackTrace.GetFrame(2).GetMethod().Name;
             if (methodName == "BindTimeline")
             {
-                __result = __result.Skip((IntroAnimationPatch.targetIterations - 1) * 4).Take(4).ToList();
+                if (__result.Any(player => player.isMe))
+                {
+                    List<IConnectedPlayer> nonLocalPlayers = __result.Where(player => !player.isMe).ToList();
+                    IConnectedPlayer localPlayer = __result.First(player => player.isMe);
+                    __result = nonLocalPlayers.Skip((IntroAnimationPatch.targetIterations - 1) * 4).Take(4).ToList();
+                    if (IntroAnimationPatch.targetIterations == 1)
+                        __result = __result.AddItem(localPlayer).ToList();
+                }
+                else
+                {
+                    __result = __result.Skip((IntroAnimationPatch.targetIterations - 1) * 4).Take(4).ToList();
+                }
             } 
             else if (methodName == "BindOutroTimeline")
             {

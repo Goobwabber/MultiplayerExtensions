@@ -44,7 +44,9 @@ namespace MultiplayerExtensions.Environments
 
         public virtual Color GetColor()
         {
-            return lights[0].color;
+            if (lights.Count > 0)
+                return lights[0].color;
+            return Color.black;
         }
 
         public virtual bool IsColorVeryCloseToColor(Color color0, Color color1)

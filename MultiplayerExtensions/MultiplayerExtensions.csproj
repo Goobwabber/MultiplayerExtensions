@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>MultiplayerExtensions</AssemblyName>
-    <AssemblyVersion>0.5.3</AssemblyVersion>
+    <AssemblyVersion>0.5.4</AssemblyVersion>
     <TargetFramework>net472</TargetFramework>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -114,6 +114,10 @@
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Timeline">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.Timeline.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
