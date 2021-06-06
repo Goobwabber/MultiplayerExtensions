@@ -15,6 +15,7 @@
 """dll?alias=Beat Saber_Data\Managed\UnityEngine.dll
 """AudioModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.AudioModule.dll
 """CoreModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.CoreModule.dll
+"""CoreModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.DirectorModule.dll
 """ImageConversionModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll
 """UI.dll?alias=Beat Saber_Data\Managed\UnityEngine.UI.dll
 """UIElementsModule.dll?alias=Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll

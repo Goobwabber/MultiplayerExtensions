@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{1F1D8B7D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectDependencies", "BS-Plugin-BuildTools\CollectDependencies\CollectDependencies.csproj", "{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiplayerExtensionsTests", "MultiplayerExtensionsTests\MultiplayerExtensionsTests.csproj", "{3FC8386F-B51C-4202-8B50-B1B8B2C6A76C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiplayerExtensionsTests", "MultiplayerExtensionsTests\MultiplayerExtensionsTests.csproj", "{3FC8386F-B51C-4202-8B50-B1B8B2C6A76C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +26,7 @@ Global
 		{4641BE95-C3F7-4636-BA24-67188A38D94C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F33B310-DC8D-4C0D-877E-BAC3908DE10F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3FC8386F-B51C-4202-8B50-B1B8B2C6A76C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3FC8386F-B51C-4202-8B50-B1B8B2C6A76C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FC8386F-B51C-4202-8B50-B1B8B2C6A76C}.Release|Any CPU.ActiveCfg = Release|Any CPU
