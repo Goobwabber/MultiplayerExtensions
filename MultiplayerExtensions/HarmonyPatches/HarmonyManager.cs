@@ -47,6 +47,9 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<DisableSpeedModifiersPatch>();
             AddDefaultPatch<ShortCircuitPlatformLightRegistry>();
             AddDefaultPatch<MultiplayerResultsPyramidPatch>();
+            AddDefaultPatch<AnimationPlayerCountPatch>();
+            AddDefaultPatch<AnimationRingCountPatch>();
+            AddDefaultPatch<IntroAnimationPatch>();
             AddDefaultPatch<AprilFoolsPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }

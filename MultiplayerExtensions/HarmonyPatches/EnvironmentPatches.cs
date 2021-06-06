@@ -1,9 +1,12 @@
 using HarmonyLib;
 using HMUI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
@@ -47,6 +50,62 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Prefix(ref IReadOnlyList<MultiplayerPlayerResultsData> resultsData)
         {
             resultsData = resultsData.Take(5).ToList();
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerIntroAnimationController), nameof(MultiplayerIntroAnimationController.PlayIntroAnimation), MethodType.Normal)]
+    internal class IntroAnimationPatch
+    {
+        private static PlayableDirector lastDirector;
+        internal static int targetIterations = 0;
+
+        static void Prefix(ref PlayableDirector ____introPlayableDirector, ref MultiplayerPlayersManager ____multiplayerPlayersManager)
+        {
+            lastDirector = ____introPlayableDirector;
+            if (targetIterations == 0)
+            {
+                targetIterations = (int)Math.Floor(____multiplayerPlayersManager.allActiveAtGameStartPlayers.Count / 4f) + 1;
+            }
+            else
+            {
+                ____introPlayableDirector = new PlayableDirector();
+                ____introPlayableDirector.playableAsset = lastDirector.playableAsset;
+            }
+        }
+
+        static void Postfix(MultiplayerIntroAnimationController __instance, float maxDesiredIntroAnimationDuration, Action onCompleted, ref PlayableDirector ____introPlayableDirector)
+        {
+            ____introPlayableDirector = lastDirector;
+            targetIterations--;
+            if (targetIterations != 0)
+                __instance.PlayIntroAnimation(maxDesiredIntroAnimationDuration, onCompleted);
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerPlayersManager), nameof(MultiplayerPlayersManager.allActiveAtGameStartPlayers), MethodType.Getter)]
+    internal class AnimationPlayerCountPatch
+    {
+        static void Postfix(ref IReadOnlyList<IConnectedPlayer> __result)
+        {
+            StackTrace stackTrace = new StackTrace();
+            string methodName = stackTrace.GetFrame(2).GetMethod().Name;
+            if (methodName == "BindTimeline")
+            {
+                __result = __result.Skip((IntroAnimationPatch.targetIterations - 1) * 4).Take(4).ToList();
+            } 
+            else if (methodName == "BindOutroTimeline")
+            {
+                __result = __result.Take(4).ToList();
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiplayerOutroAnimationController), nameof(MultiplayerOutroAnimationController.BindRingsAndAudio), MethodType.Normal)]
+    internal class AnimationRingCountPatch
+    {
+        static void Prefix(ref GameObject[] rings)
+        {
+            rings = rings.Take(5).ToArray();
         }
     }
 
