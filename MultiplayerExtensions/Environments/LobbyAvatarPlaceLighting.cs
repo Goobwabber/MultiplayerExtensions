@@ -27,10 +27,14 @@ namespace MultiplayerExtensions.Environments
         protected virtual void Update()
         {
             Color current = GetColor();
-            if (!IsColorVeryCloseToColor(current, targetColor))
-            {
+
+            if (current == targetColor)
+                return;
+            
+            if (IsColorVeryCloseToColor(current, targetColor))
+                SetColor(targetColor);
+            else
                 SetColor(Color.Lerp(current, targetColor, Time.deltaTime * smoothTime));
-            }
         }
 
         public virtual void SetColor(Color color, bool immediate)
