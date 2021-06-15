@@ -48,7 +48,19 @@ namespace MultiplayerExtensions.Environments
 
 		private void HandleLobbyEnvironmentLoaded(object sender, System.EventArgs e)
 		{
-			avatarPlaces = (from place in Resources.FindObjectsOfTypeAll<MultiplayerLobbyAvatarPlace>() select place.gameObject.AddComponent<LobbyAvatarPlaceLighting>()).ToArray();
+			var nativeAvatarPlaces = Resources.FindObjectsOfTypeAll<MultiplayerLobbyAvatarPlace>();
+			avatarPlaces = new LobbyAvatarPlaceLighting[nativeAvatarPlaces.Length];
+			for (var i = 0; i < nativeAvatarPlaces.Length; i++)
+			{
+				var nativeAvatarPlace = nativeAvatarPlaces[i];
+				
+				var avatarPlace = nativeAvatarPlace.GetComponent<LobbyAvatarPlaceLighting>();
+				if (avatarPlace == null)
+					avatarPlace = nativeAvatarPlace.gameObject.AddComponent<LobbyAvatarPlaceLighting>();
+				
+				avatarPlaces[i] = avatarPlace;
+			}
+			
 			innerCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_innerCircleRadius");
 			minOuterCircleRadius = _placeManager.GetField<float, MultiplayerLobbyAvatarPlaceManager>("_minOuterCircleRadius");
 			angleBetweenPlayersWithEvenAdjustment = MultiplayerPlayerPlacement.GetAngleBetweenPlayersWithEvenAdjustment(_lobbyStateDataModel.maxPartySize, MultiplayerPlayerLayout.Circle);
@@ -61,7 +73,7 @@ namespace MultiplayerExtensions.Environments
 			float centerScreenScale = outerCircleRadius / minOuterCircleRadius;
 			_stageManager.transform.localScale = new Vector3(centerScreenScale, centerScreenScale, centerScreenScale);
 
-			SetAllPlayerPlaceColors(Color.black);
+			SetAllPlayerPlaceColors(Color.black, true);
 			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedPlayerManager.localColor);
 			foreach (ExtendedPlayer player in _playerManager.players.Values)
 				SetPlayerPlaceColor(player, player.playerColor);
@@ -73,11 +85,11 @@ namespace MultiplayerExtensions.Environments
 		private void HandlePlayerDisconnected(IConnectedPlayer player)
 			=> SetPlayerPlaceColor(player, Color.black);
 
-		public void SetAllPlayerPlaceColors(Color color)
+		public void SetAllPlayerPlaceColors(Color color, bool immediate = false)
         {
 			foreach (LobbyAvatarPlaceLighting place in avatarPlaces)
             {
-				place.SetColor(color, false);
+				place.SetColor(color, immediate);
             }
 		}
 
