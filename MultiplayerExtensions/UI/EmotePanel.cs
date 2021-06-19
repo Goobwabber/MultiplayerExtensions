@@ -5,7 +5,7 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
-using MultiplayerExtensions.Types;
+using MultiplayerExtensions.Emotes;
 using System;
 using System.Collections.Generic;
 using System.IO;

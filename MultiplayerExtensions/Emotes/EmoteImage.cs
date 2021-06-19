@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace MultiplayerExtensions.Types
+namespace MultiplayerExtensions.Emotes
 {
     public class EmoteImage
     {
