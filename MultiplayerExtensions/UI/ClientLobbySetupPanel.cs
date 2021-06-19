@@ -14,7 +14,7 @@ namespace MultiplayerExtensions.UI
     class ClientLobbySetupPanel : BSMLResourceViewController
     {
 
-        public override string ResourceName => "MultiplayerExtensions.UI.HostLobbySetupPanel.bsml";
+        public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
 
         CurvedTextMeshPro? modifierText;
