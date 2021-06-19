@@ -5,17 +5,19 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using MultiplayerExtensions.OverrideClasses;
 using Polyglot;
+using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    class ClientLobbySetupPanel : BSMLResourceViewController
+    class ClientLobbySetupPanel : BSMLResourceViewController, IInitializable, IDisposable
     {
 
         public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
+        private ClientLobbySetupViewController clientViewController;
         private EmotePanel emotePanel;
 
         CurvedTextMeshPro? modifierText;
@@ -24,10 +26,19 @@ namespace MultiplayerExtensions.UI
         internal void Inject(IMultiplayerSessionManager sessionManager, ClientLobbySetupViewController clientViewController, MultiplayerLevelLoader levelLoader, EmotePanel emotePanel)
         {
             this.sessionManager = sessionManager;
+            this.clientViewController = clientViewController;
             this.emotePanel = emotePanel;
             base.DidActivate(true, false, true);
+        }
 
+        public void Initialize()
+        {
             clientViewController.didActivateEvent += OnActivate;
+        }
+
+        public void Dispose()
+        {
+            clientViewController.didActivateEvent -= OnActivate;
         }
 
         #region UIComponents
@@ -228,6 +239,11 @@ namespace MultiplayerExtensions.UI
 
             if (sessionManager.connectionOwner != null)
                 OnPlayerStateChanged(sessionManager.connectionOwner);
+        }
+
+        public void OnDisable()
+        {
+            emotePanel.CloseScreen();
         }
 
         private void OnPlayerStateChanged(IConnectedPlayer player)

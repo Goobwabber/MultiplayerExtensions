@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using MultiplayerExtensions.OverrideClasses;
 using Polyglot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,10 +13,11 @@ using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    class HostLobbySetupPanel : BSMLResourceViewController
+    class HostLobbySetupPanel : BSMLResourceViewController, IInitializable, IDisposable
     {
         public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
+        private HostLobbySetupViewController hostViewController;
         private EmotePanel emotePanel;
 
         CurvedTextMeshPro? modifierText;
@@ -24,10 +26,19 @@ namespace MultiplayerExtensions.UI
         internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader, EmotePanel emotePanel)
         {
             this.sessionManager = sessionManager;
+            this.hostViewController = hostViewController;
             this.emotePanel = emotePanel;
             base.DidActivate(true, false, true);
+        }
 
+        public void Initialize()
+        {
             hostViewController.didActivateEvent += OnActivate;
+        }
+
+        public void Dispose()
+        {
+            hostViewController.didActivateEvent -= OnActivate;
         }
 
         #region UIComponents
@@ -230,6 +241,11 @@ namespace MultiplayerExtensions.UI
                 Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
                 spectatorText.position = new Vector3(spectatorText.position.x, 0.25f, spectatorText.position.z);
             }
+        }
+
+        public void OnDisable()
+        {
+            emotePanel.CloseScreen();
         }
 
         private void UpdateStates()

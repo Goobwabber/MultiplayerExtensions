@@ -124,6 +124,6 @@ namespace MultiplayerExtensions.UI
         }
 
         [UIAction("close-screen")]
-        private void CloseScreen() => floatingScreen.gameObject.SetActive(false);
+        internal void CloseScreen() => floatingScreen.gameObject.SetActive(false);
     }
 }
