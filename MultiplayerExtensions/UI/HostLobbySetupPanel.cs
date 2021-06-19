@@ -16,13 +16,15 @@ namespace MultiplayerExtensions.UI
     {
         public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
+        private EmotePanel emotePanel;
 
         CurvedTextMeshPro? modifierText;
 
         [Inject]
-        internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader)
+        internal void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader, EmotePanel emotePanel)
         {
             this.sessionManager = sessionManager;
+            this.emotePanel = emotePanel;
             base.DidActivate(true, false, true);
 
             hostViewController.didActivateEvent += OnActivate;
@@ -212,6 +214,12 @@ namespace MultiplayerExtensions.UI
         {
             MissLighting = value;
             missLightingToggle.Value = value;
+        }
+
+        [UIAction("spawn-emote-panel")]
+        private void SpawnEmotePanel()
+        {
+            emotePanel.ToggleActive();
         }
         #endregion
 

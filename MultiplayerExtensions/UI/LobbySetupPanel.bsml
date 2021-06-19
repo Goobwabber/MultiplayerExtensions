@@ -4,6 +4,7 @@
 		<toggle-setting id='CustomSongsToggle' value='CustomSongs' on-change='SetCustomSongs' text='Custom Songs' hover-hint='Whether the host has custom songs enabled'></toggle-setting>
 	    <toggle-setting id='FreeModToggle' value='FreeMod' on-change='SetFreeMod' text='Free Mod' hover-hint='Whether players can pick their own modifiers.'></toggle-setting>
 		<toggle-setting id='HostPickToggle' value='HostPick' on-change='SetHostPick' text='Host Picks' hover-hint='Host picks the song to be played.'></toggle-setting>
+		<button text='🙂' hover-hint='Emotes' on-click='spawn-emote-panel' />
     </vertical>
     <vertical min-width='45' horizontal-fit='MinSize'>
       <toggle-setting id="DefaultHUDToggle" value='DefaultHUD' on-change='SetDefaultHUD' text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer'></toggle-setting>

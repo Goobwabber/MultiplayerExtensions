@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="UI\CenterScreenLoading.bsml" />
+    <None Remove="UI\EmotePanel.bsml" />
     <None Remove="UI\LobbySetupPanel.bsml" />
     <None Remove="UI\settings.bsml" />
   </ItemGroup>
@@ -199,6 +200,7 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\CenterScreenLoading.bsml" />
+    <EmbeddedResource Include="UI\EmotePanel.bsml" />
     <EmbeddedResource Include="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
