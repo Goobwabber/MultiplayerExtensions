@@ -1,17 +1,17 @@
 <vertical>
-  <horizontal pad-top='12'>
-    <vertical min-width='45' horizontal-fit='MinSize'>
-		<toggle-setting id='custom-songs-toggle' on-change='set-custom-songs' text='Custom Songs' hover-hint='Whether the host has custom songs enabled'></toggle-setting>
-	    <toggle-setting id='freemod-toggle' on-change='set-freemod' text='Free Mod' hover-hint='Whether players can pick their own modifiers.'></toggle-setting>
-		<toggle-setting id='host-pick-toggle' on-change='set-host-pick' text='Host Picks' hover-hint='Host picks the song to be played.'></toggle-setting>
+	<horizontal pad-top='12'>
+		<vertical min-width='45' horizontal-fit='MinSize'>
+			<toggle-setting id='custom-songs-toggle' on-change='set-custom-songs' text='Custom Songs' hover-hint='Whether the host has custom songs enabled'></toggle-setting>
+			<toggle-setting id='freemod-toggle' on-change='set-freemod' text='Free Mod' hover-hint='Whether players can pick their own modifiers.'></toggle-setting>
+			<toggle-setting id='host-pick-toggle' on-change='set-host-pick' text='Host Picks' hover-hint='Host picks the song to be played.'></toggle-setting>
 		<button text='🙂' hover-hint='Emotes' on-click='spawn-emote-panel' />
-    </vertical>
-    <vertical min-width='45' horizontal-fit='MinSize'>
-      <toggle-setting id="default-hud-toggle" on-change='set-default-hud' text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer'></toggle-setting>
-      <toggle-setting id="fertical-hud-toggle" on-change='set-vertical-hud' text='Vertical HUD' hover-hint='Moves the HUD so that it is vertical'></toggle-setting>
-      <toggle-setting id="hologram-toggle" on-change='set-hologram' text='Hologram' hover-hint='Toggles the hologram showing the player in first place'></toggle-setting>
-      <toggle-setting id="lag-reducer-toggle" on-change='set-lag-reducer' text='Lag Reducer' hover-hint='Makes multiplayer easier for computers to handle'></toggle-setting>
-      <toggle-setting id="miss-lighting-toggle" on-change='set-miss-lighting' text='Miss Lighting' hover-hint='Enables special lighting when someone misses a note.'></toggle-setting>
-    </vertical>
-  </horizontal>
+		</vertical>
+		<vertical min-width='45' horizontal-fit='MinSize'>
+			<toggle-setting id="default-hud-toggle" on-change='set-default-hud' text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer'></toggle-setting>
+			<toggle-setting id="fertical-hud-toggle" on-change='set-vertical-hud' text='Vertical HUD' hover-hint='Moves the HUD so that it is vertical'></toggle-setting>
+			<toggle-setting id="hologram-toggle" on-change='set-hologram' text='Hologram' hover-hint='Toggles the hologram showing the player in first place'></toggle-setting>
+			<toggle-setting id="lag-reducer-toggle" on-change='set-lag-reducer' text='Lag Reducer' hover-hint='Makes multiplayer easier for computers to handle'></toggle-setting>
+			<toggle-setting id="miss-lighting-toggle" on-change='set-miss-lighting' text='Miss Lighting' hover-hint='Enables special lighting when someone misses a note.'></toggle-setting>
+		</vertical>
+	</horizontal>
 </vertical>

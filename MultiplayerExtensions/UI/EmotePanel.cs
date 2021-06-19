@@ -19,17 +19,17 @@ namespace MultiplayerExtensions.UI
 {
     public class EmotePanel : IInitializable
     {
-        private FloatingScreen floatingScreen;
+        private FloatingScreen floatingScreen = null!;
         private Vector3 screenPosition;
         private Vector3 screenAngles;
 
         private readonly string IMAGES_PATH = Path.Combine(UnityGame.UserDataPath, nameof(MultiplayerExtensions), "Emotes");
         private bool parsed;
-        private Dictionary<string, EmoteImage> emoteImages;
+        private Dictionary<string, EmoteImage> emoteImages = null!;
 
 
         [UIComponent("emote-list")]
-        public CustomListTableData customListTableData;
+        public CustomListTableData customListTableData = null!;
 
         public void Initialize()
         {
