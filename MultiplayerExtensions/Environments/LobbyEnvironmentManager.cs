@@ -104,10 +104,22 @@ namespace MultiplayerExtensions.Environments
 
 		public LobbyAvatarPlaceLighting GetConnectedPlayerPlace(IConnectedPlayer player)
 		{
+			Vector3 playerWorldPosition = GetPositionOfPlayer(player);
+			return Array.Find(avatarPlaces, place => place.transform.position == playerWorldPosition && place.isActiveAndEnabled);
+		}
+
+		public Vector3 GetPositionOfPlayer(IConnectedPlayer player)
+        {
 			int sortIndex = _lobbyStateDataModel.localPlayer.sortIndex;
 			float outerCirclePositionAngleForPlayer = MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer(player.sortIndex, sortIndex, angleBetweenPlayersWithEvenAdjustment);
-			Vector3 playerWorldPosition = MultiplayerPlayerPlacement.GetPlayerWorldPosition(outerCircleRadius, outerCirclePositionAngleForPlayer, MultiplayerPlayerLayout.Circle);
-			return Array.Find(avatarPlaces, place => place.transform.position == playerWorldPosition && place.isActiveAndEnabled);
+			return MultiplayerPlayerPlacement.GetPlayerWorldPosition(outerCircleRadius, outerCirclePositionAngleForPlayer, MultiplayerPlayerLayout.Circle);
+		}
+
+		public Quaternion GetRotationOfPlayer(IConnectedPlayer player)
+        {
+			int sortIndex = _lobbyStateDataModel.localPlayer.sortIndex;
+			float outerCirclePositionAngleForPlayer = MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer(player.sortIndex, sortIndex, angleBetweenPlayersWithEvenAdjustment);
+			return Quaternion.Euler(0f, outerCirclePositionAngleForPlayer, 0f);
 		}
 	}
 }
