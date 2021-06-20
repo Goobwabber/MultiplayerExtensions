@@ -50,6 +50,12 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<AnimationPlayerCountPatch>();
             AddDefaultPatch<AnimationRingCountPatch>();
             AddDefaultPatch<IntroAnimationPatch>();
+            AddDefaultPatch<DidActivatePatch>();
+            AddDefaultPatch<SelectBeatmapPatch>();
+            AddDefaultPatch<SelectModifiersPatch>();
+            AddDefaultPatch<SetLeftSelectionViewPatch>();
+            AddDefaultPatch<DidSelectLevelPatch>();
+            AddDefaultPatch<CancelSelectLevelPatch>();
             AddDefaultPatch<AprilFoolsPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
         }

@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
 using MultiplayerExtensions.Emotes;
+using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,25 +19,38 @@ using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
 namespace MultiplayerExtensions.UI
 {
-    public class EmotePanel : IInitializable
+    public class EmotePanel : IInitializable, IDisposable
     {
-        private FloatingScreen floatingScreen;
+        private FloatingScreen floatingScreen = null!;
         private Vector3 screenPosition;
         private Vector3 screenAngles;
 
         private readonly string IMAGES_PATH = Path.Combine(UnityGame.UserDataPath, nameof(MultiplayerExtensions), "Emotes");
         private bool parsed;
-        private Dictionary<string, EmoteImage> emoteImages;
+        private Dictionary<string, EmoteImage> emoteImages = null!;
 
+        private readonly PacketManager _packetManager;
 
         [UIComponent("emote-list")]
-        public CustomListTableData customListTableData;
+        public CustomListTableData customListTableData = null!;
+
+        public EmotePanel(PacketManager packetManager)
+        {
+            _packetManager = packetManager;
+        }
 
         public void Initialize()
         {
             parsed = false;
             Directory.CreateDirectory(IMAGES_PATH);
             emoteImages = new Dictionary<string, EmoteImage>();
+
+            _packetManager.RegisterCallback<EmotePacket>(HandleEmotePacket);
+        }
+
+        public void Dispose()
+        {
+            _packetManager.UnregisterCallback<EmotePacket>();
         }
 
         private void Parse()
@@ -133,7 +147,14 @@ namespace MultiplayerExtensions.UI
             customListTableData.tableView.ClearSelection();
             FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
             flyingEmote.Setup(customListTableData.data[index].icon, floatingScreen.transform.position, floatingScreen.transform.rotation);
-            
+            _packetManager.Send(new EmotePacket() { source = customListTableData.data[index].text, position = floatingScreen.transform.position, rotation = floatingScreen.transform.rotation });
+        }
+
+        private void HandleEmotePacket(EmotePacket packet, IConnectedPlayer player)
+        {
+            //use packet.source for the path/url of image and get the image somehow idk figure it out bixel
+            FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
+            flyingEmote.Setup(/*insert pls ty senpai*/, packet.position, packet.rotation);
         }
     }
 }
