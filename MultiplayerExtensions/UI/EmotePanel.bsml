@@ -1,4 +1,4 @@
-﻿<bg id='root' bg='round-rect-panel' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+﻿<bg id='root' bg='panel-top' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
 	<horizontal horizontal-fit='PreferredSize' preferred-width='72' preferred-height='15' align-to-center='true'>
 		<page-button event-click='emote-list#PageUp' direction='Left' />
 		<list id='emote-list' cell-size='15' list-direction='Horizontal' list-style='Box' select-cell='emote-select' />

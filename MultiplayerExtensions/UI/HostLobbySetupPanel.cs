@@ -101,7 +101,7 @@ namespace MultiplayerExtensions.UI
         #endregion
 
         #region UIActions
-        [UIAction("set-custom-Songs")]
+        [UIAction("set-custom-songs")]
         public void SetCustomSongs(bool value)
         {
             Plugin.Config.CustomSongs = value;
