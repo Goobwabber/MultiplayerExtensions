@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using IPA.Utilities;
 using MultiplayerExtensions.Emotes;
+using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
@@ -30,13 +31,15 @@ namespace MultiplayerExtensions.UI
         private Dictionary<string, EmoteImage> emoteImages = null!;
 
         private readonly PacketManager _packetManager;
+        private readonly LobbyEnvironmentManager _environmentManager;
 
         [UIComponent("emote-list")]
         public CustomListTableData customListTableData = null!;
 
-        public EmotePanel(PacketManager packetManager)
+        public EmotePanel(LobbyEnvironmentManager environmentManager, PacketManager packetManager)
         {
             _packetManager = packetManager;
+            _environmentManager = environmentManager;
         }
 
         public void Initialize()
@@ -152,9 +155,15 @@ namespace MultiplayerExtensions.UI
 
         private void HandleEmotePacket(EmotePacket packet, IConnectedPlayer player)
         {
+            Vector3 playerPosition = _environmentManager.GetPositionOfPlayer(player);
+            Quaternion playerRotation = _environmentManager.GetRotationOfPlayer(player);
+
+            Vector3 position = playerRotation * packet.position + playerPosition;
+            Quaternion rotation = Quaternion.Inverse(playerRotation) * packet.rotation;
+
             //use packet.source for the path/url of image and get the image somehow idk figure it out bixel
             FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
-            flyingEmote.Setup(/*insert pls ty senpai*/, packet.position, packet.rotation);
+            flyingEmote.Setup(/*insert pls ty senpai*/, position, rotation);
         }
     }
 }
