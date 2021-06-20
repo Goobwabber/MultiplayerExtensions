@@ -2,7 +2,7 @@
 
 namespace MultiplayerExtensions.Emotes
 {
-    class EmotePacket : INetSerializable, IPoolablePacket
+    internal class EmotePacket : INetSerializable, IPoolablePacket
     {
         public void Release() => ThreadStaticPacketPool<EmotePacket>.pool.Release(this);
 

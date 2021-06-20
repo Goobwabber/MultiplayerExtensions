@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
@@ -124,6 +125,15 @@ namespace MultiplayerExtensions.UI
         }
 
         [UIAction("close-screen")]
-        internal void CloseScreen() => floatingScreen.gameObject.SetActive(false);
+        internal void CloseScreen() => floatingScreen?.gameObject?.SetActive(false);
+
+        [UIAction("emote-select")]
+        private void EmoteSelect(TableView _, int index)
+        {
+            customListTableData.tableView.ClearSelection();
+            FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
+            flyingEmote.Setup(customListTableData.data[index].icon, floatingScreen.transform.position, floatingScreen.transform.rotation);
+            
+        }
     }
 }
