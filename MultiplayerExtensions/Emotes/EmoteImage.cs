@@ -1,29 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MultiplayerExtensions.Emotes
 {
     public class EmoteImage
     {
-        public string Path { get; private set; }
+        public string URL { get; private set; }
+        public bool Blacklist { get; private set; }
         private Sprite _sprite;
         private bool SpriteLoadQueued;
+        private byte[] imageData = null;
 
         public bool SpriteWasLoaded { get; private set; }
-        public bool Blacklist { get; private set; }
+        private SemaphoreSlim spriteLoadSemaphore;
         public event EventHandler SpriteLoaded;
 
         private static readonly object _loaderLock = new object();
         private static bool CoroutineRunning = false;
         private static readonly Queue<Action> SpriteQueue = new Queue<Action>();
 
-        public EmoteImage(string path)
+        public EmoteImage(string url)
         {
-            Path = path;
-            SpriteWasLoaded = false;
+            URL = url;
             Blacklist = false;
+            SpriteWasLoaded = false;
+            spriteLoadSemaphore = new SemaphoreSlim(0, 1);
             SpriteLoadQueued = false;
         }
 
@@ -38,13 +44,31 @@ namespace MultiplayerExtensions.Emotes
                         SpriteLoadQueued = true;
                         QueueLoadSprite(this);
                     }
-                    return BeatSaberMarkupLanguage.Utilities.ImageResources.WhitePixel;
+                    return BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite;
                 }
                 return _sprite;
             }
         }
 
+        public Stream GetCoverStream() => new MemoryStream(imageData);
+
         public static YieldInstruction LoadWait = new WaitForEndOfFrame();
+
+        internal async Task DownloadImage()
+        {
+            Uri uri = new Uri(URL);
+            using (var webClient = new WebClient())
+            {
+                imageData = await webClient.DownloadDataTaskAsync(uri);
+            }
+        }
+
+        public async Task WaitSpriteLoadAsync()
+        {
+            _ = Sprite;
+            await spriteLoadSemaphore.WaitAsync();
+            spriteLoadSemaphore.Release();
+        }
 
         private static void QueueLoadSprite(EmoteImage emoteImage)
         {
@@ -52,7 +76,7 @@ namespace MultiplayerExtensions.Emotes
             {
                 try
                 {
-                    using (FileStream imageStream = File.Open(emoteImage.Path, FileMode.Open))
+                    using (Stream imageStream = emoteImage.GetCoverStream())
                     {
                         byte[] imageBytes = new byte[imageStream.Length];
                         imageStream.Read(imageBytes, 0, (int)imageStream.Length);
@@ -63,19 +87,21 @@ namespace MultiplayerExtensions.Emotes
                         }
                         else
                         {
-                            Plugin.Log.Critical("Could not load " + emoteImage.Path);
+                            Plugin.Log.Critical("Could not load " + emoteImage.URL);
                             emoteImage.SpriteWasLoaded = false;
                             emoteImage.Blacklist = true;
                         }
                         emoteImage.SpriteLoaded?.Invoke(emoteImage, null);
+                        emoteImage.spriteLoadSemaphore.Release();
                     }
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.Critical("Could not load " + emoteImage.Path + "\nException message: " + e.Message);
+                    Plugin.Log.Critical("Could not load " + emoteImage.URL + "\nException message: " + e.Message);
                     emoteImage.SpriteWasLoaded = false;
                     emoteImage.Blacklist = true;
                     emoteImage.SpriteLoaded?.Invoke(emoteImage, null);
+                    emoteImage.spriteLoadSemaphore.Release();
                 }
             });
 

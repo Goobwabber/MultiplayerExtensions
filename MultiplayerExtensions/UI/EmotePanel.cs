@@ -2,19 +2,16 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
-using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
-using IPA.Utilities;
 using MultiplayerExtensions.Emotes;
 using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
+using System.Threading;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
@@ -26,34 +23,36 @@ namespace MultiplayerExtensions.UI
         private Vector3 screenPosition;
         private Vector3 screenAngles;
 
-        private readonly string IMAGES_PATH = Path.Combine(UnityGame.UserDataPath, nameof(MultiplayerExtensions), "Emotes");
         private bool parsed;
-        private Dictionary<string, EmoteImage> emoteImages = null!;
+        private SemaphoreSlim flyingEmoteSemaphore;
+        private Dictionary<string, EmoteImage> localEmoteImages = null!;
+        private Dictionary<string, EmoteImage> remoteEmoteImages = null!;
 
-        private readonly PacketManager _packetManager;
-        private readonly LobbyEnvironmentManager _environmentManager;
+        private readonly PacketManager packetManager;
+        private readonly LobbyEnvironmentManager environmentManager;
 
         [UIComponent("emote-list")]
         public CustomListTableData customListTableData = null!;
 
         public EmotePanel(LobbyEnvironmentManager environmentManager, PacketManager packetManager)
         {
-            _packetManager = packetManager;
-            _environmentManager = environmentManager;
+            this.packetManager = packetManager;
+            this.environmentManager = environmentManager;
         }
 
         public void Initialize()
         {
             parsed = false;
-            Directory.CreateDirectory(IMAGES_PATH);
-            emoteImages = new Dictionary<string, EmoteImage>();
+            flyingEmoteSemaphore = new SemaphoreSlim(1, 1);
+            localEmoteImages = new Dictionary<string, EmoteImage>();
+            remoteEmoteImages = new Dictionary<string, EmoteImage>();
 
-            _packetManager.RegisterCallback<EmotePacket>(HandleEmotePacket);
+            packetManager.RegisterCallback<EmotePacket>(HandleEmotePacket);
         }
 
         public void Dispose()
         {
-            _packetManager.UnregisterCallback<EmotePacket>();
+            packetManager.UnregisterCallback<EmotePacket>();
         }
 
         private void Parse()
@@ -90,33 +89,26 @@ namespace MultiplayerExtensions.UI
 
         private void LoadImages()
         {
-            foreach (var imageToDelete in emoteImages.Where(coverImage => !File.Exists(coverImage.Key)).ToList())
+            foreach (var url in Plugin.Config.EmoteURLs)
             {
-                emoteImages.Remove(imageToDelete.Key);
-            }
-
-            string[] ext = { "jpg", "png" };
-            IEnumerable<string> imageFiles = Directory.EnumerateFiles(IMAGES_PATH, "*.*", SearchOption.AllDirectories).Where(s => ext.Contains(Path.GetExtension(s).TrimStart('.').ToLowerInvariant()));
-
-            foreach (var file in imageFiles)
-            {
-                if (!emoteImages.ContainsKey(file))
+                if (!localEmoteImages.ContainsKey(url))
                 {
-                    emoteImages.Add(file, new EmoteImage(file));
+                    localEmoteImages.Add(url, new EmoteImage(url));
                 }
             }
         }
 
-        private void ShowImages()
+        private async void ShowImages()
         {
             customListTableData.data.Clear();
 
             LoadImages();
-            foreach (var emoteImage in emoteImages)
+            foreach (var emoteImage in localEmoteImages)
             {
                 if (!emoteImage.Value.SpriteWasLoaded && !emoteImage.Value.Blacklist)
                 {
-                    emoteImage.Value.SpriteLoaded += CoverImage_SpriteLoaded;
+                    emoteImage.Value.SpriteLoaded += LocalImage_SpriteLoaded;
+                    await emoteImage.Value.DownloadImage();
                     _ = emoteImage.Value.Sprite;
                 }
                 else if (emoteImage.Value.SpriteWasLoaded)
@@ -128,16 +120,16 @@ namespace MultiplayerExtensions.UI
             customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
         }
 
-        private void CoverImage_SpriteLoaded(object sender, EventArgs e)
+        private void LocalImage_SpriteLoaded(object sender, EventArgs e)
         {
             if (sender is EmoteImage emoteImage)
             {
                 if (emoteImage.SpriteWasLoaded)
                 {
-                    customListTableData.data.Add(new CustomCellInfo(Path.GetFileName(emoteImage.Path), emoteImage.Path, emoteImage.Sprite));
+                    customListTableData.data.Add(new CustomCellInfo(emoteImage.URL, "", emoteImage.Sprite));
                     customListTableData.tableView.ReloadData();
                 }
-                emoteImage.SpriteLoaded -= CoverImage_SpriteLoaded;
+                emoteImage.SpriteLoaded -= LocalImage_SpriteLoaded;
             }
         }
 
@@ -150,20 +142,60 @@ namespace MultiplayerExtensions.UI
             customListTableData.tableView.ClearSelection();
             FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
             flyingEmote.Setup(customListTableData.data[index].icon, floatingScreen.transform.position, floatingScreen.transform.rotation);
-            _packetManager.Send(new EmotePacket() { source = customListTableData.data[index].text, position = floatingScreen.transform.position, rotation = floatingScreen.transform.rotation });
+            packetManager.Send(new EmotePacket() { source = customListTableData.data[index].text, position = floatingScreen.transform.position, rotation = floatingScreen.transform.rotation });
+            Plugin.Log.Debug($"Sent packet with emote {customListTableData.data[index].text}");
         }
 
-        private void HandleEmotePacket(EmotePacket packet, IConnectedPlayer player)
+        private async void HandleEmotePacket(EmotePacket packet, IConnectedPlayer player)
         {
-            Vector3 playerPosition = _environmentManager.GetPositionOfPlayer(player);
-            Quaternion playerRotation = _environmentManager.GetRotationOfPlayer(player);
+            Plugin.Log.Debug($"Recieved packet with emote {packet.source}");
+            await flyingEmoteSemaphore.WaitAsync();
+            
+            Vector3 playerPosition = environmentManager.GetPositionOfPlayer(player);
+            Quaternion playerRotation = environmentManager.GetRotationOfPlayer(player);
 
             Vector3 position = playerRotation * packet.position + playerPosition;
             Quaternion rotation = Quaternion.Inverse(playerRotation) * packet.rotation;
 
-            //use packet.source for the path/url of image and get the image somehow idk figure it out bixel
             FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
-            flyingEmote.Setup(/*insert pls ty senpai*/, position, rotation);
+            
+            if (localEmoteImages.TryGetValue(packet.source, out EmoteImage localEmoteImage))
+            {
+                if (localEmoteImage.SpriteWasLoaded)
+                {
+                    flyingEmote.Setup(localEmoteImage.Sprite, position, rotation);
+                }
+                else if (!localEmoteImage.Blacklist)
+                {
+                    await localEmoteImage.WaitSpriteLoadAsync();
+                    if (localEmoteImage.SpriteWasLoaded)
+                    {
+                        flyingEmote.Setup(localEmoteImage.Sprite, position, rotation);
+                    }
+                }
+            }
+            else if (remoteEmoteImages.TryGetValue(packet.source, out EmoteImage remoteEmoteImage))
+            {
+                if (remoteEmoteImage.SpriteWasLoaded)
+                {
+                    flyingEmote.Setup(remoteEmoteImage.Sprite, position, rotation);
+                }
+            }
+            else
+            {
+                EmoteImage emoteImage = new EmoteImage(packet.source);
+                await emoteImage.DownloadImage();
+                _ = emoteImage.Sprite;
+                remoteEmoteImages.Add(packet.source, emoteImage);
+                await emoteImage.WaitSpriteLoadAsync();
+                if (emoteImage.SpriteWasLoaded)
+                {
+                    flyingEmote.Setup(emoteImage.Sprite, position, rotation);
+                }
+            }
+
+            flyingEmoteSemaphore.Release();
+            Plugin.Log.Debug($"Finished displaying packet with emote {packet.source}");
         }
     }
 }

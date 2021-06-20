@@ -1,4 +1,7 @@
+using IPA.Config.Stores.Attributes;
+using IPA.Config.Stores.Converters;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace MultiplayerExtensions
 {
@@ -16,6 +19,14 @@ namespace MultiplayerExtensions
         public virtual int MaxPlayers { get; set; } = 10;
         public virtual bool ReportMasterServer { get; set; } = true;
         public virtual bool Statistics { get; set; } = true;
+
+        [UseConverter(typeof(ListConverter<string>))]
+        [NonNullable]
+        public virtual List<string> EmoteURLs { get; set; } = new List<string>
+        {
+                "https://cdn.discordapp.com/emojis/570247548259008536.png?v=1",
+                "https://cdn.discordapp.com/emojis/833130134851682317.png?v=1"
+        };
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public virtual DebugConfig? DebugConfig { get; set; }

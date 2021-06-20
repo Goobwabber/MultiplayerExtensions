@@ -30,7 +30,7 @@ namespace MultiplayerExtensions.Emotes
 
         public void Update()
         {
-            transform.Translate(new Vector3(0, 0, 1f) * Time.deltaTime);
+            transform.Translate(new Vector3(0, 0, 2.5f) * Time.deltaTime);
             time += Time.deltaTime;
             if (time >= MAX_TIME)
             {
