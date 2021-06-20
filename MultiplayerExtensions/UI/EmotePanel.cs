@@ -155,7 +155,7 @@ namespace MultiplayerExtensions.UI
             Quaternion playerRotation = environmentManager.GetRotationOfPlayer(player);
 
             Vector3 position = playerRotation * packet.position + playerPosition;
-            Quaternion rotation = Quaternion.Inverse(playerRotation) * packet.rotation;
+            Quaternion rotation = playerRotation * packet.rotation;
 
             FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
             
