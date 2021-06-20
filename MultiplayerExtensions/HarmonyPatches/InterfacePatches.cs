@@ -1,9 +1,20 @@
 ﻿using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
+using System;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
+    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "DidActivate", MethodType.Normal)]
+    internal class DidActivatePatch
+    {
+        static void Postfix(GameplaySetupViewController ____gameplaySetupViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        {
+            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(____gameplaySetupViewController.gameplayModifiers);
+            ____gameplaySetupViewController.Setup(false, false, false, GameplaySetupViewController.GameplayMode.MultiplayerPrivate);
+        }
+    }
+
     [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "HandleLobbySetupViewControllerSelectBeatmap", MethodType.Normal)]
     internal class SelectBeatmapPatch
     {
@@ -31,8 +42,9 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (__instance is MultiplayerLevelSelectionFlowCoordinator && ____parentFlowCoordinator is GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator)
             {
-                SelectModifiersViewController selectModifiersViewController = gameServerLobbyFlowCoordinator.GetField<SelectModifiersViewController, GameServerLobbyFlowCoordinator>("selectModifiersViewController");
-                __result = selectModifiersViewController;
+                GameplaySetupViewController gameplaySetupViewController = gameServerLobbyFlowCoordinator.GetField<GameplaySetupViewController, GameServerLobbyFlowCoordinator>("_gameplaySetupViewController");
+                gameplaySetupViewController.Setup(true, true, true, GameplaySetupViewController.GameplayMode.SinglePlayer);
+                __result = gameplaySetupViewController;
                 return false;
             }
             return true;
@@ -42,18 +54,21 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "HandleMultiplayerLevelSelectionFlowCoordinatorDidSelectLevel", MethodType.Normal)]
     internal class DidSelectLevelPatch
     {
-        static void Prefix(SelectModifiersViewController ___selectModifiersViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        static void Prefix(GameplaySetupViewController ____gameplaySetupViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
         {
-            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(___selectModifiersViewController.gameplayModifiers);
+
+            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(____gameplaySetupViewController.gameplayModifiers);
+            ____gameplaySetupViewController.Setup(false, false, false, GameplaySetupViewController.GameplayMode.MultiplayerPrivate);
         }
     }
 
     [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "HandleMultiplayerLevelSelectionFlowCoordinatorCancelSelectLevel", MethodType.Normal)]
     internal class CancelSelectLevelPatch
     {
-        static void Prefix(SelectModifiersViewController ___selectModifiersViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        static void Prefix(GameplaySetupViewController ____gameplaySetupViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
         {
-            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(___selectModifiersViewController.gameplayModifiers);
+            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(____gameplaySetupViewController.gameplayModifiers);
+            ____gameplaySetupViewController.Setup(false, false, false, GameplaySetupViewController.GameplayMode.MultiplayerPrivate);
         }
     }
 }
