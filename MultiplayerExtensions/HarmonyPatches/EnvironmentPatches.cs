@@ -143,7 +143,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                 __instance.transform.eulerAngles = new Vector3(270f, 0f, 0f);
 
                 ____energyPanelGO.transform.localPosition = new Vector3(0f, 4f, 0f);
-                ____energyPanelGO.transform.localEulerAngles = new Vector3(270f, 0f, 0f);
+                ____energyPanelGO.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
 
                 if (Plugin.Config.SingleplayerHUD && !__instance.transform.Find("LeftPanel"))
                 {
