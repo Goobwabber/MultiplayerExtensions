@@ -10,7 +10,11 @@
     "BSIPA": "^4.1.4",
     "SongCore": "^3.2.0",
     "BeatSaverSharp": "^2.0.1",
-    "BeatSaberMarkupLanguage":  "^1.5.1",
+    "BeatSaberMarkupLanguage": "^1.5.1",
     "SiraUtil": "^2.5.2"
+  },
+  "links": {
+    "project-home": "https://github.com/Goobwabber/MultiplayerExtensions",
+    "donate": "https://github.com/Goobwabber/MultiplayerExtensions#donate"
   }
 }
