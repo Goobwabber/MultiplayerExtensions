@@ -1,0 +1,8 @@
+﻿<bg id='root' bg='panel-top' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+	<horizontal horizontal-fit='PreferredSize' preferred-width='72' preferred-height='15' align-to-center='true'>
+		<page-button event-click='emote-list#PageUp' direction='Left' />
+		<list id='emote-list' cell-size='15' list-direction='Horizontal' list-style='Box' select-cell='emote-select' />
+		<page-button event-click='emote-list#PageDown' direction='Right' />
+	</horizontal>
+	<button text='x' on-click='close-screen' anchor-pos-x ='69' anchor-pos-y='-3' />
+</bg>

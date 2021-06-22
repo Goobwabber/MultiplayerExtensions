@@ -36,8 +36,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="UI\CenterScreenLoading.bsml" />
-    <None Remove="UI\ClientLobbySetupPanel.bsml" />
-    <None Remove="UI\HostLobbySetupPanel.bsml" />
+    <None Remove="UI\EmotePanel.bsml" />
+    <None Remove="UI\LobbySetupPanel.bsml" />
     <None Remove="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
@@ -200,7 +200,7 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="UI\CenterScreenLoading.bsml" />
-    <EmbeddedResource Include="UI\HostLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\EmotePanel.bsml" />
     <EmbeddedResource Include="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
@@ -217,7 +217,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\ClientLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\LobbySetupPanel.bsml" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(NCRUNCH)' != '1'">
     <Error Text="The BeatSaberModdingTools.Tasks nuget package doesn't seem to be installed." Condition="'$(BSMTTaskAssembly)' == ''" />
