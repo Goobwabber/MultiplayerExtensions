@@ -27,6 +27,11 @@ namespace MultiplayerExtensions
         public static event EventHandler? LobbyEnvironmentLoaded;
 
         /// <summary>
+        /// Raised after a lobby avatar avatar was created in <see cref="MultiplayerLobbyAvatarManager.AddPlayer()"/>
+        /// </summary>
+        public static event EventHandler<IConnectedPlayer>? LobbyAvatarCreated;
+
+        /// <summary>
         /// Raised when the game state changes.
         /// </summary>
         public static event EventHandler<MultiplayerGameState>? GameStateChanged;
@@ -54,6 +59,8 @@ namespace MultiplayerExtensions
             => BeatmapSelected.RaiseEventSafe(sender, args, nameof(BeatmapSelected));
         internal static void RaiseLobbyEnvironmentLoaded(object sender)
             => LobbyEnvironmentLoaded.RaiseEventSafe(sender, nameof(LobbyEnvironmentLoaded));
+        internal static void RaiseLobbyAvatarCreated(object sender, IConnectedPlayer state)
+            => LobbyAvatarCreated.RaiseEventSafe(sender, state, nameof(LobbyAvatarCreated));
         internal static void RaiseGameStateChanged(object sender, MultiplayerGameState state)
             => GameStateChanged.RaiseEventSafe(sender, state, nameof(GameStateChanged));
         internal static void RaiseCustomSongsChanged(object sender, bool state)

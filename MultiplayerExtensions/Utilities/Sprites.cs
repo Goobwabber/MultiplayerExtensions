@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace MultiplayerExtensions.Utilities
@@ -47,5 +48,31 @@ namespace MultiplayerExtensions.Utilities
         /// <param name="sprite"></param>
         /// <returns></returns>
         public static byte[] GetRaw(Sprite sprite) => sprite.texture.GetRawTextureData();
+        
+        #region Resource Sprites
+        public static Sprite IconOculus64 { get; private set; }
+        public static Sprite IconSteam64 { get; private set; }
+        
+        public static void PreloadSprites()
+        {
+            IconOculus64 = GetSpriteFromResources("MultiplayerExtensions.Assets.IconOculus64.png");
+            IconSteam64 = GetSpriteFromResources("MultiplayerExtensions.Assets.IconSteam64.png");
+        }
+        
+        private static Sprite GetSpriteFromResources(string resourcePath, float pixelsPerUnit = 10.0f)
+        {
+            var sprite = GetSprite(GetResource(Assembly.GetCallingAssembly(), resourcePath), pixelsPerUnit);
+            sprite.name = resourcePath;
+            return sprite;
+        }
+        
+        private static byte[] GetResource(Assembly asm, string resourceName)
+        {
+            System.IO.Stream stream = asm.GetManifestResourceStream(resourceName);
+            byte[] data = new byte[stream.Length];
+            stream.Read(data, 0, (int)stream.Length);
+            return data;
+        }
+        #endregion
     }
 }

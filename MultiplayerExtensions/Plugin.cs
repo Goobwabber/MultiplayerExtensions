@@ -85,6 +85,8 @@ namespace MultiplayerExtensions
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
             MPEvents_Test();
+            
+            Sprites.PreloadSprites();
         }
 
         [Conditional("DEBUG")]

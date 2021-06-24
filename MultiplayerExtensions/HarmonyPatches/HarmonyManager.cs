@@ -52,6 +52,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<IntroAnimationPatch>();
             AddDefaultPatch<AprilFoolsPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
+            AddDefaultPatch<MultiplayerLobbyAvatarAddedPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
