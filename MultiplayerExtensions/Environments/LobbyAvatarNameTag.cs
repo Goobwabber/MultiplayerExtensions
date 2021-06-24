@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
+﻿using System.Collections.Generic;
 using HMUI;
 using MultiplayerExtensions.Sessions;
 using MultiplayerExtensions.Utilities;
@@ -97,7 +95,6 @@ namespace MultiplayerExtensions.Environments
                     RemoveIcon(PlayerIconSlot.Platform);
                     break;
             }
-            
         }
 
         private void SetSimplePlayerInfo(IConnectedPlayer simplePlayer)
@@ -143,8 +140,7 @@ namespace MultiplayerExtensions.Environments
 
             imageView.sprite = sprite;
             
-            if (_nameText != null)
-                _nameText.transform.SetSiblingIndex(999);
+            _nameText.transform.SetSiblingIndex(999);
         }
 
         private void RemoveIcon(PlayerIconSlot slot)

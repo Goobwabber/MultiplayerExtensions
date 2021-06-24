@@ -9,7 +9,7 @@ namespace MultiplayerExtensions.Environments
 {
     public class LobbyAvatarManager : IInitializable, IDisposable
     {
-        protected readonly ILobbyStateDataModel _lobbyStateDataModel;
+        protected readonly IMultiplayerSessionManager _sessionManager;
         protected readonly ExtendedPlayerManager _playerManager;
         protected readonly MultiplayerLobbyAvatarManager _avatarManager;
         
@@ -17,9 +17,9 @@ namespace MultiplayerExtensions.Environments
 
         private Dictionary<string, ExtendedPlayer> _extendedPlayers;
         
-        internal LobbyAvatarManager(ILobbyStateDataModel lobbyStateDataModel, ExtendedPlayerManager playerManager, MultiplayerLobbyAvatarManager avatarManager)
+        internal LobbyAvatarManager(IMultiplayerSessionManager sessionManager, ExtendedPlayerManager playerManager, MultiplayerLobbyAvatarManager avatarManager)
         {
-            _lobbyStateDataModel = lobbyStateDataModel;
+            _sessionManager = sessionManager;
             _playerManager = playerManager;
             _avatarManager = avatarManager;
             
@@ -31,14 +31,14 @@ namespace MultiplayerExtensions.Environments
         public void Initialize()
         {
             MPEvents.LobbyAvatarCreated += HandleLobbyAvatarCreated;
-            _lobbyStateDataModel.playerDisconnectedEvent += HandlePlayerDisconnected;
+            _sessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
             _playerManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
         }
 
         public void Dispose()
         {
             MPEvents.LobbyAvatarCreated -= HandleLobbyAvatarCreated;
-            _lobbyStateDataModel.playerDisconnectedEvent -= HandlePlayerDisconnected;
+            _sessionManager.playerDisconnectedEvent -= HandlePlayerDisconnected;
             _playerManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
         }
 
@@ -53,7 +53,7 @@ namespace MultiplayerExtensions.Environments
         private void HandleExtendedPlayerConnected(ExtendedPlayer player)
         {
             // This packet is usually received before the avatar is actually created
-            _extendedPlayers.Add(player.userId, player);
+            _extendedPlayers[player.userId] = player;
             CreateOrUpdateNameTag(player);
         }
 
