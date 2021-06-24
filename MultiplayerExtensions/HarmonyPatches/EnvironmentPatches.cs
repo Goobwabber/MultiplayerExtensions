@@ -184,4 +184,13 @@ namespace MultiplayerExtensions.HarmonyPatches
             }
         }
     }
+
+    [HarmonyPatch(typeof(MultiplayerLobbyAvatarManager), nameof(MultiplayerLobbyAvatarManager.AddPlayer), MethodType.Normal)]
+    internal class MultiplayerLobbyAvatarAddedPatch
+    {
+        static void Postfix(IConnectedPlayer connectedPlayer, MultiplayerLobbyAvatarManager __instance)
+        {
+            MPEvents.RaiseLobbyAvatarCreated(__instance, connectedPlayer);
+        }
+    }
 }
