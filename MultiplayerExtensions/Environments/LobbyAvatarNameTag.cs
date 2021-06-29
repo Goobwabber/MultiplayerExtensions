@@ -150,7 +150,7 @@ namespace MultiplayerExtensions.Environments
             
             if (_playerIcons.TryGetValue(slot, out var imageView))
             {
-                Destroy(imageView);
+                Destroy(imageView.gameObject);
                 _playerIcons.Remove(slot);
             }
         }
