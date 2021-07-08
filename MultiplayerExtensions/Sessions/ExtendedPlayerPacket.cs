@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MultiplayerExtensions.Sessions
 {
-    class ExtendedPlayerPacket : INetSerializable, IPoolablePacket
+    public class ExtendedPlayerPacket : INetSerializable, IPoolablePacket
     {
         public void Release() => ThreadStaticPacketPool<ExtendedPlayerPacket>.pool.Release(this);
 
@@ -21,7 +21,7 @@ namespace MultiplayerExtensions.Sessions
             this.mpexVersion = reader.GetString();
 
             if (!ColorUtility.TryParseHtmlString(reader.GetString(), out playerColor))
-                this.playerColor = new Color(0.031f, 0.752f, 1f);
+                this.playerColor = ExtendedPlayer.DefaultColor;
 
             //Plugin.Log.Warn($"AvailableBytes: {reader.AvailableBytes}");
             if (reader.AvailableBytes >= 4) // Verify this works when the platform int exists.

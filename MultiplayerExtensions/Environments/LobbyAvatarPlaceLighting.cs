@@ -10,6 +10,8 @@ namespace MultiplayerExtensions.Environments
         protected float smoothTime = 2f;
 
         protected Color targetColor = Color.black;
+        
+        public Color TargetColor => targetColor;
 
         protected virtual void OnEnable()
         {

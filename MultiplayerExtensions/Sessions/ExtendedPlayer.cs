@@ -4,6 +4,8 @@ namespace MultiplayerExtensions.Sessions
 {
     public class ExtendedPlayer : IConnectedPlayer
     {
+        public static readonly Color DefaultColor = new Color(0.031f, 0.752f, 1f);
+        
         private IConnectedPlayer _connectedPlayer;
 
         /// <summary>
