@@ -18,8 +18,8 @@ namespace MultiplayerExtensions.Environments
         private IConnectedPlayer? _playerInfo;
         private Dictionary<PlayerIconSlot, ImageView> _playerIcons;
 
-        private ImageView _bg;
-        private CurvedTextMeshPro _nameText;
+        private ImageView _bg = null!;
+        private CurvedTextMeshPro _nameText = null!;
 
         public LobbyAvatarNameTag()
         {

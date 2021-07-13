@@ -111,11 +111,11 @@ namespace MultiplayerExtensions.OverrideClasses
         /// If the newly joined player is not modded or the selected song isn't custom, sends back a vanilla packet.
         /// Otherwise, sends a <see cref="MultiplayerExtensions.Beatmaps.PreviewBeatmapPacket"/>
         /// </summary>
-        public async override void HandleMenuRpcManagerGetSelectedBeatmap(string userId)
+        public override void HandleMenuRpcManagerGetSelectedBeatmap(string userId)
         {
             ILobbyPlayerDataModel lobbyPlayerDataModel = this.GetLobbyPlayerDataModel(this.localUserId);
             if (lobbyPlayerDataModel != null && MPState.CurrentGameType != MultiplayerGameType.QuickPlay && _multiplayerSessionManager.GetPlayerByUserId(userId).HasState("modded") && lobbyPlayerDataModel?.beatmapLevel != null && lobbyPlayerDataModel?.beatmapLevel is PreviewBeatmapStub preview)
-                _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
+                _packetManager.Send(new PreviewBeatmapPacket(preview, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
             else if (lobbyPlayerDataModel != null && lobbyPlayerDataModel.beatmapLevel != null)
                 this._menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(lobbyPlayerDataModel.beatmapLevel.levelID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
         }
@@ -139,7 +139,7 @@ namespace MultiplayerExtensions.OverrideClasses
                 else
                 {
                     PreviewBeatmapStub? preview = null;
-                    IPreviewBeatmapLevel localPreview = SongCore.Loader.GetLevelById(beatmapId.levelID);
+                    IPreviewBeatmapLevel? localPreview = SongCore.Loader.GetLevelById(beatmapId.levelID);
                     if (localPreview != null)
                         preview = new PreviewBeatmapStub(hash, localPreview);
                     if (preview == null)
@@ -169,14 +169,14 @@ namespace MultiplayerExtensions.OverrideClasses
                 else
                 {
                     PreviewBeatmapStub? preview = null;
-                    IPreviewBeatmapLevel localPreview = SongCore.Loader.GetLevelById(levelId);
+                    IPreviewBeatmapLevel? localPreview = SongCore.Loader.GetLevelById(levelId);
                     if (localPreview != null)
                         preview = new PreviewBeatmapStub(hash, localPreview);
                     if (preview == null)
                         preview = await FetchBeatSaverPreview(levelId, hash);
 
                     HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
-                    _packetManager.Send(await PreviewBeatmapPacket.FromPreview(preview, characteristic.serializedName, beatmapDifficulty));
+                    _packetManager.Send(new PreviewBeatmapPacket(preview!, characteristic.serializedName, beatmapDifficulty));
                     if (!_multiplayerSessionManager.connectedPlayers.All(x => x.HasState("modded")))
                         _menuRpcManager.SelectBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                 }
@@ -261,8 +261,10 @@ namespace MultiplayerExtensions.OverrideClasses
         {
             try
             {
-                Beatmap bm = await Plugin.BeatSaver.Hash(hash);
-                return new PreviewBeatmapStub(levelID, bm);
+                Beatmap? bm = await Plugin.BeatSaver.Hash(hash);
+                if (bm != null)
+                    return new PreviewBeatmapStub(levelID, bm);
+                return null;
             }
             catch(Exception ex)
             {

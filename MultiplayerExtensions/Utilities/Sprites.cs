@@ -7,11 +7,6 @@ namespace MultiplayerExtensions.Utilities
     class Sprites
     {
         /// <summary>
-        /// Logger for debugging sprite loads.
-        /// </summary>
-        public static Action<string?, Exception?>? Logger;
-
-        /// <summary>
         /// Creates a <see cref="Sprite"/> from an image <see cref="Stream"/>.
         /// </summary>
         /// <param name="imageStream"></param>
@@ -37,7 +32,7 @@ namespace MultiplayerExtensions.Utilities
             }
             catch (Exception ex)
             {
-                Logger?.Invoke($"Caught unhandled exception", ex);
+                Plugin.Log?.Warn($"Caught unhandled exception {ex.Message}");
                 return ReturnDefault(returnDefaultOnFail);
             }
         }
@@ -48,10 +43,10 @@ namespace MultiplayerExtensions.Utilities
         /// <param name="sprite"></param>
         /// <returns></returns>
         public static byte[] GetRaw(Sprite sprite) => sprite.texture.GetRawTextureData();
-        
+
         #region Resource Sprites
-        public static Sprite IconOculus64 { get; private set; }
-        public static Sprite IconSteam64 { get; private set; }
+        public static Sprite IconOculus64 { get; private set; } = null!;
+        public static Sprite IconSteam64 { get; private set; } = null!;
         
         public static void PreloadSprites()
         {
@@ -61,7 +56,9 @@ namespace MultiplayerExtensions.Utilities
         
         private static Sprite GetSpriteFromResources(string resourcePath, float pixelsPerUnit = 10.0f)
         {
-            var sprite = GetSprite(GetResource(Assembly.GetCallingAssembly(), resourcePath), pixelsPerUnit);
+            Sprite? sprite = GetSprite(GetResource(Assembly.GetCallingAssembly(), resourcePath), pixelsPerUnit);
+            if (sprite == null)
+                return null!;
             sprite.name = resourcePath;
             return sprite;
         }

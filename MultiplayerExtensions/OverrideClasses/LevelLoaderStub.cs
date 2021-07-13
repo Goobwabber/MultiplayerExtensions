@@ -8,7 +8,7 @@ namespace MultiplayerExtensions.OverrideClasses
 {
     class LevelLoaderStub : MultiplayerLevelLoader, IProgress<double>
     {
-        public event Action<double> progressUpdated;
+        public event Action<double> progressUpdated = null!;
 
         public override void LoadLevel(BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float initialStartTime)
         {
