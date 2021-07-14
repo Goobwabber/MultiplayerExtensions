@@ -1,4 +1,5 @@
-﻿using IPA.Utilities;
+﻿using System;
+using IPA.Utilities;
 using MultiplayerExtensions.Sessions;
 using System;
 using UnityEngine;
@@ -35,6 +36,7 @@ namespace MultiplayerExtensions.Environments
         {
 			MPEvents.LobbyEnvironmentLoaded += HandleLobbyEnvironmentLoaded;
 			_playerManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
+			_sessionManager.playerConnectedEvent += HandlePlayerConnected;
 			_sessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
         }
 
@@ -42,6 +44,7 @@ namespace MultiplayerExtensions.Environments
         {
 			MPEvents.LobbyEnvironmentLoaded -= HandleLobbyEnvironmentLoaded;
 			_playerManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
+			_sessionManager.playerConnectedEvent -= HandlePlayerConnected;
 			_sessionManager.playerDisconnectedEvent -= HandlePlayerDisconnected;
 		}
 
@@ -72,17 +75,29 @@ namespace MultiplayerExtensions.Environments
 			float centerScreenScale = _outerCircleRadius / _minOuterCircleRadius;
 			_stageManager.transform.localScale = new Vector3(centerScreenScale, centerScreenScale, centerScreenScale);
 
+			SetDefaultPlayerPlaceColors();
+		}
+
+		public void SetDefaultPlayerPlaceColors()
+		{
 			SetAllPlayerPlaceColors(Color.black, true);
-			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedPlayerManager.localColor);
-			foreach (ExtendedPlayer player in _playerManager.players.Values)
-				SetPlayerPlaceColor(player, player.playerColor);
+			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedPlayerManager.localColor, true);
+			
+			foreach (var player in _sessionManager.connectedPlayers)
+				SetPlayerPlaceColor(player, ExtendedPlayer.DefaultColor, false);
+			
+			foreach (var extendedPlayer in _playerManager.players.Values)
+				SetPlayerPlaceColor(extendedPlayer, extendedPlayer.playerColor, true);
 		}
 
 		private void HandleExtendedPlayerConnected(ExtendedPlayer player)
-			=> SetPlayerPlaceColor(player, player.playerColor);
+			=> SetPlayerPlaceColor(player, player.playerColor, true);
 
+		private void HandlePlayerConnected(IConnectedPlayer player)
+			=> SetPlayerPlaceColor(player, ExtendedPlayer.DefaultColor, false);
+ 
 		private void HandlePlayerDisconnected(IConnectedPlayer player)
-			=> SetPlayerPlaceColor(player, Color.black);
+			=> SetPlayerPlaceColor(player, Color.black, true);
 
 		public void SetAllPlayerPlaceColors(Color color, bool immediate = false)
         {
@@ -92,13 +107,18 @@ namespace MultiplayerExtensions.Environments
             }
 		}
 
-		public void SetPlayerPlaceColor(IConnectedPlayer player, Color color)
+		public void SetPlayerPlaceColor(IConnectedPlayer player, Color color, bool priority)
 		{
 			LobbyAvatarPlaceLighting place = GetConnectedPlayerPlace(player);
-			if (place != null)
-			{
-				place.SetColor(color, false);
-			}
+			
+			if (place == null)
+				return;
+
+			if (!priority && place.TargetColor != Color.black && place.TargetColor != ExtendedPlayer.DefaultColor)
+				// Priority colors are always set; non-priority colors can only override default black/blue
+				return;
+			
+			place.SetColor(color, false);
 		}
 
 		public LobbyAvatarPlaceLighting GetConnectedPlayerPlace(IConnectedPlayer player)
