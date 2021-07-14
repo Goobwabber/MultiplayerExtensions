@@ -1,50 +1,60 @@
 ﻿using LiteNetLib.Utils;
-using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MultiplayerExtensions.Beatmaps
 {
-    class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
+    public class PreviewBeatmapPacket : INetSerializable, IPoolablePacket
     {
-        public string levelId;
-        public string songName;
-        public string songSubName;
-        public string songAuthorName;
-        public string levelAuthorName;
+        // Basic Song Info/Metadata
+        public string levelId = null!;
+        public string levelHash = null!;
+        public string songName = null!;
+        public string songSubName = null!;
+        public string songAuthorName = null!;
+        public string levelAuthorName = null!;
         public float beatsPerMinute;
         public float songDuration;
 
-        public byte[] coverImage;
-
-        public string characteristic;
+        // Selection Info
+        public string characteristic = null!;
         public BeatmapDifficulty difficulty;
+
+        public PreviewBeatmapPacket() { }
+
+        public PreviewBeatmapPacket(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
+		{
+            this.levelId = preview.levelID;
+            this.levelHash = preview.levelHash;
+            this.songName = preview.songName;
+            this.songSubName = preview.songSubName;
+            this.songAuthorName = preview.songAuthorName;
+            this.levelAuthorName = preview.levelAuthorName;
+            this.beatsPerMinute = preview.beatsPerMinute;
+            this.songDuration = preview.songDuration;
+
+            this.characteristic = characteristic;
+            this.difficulty = difficulty;
+        }
 
         public void Serialize(NetDataWriter writer)
         {
-            writer.Put(levelId);
-            writer.Put(songName);
-            writer.Put(songSubName);
-            writer.Put(songAuthorName);
-            writer.Put(levelAuthorName);
-            writer.Put(beatsPerMinute);
-            writer.Put(songDuration);
+            writer.Put(this.levelId);
+            writer.Put(this.levelHash);
+            writer.Put(this.songName);
+            writer.Put(this.songSubName);
+            writer.Put(this.songAuthorName);
+            writer.Put(this.levelAuthorName);
+            writer.Put(this.beatsPerMinute);
+            writer.Put(this.songDuration);
 
-            writer.Put(characteristic);
-            writer.PutVarUInt((uint)difficulty);
-
-            if (this.coverImage != null)
-                writer.PutBytesWithLength(coverImage);
-            else
-            {
-                Plugin.Log?.Debug($"coverImage is null when serializing '{levelId}'");
-                writer.PutBytesWithLength(Array.Empty<byte>());
-            }
+            writer.Put(this.characteristic);
+            writer.PutVarUInt((uint)this.difficulty);
         }
 
         public void Deserialize(NetDataReader reader)
         {
             this.levelId = reader.GetString();
+            this.levelHash = reader.GetString();
             this.songName = reader.GetString();
             this.songSubName = reader.GetString();
             this.songAuthorName = reader.GetString();
@@ -54,30 +64,6 @@ namespace MultiplayerExtensions.Beatmaps
 
             this.characteristic = reader.GetString();
             this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
-
-            this.coverImage = reader.GetBytesWithLength();
-            //if (this.coverImage == null || this.coverImage.Length == 0)
-                //Plugin.Log?.Debug($"Received a PreviewBeatmapPacket with an empty coverImage.");
-        }
-
-        static async public Task<PreviewBeatmapPacket> FromPreview(PreviewBeatmapStub preview, string characteristic, BeatmapDifficulty difficulty)
-        {
-            PreviewBeatmapPacket packet = new PreviewBeatmapPacket();
-
-            packet.levelId = preview.levelID;
-            packet.songName = preview.songName;
-            packet.songSubName = preview.songSubName;
-            packet.songAuthorName = preview.songAuthorName;
-            packet.levelAuthorName = preview.levelAuthorName;
-            packet.beatsPerMinute = preview.beatsPerMinute;
-            packet.songDuration = preview.songDuration;
-
-            //packet.coverImage = await preview.GetRawCoverAsync(CancellationToken.None);
-
-            packet.characteristic = characteristic;
-            packet.difficulty = difficulty;
-
-            return packet;
         }
 
         public void Release()

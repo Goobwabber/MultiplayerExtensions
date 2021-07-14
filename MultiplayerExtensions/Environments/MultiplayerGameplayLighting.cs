@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Environments
         protected IScoreSyncStateManager _scoreProvider = null!;
         protected MultiplayerLeadPlayerProvider _leadPlayerProvider = null!;
         protected MultiplayerGameplayAnimator _gameplayAnimator = null!;
-        protected ExtendedPlayerManager _extendedPlayerManager;
+        protected ExtendedPlayerManager _extendedPlayerManager = null!;
 
         protected LightsAnimator[] _allLights = null!;
         protected LightsAnimator[] _gameplayLights = null!;
@@ -21,10 +21,10 @@ namespace MultiplayerExtensions.Environments
         protected ColorSO _failedLightsColor = null!;
         protected Color _missLightsColor = new Color(1, 0, 0);
 
-        protected bool isLeading = false;
-        protected int highestCombo = 0;
+        protected bool _isLeading = false;
+        protected int _highestCombo = 0;
 
-        protected MultiplayerSyncState<StandardScoreSyncState, StandardScoreSyncState.Score, int> syncState;
+        protected MultiplayerSyncState<StandardScoreSyncState, StandardScoreSyncState.Score, int> _syncState = null!;
 
         internal void Construct(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider, MultiplayerGameplayAnimator gameplayAnimator, ExtendedPlayerManager extendedPlayerManager)
         {
@@ -51,16 +51,16 @@ namespace MultiplayerExtensions.Environments
             {
                 if (!this._connectedPlayer.IsFailed())
                 {
-                    if (syncState == null)
-                        syncState = _scoreProvider.GetSyncStateForPlayer(_connectedPlayer);
+                    if (_syncState == null)
+                        _syncState = _scoreProvider.GetSyncStateForPlayer(_connectedPlayer);
 
-                    int combo = syncState.GetState(StandardScoreSyncState.Score.Combo, syncState.player.offsetSyncTime);
-                    if (combo > highestCombo)
-                        highestCombo = combo;
+                    int combo = _syncState.GetState(StandardScoreSyncState.Score.Combo, _syncState.player.offsetSyncTime);
+                    if (combo > _highestCombo)
+                        _highestCombo = combo;
 
-                    Color baseColor = isLeading ? _leadingLightsColor : _activeLightsColor;
+                    Color baseColor = _isLeading ? _leadingLightsColor : _activeLightsColor;
                     _missLightsColor.a = baseColor.a;
-                    float failPercentage = (Mathf.Min(highestCombo, 20f) - combo) / 20f;
+                    float failPercentage = (Mathf.Min(_highestCombo, 20f) - combo) / 20f;
                     
                     SetLights(Color.Lerp(baseColor, _missLightsColor, failPercentage));
                 }
@@ -71,7 +71,7 @@ namespace MultiplayerExtensions.Environments
         {
             if (this._connectedPlayer.IsFailed())
                 return;
-            isLeading = userId == this._connectedPlayer.userId;
+            _isLeading = userId == this._connectedPlayer.userId;
         }
 
         public void SetLights(Color color)

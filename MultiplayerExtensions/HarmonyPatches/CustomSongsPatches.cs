@@ -52,7 +52,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             else
                 __result = Plugin.BeatSaver.Hash(hash).ContinueWith<EntitlementsStatus>(r =>
                 {
-                    Beatmap beatmap = r.Result;
+                    Beatmap? beatmap = r.Result;
                     if (beatmap == null)
                         return EntitlementsStatus.NotOwned;
                     return EntitlementsStatus.NotDownloaded;
