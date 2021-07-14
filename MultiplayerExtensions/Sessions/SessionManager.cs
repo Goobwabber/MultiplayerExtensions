@@ -24,6 +24,8 @@ namespace MultiplayerExtensions.Sessions
             _sessionManager.SetLocalPlayerState("modded", true);
             _sessionManager.SetLocalPlayerState("customsongs", Plugin.Config.CustomSongs);
             _sessionManager.SetLocalPlayerState("freemod", Plugin.Config.FreeMod);
+            _sessionManager.SetLocalPlayerState("hostpick", Plugin.Config.HostPick);
+
             _sessionManager.connectedEvent += HandleConnected;
             _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
