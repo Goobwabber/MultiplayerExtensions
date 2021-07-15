@@ -2,6 +2,7 @@
 using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.OverrideClasses;
 using MultiplayerExtensions.UI;
+using SiraUtil;
 using UnityEngine;
 using Zenject;
 
@@ -13,17 +14,14 @@ namespace MultiplayerExtensions.Installers
         {
             Container.BindInterfacesAndSelfTo<LobbyEnvironmentManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<EmotePanel>().AsSingle();
+            Container.BindInterfacesTo<MultiplayerGSViewController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LobbySetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesAndSelfTo<PersonalSetupViewController>().FromNewComponentAsViewController().AsSingle();
         }
 
         public override void Start()
         {
             Plugin.Log?.Info("Installing Interface");
-
-            HostLobbySetupViewController hostViewController = Container.Resolve<HostLobbySetupViewController>();
-            Container.InstantiateComponent<HostLobbySetupPanel>(hostViewController.gameObject);
-
-            ClientLobbySetupViewController clientViewController = Container.Resolve<ClientLobbySetupViewController>();
-            Container.InstantiateComponent<ClientLobbySetupPanel>(clientViewController.gameObject);
 
             CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
             Container.InstantiateComponent<CenterScreenLoadingPanel>(centerScreenController.gameObject);

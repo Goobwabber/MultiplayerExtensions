@@ -1,0 +1,3 @@
+﻿<bg anchor-pos-x='30' anchor-pos-y='-15' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+	<button text='Lobby Settings' on-click='lobby-settings-click' />
+</bg>

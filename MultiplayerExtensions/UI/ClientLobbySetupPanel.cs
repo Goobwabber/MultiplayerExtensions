@@ -14,7 +14,6 @@ namespace MultiplayerExtensions.UI
 {
     class ClientLobbySetupPanel : BSMLResourceViewController, IInitializable, IDisposable
     {
-
         public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager = null!;
         private ClientLobbySetupViewController clientViewController = null!;
