@@ -11,15 +11,15 @@ A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is 
 * [Cool stats page](https://mpex.goobwabber.com)
 
 ## Installation
-1. Ensure you have the [required mods](https://github.com/Zingabopp/MultiplayerExtensions#requirements).
-2. Download the `MultiplayerExtensions` file listed under `Assets` **[Here](https://github.com/Zingabopp/MultiplayerExtensions/releases)**.
-   * Optionally, you can get a development build by downloading the file listed under `Artifacts`  **[Here](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build).
+1. Ensure you have the [required mods](https://github.com/Goobwabber/MultiplayerExtensions#requirements).
+2. Download the `MultiplayerExtensions` file listed under `Assets` **[Here](https://github.com/Goobwabber/MultiplayerExtensions/releases)**.
+   * Optionally, you can get a development build by downloading the file listed under `Artifacts`  **[Here](https://github.com/Goobwabber/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)** (pick the topmost successful build).
    * You must be logged into GitHub to download a development build.
 3. Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
    * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
 4. **Optional**: Edit `Beat Saber IPA.json` (in your `UserData` folder) and change `Debug` -> `ShowCallSource` to `true`. This will enable BSIPA to get file and line numbers from the `PDB` file where errors occur, which is very useful when reading the log files. This may have a *slight* impact on performance.
 
-Lastly, check out [other mods](https://github.com/Zingabopp/MultiplayerExtensions#related-mods) that work well with MultiplayerExtensions!
+Lastly, check out [other mods](https://github.com/Goobwabber/MultiplayerExtensions#related-mods) that work well with MultiplayerExtensions!
 
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
@@ -91,3 +91,5 @@ You can support development of MultiplayerExtensions by donating at the followin
 * [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
 * [MultiplayerAvatars](https://github.com/Goobwabber/MultiplayerAvatars)
 * BeatTogether for [PC](https://github.com/pythonology/BeatTogether) or [Quest](https://github.com/pythonology/BeatTogether.Quest)
+---
+[![donate](https://goobi.moe/badges/api/v2/donate?text=Donate!&scale=1.5&fontsize=32&radius=8&textXOffset=5&height=12.9666&widthOffset=3.5666)](https://github.com/Goobwabber/MultiplayerExtensions#donate) [![mpex stats](https://goobi.moe/badges/api/v2/mpexusercount?scale=1.5&radius=8&textXOffset=-95&height=35&textanchor=begin&widthOffset=-20.3466&textYOffset=-4&innerSpacing=5)](https://mpex.goobwabber.com)
