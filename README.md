@@ -84,6 +84,7 @@ Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp
 ```
 ## Donate
 You can support development of MultiplayerExtensions by donating at the following links:
+* https://www.patreon.com/goobwabber
 * https://ko-fi.com/goobwabber
 * https://ko-fi.com/zingabopp
 
