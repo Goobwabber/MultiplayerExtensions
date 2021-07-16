@@ -18,16 +18,19 @@ namespace MultiplayerExtensions.UI
         private readonly MainFlowCoordinator mainFlowCoordinator;
         private readonly LobbySetupFlowCoordinator lobbySetupFlowCoordinator;
         private readonly GameplaySetupViewController gameplaySetupViewController;
+        private readonly EmotePanel emotePanel;
         private readonly TextSegmentedControl selectionSegmentedControl;
         private readonly GameplayModifiersPanelController singleplayerModifiersPanelController;
         private readonly GameplayModifiersPanelController multiplayerModifiersPanelController;
         private readonly MultiplayerSettingsPanelController multiplayerSettingsPanelController;
 
-        public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, LobbySetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController, SelectModifiersViewController selectModifiersViewController)
+        public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, LobbySetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController,
+            SelectModifiersViewController selectModifiersViewController, EmotePanel emotePanel)
         {
             this.mainFlowCoordinator = mainFlowCoordinator;
             this.lobbySetupFlowCoordinator = lobbySetupFlowCoordinator;
             this.gameplaySetupViewController = gameplaySetupViewController;
+            this.emotePanel = emotePanel;
 
             selectionSegmentedControl = gameplaySetupViewController.GetField<TextSegmentedControl, GameplaySetupViewController>("_selectionSegmentedControl");
             singleplayerModifiersPanelController = gameplaySetupViewController.GetField<GameplayModifiersPanelController, GameplaySetupViewController>("_gameplayModifiersPanelController");
@@ -86,6 +89,12 @@ namespace MultiplayerExtensions.UI
                 return flow;
             }
             return DeepestChildFlowCoordinator(flow);
+        }
+
+        [UIAction("spawn-emote-panel")]
+        private void SpawnEmotePanel()
+        {
+            emotePanel.ToggleActive();
         }
     }
 }
