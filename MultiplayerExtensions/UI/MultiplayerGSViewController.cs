@@ -2,6 +2,10 @@
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
+using MultiplayerExtensions.HarmonyPatches;
+using Polyglot;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Zenject;
 
@@ -9,24 +13,61 @@ namespace MultiplayerExtensions.UI
 {
     // GS = GameplaySetup
     // Has all the stuff in the GameplaySetup tab we add
-    public class MultiplayerGSViewController : IInitializable
+    public class MultiplayerGSViewController : IInitializable, IDisposable
     {
         private readonly MainFlowCoordinator mainFlowCoordinator;
         private readonly LobbySetupFlowCoordinator lobbySetupFlowCoordinator;
+        private readonly GameplaySetupViewController gameplaySetupViewController;
+        private readonly TextSegmentedControl selectionSegmentedControl;
+        private readonly GameplayModifiersPanelController singleplayerModifiersPanelController;
+        private readonly GameplayModifiersPanelController multiplayerModifiersPanelController;
         private readonly MultiplayerSettingsPanelController multiplayerSettingsPanelController;
-        public static readonly FieldAccessor<GameplaySetupViewController, MultiplayerSettingsPanelController>.Accessor MultiplayerPanelAccessor = FieldAccessor<GameplaySetupViewController, MultiplayerSettingsPanelController>.GetAccessor("_multiplayerSettingsPanelController");
 
-        public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, LobbySetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController)
+        public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, LobbySetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController, SelectModifiersViewController selectModifiersViewController)
         {
             this.mainFlowCoordinator = mainFlowCoordinator;
             this.lobbySetupFlowCoordinator = lobbySetupFlowCoordinator;
-            multiplayerSettingsPanelController = MultiplayerPanelAccessor(ref gameplaySetupViewController);
+            this.gameplaySetupViewController = gameplaySetupViewController;
+
+            selectionSegmentedControl = gameplaySetupViewController.GetField<TextSegmentedControl, GameplaySetupViewController>("_selectionSegmentedControl");
+            singleplayerModifiersPanelController = gameplaySetupViewController.GetField<GameplayModifiersPanelController, GameplaySetupViewController>("_gameplayModifiersPanelController");
+            multiplayerModifiersPanelController = selectModifiersViewController.GetField<GameplayModifiersPanelController, SelectModifiersViewController>("_gameplayModifiersPanelController");
+            multiplayerSettingsPanelController = gameplaySetupViewController.GetField<MultiplayerSettingsPanelController, GameplaySetupViewController>("_multiplayerSettingsPanelController");
         }
 
         public void Initialize()
         {
             BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "MultiplayerExtensions.UI.MultiplayerGSView.bsml"), multiplayerSettingsPanelController.gameObject, this);
+            multiplayerModifiersPanelController.transform.SetParent(singleplayerModifiersPanelController.transform.parent);
+            multiplayerModifiersPanelController.transform.localPosition = singleplayerModifiersPanelController.transform.localPosition;
+            multiplayerModifiersPanelController.gameObject.SetActive(false);
+
+            SetLeftSelectionViewPatch.EnteredLevelSelection += ShowMultiplayerModifiersPanel;
+            SetupPatch.GameplaySetupChange += HideMultiplayerModifiersPanel;
         }
+
+        public void Dispose()
+        {
+            SetLeftSelectionViewPatch.EnteredLevelSelection -= ShowMultiplayerModifiersPanel;
+            SetupPatch.GameplaySetupChange -= HideMultiplayerModifiersPanel;
+        }
+
+        private void ShowMultiplayerModifiersPanel()
+        {
+            List<GameplaySetupViewController.Panel> panels = gameplaySetupViewController.GetField<List<GameplaySetupViewController.Panel>, GameplaySetupViewController>("_panels");
+            panels[0].gameObject.SetActive(false);
+            panels.RemoveAt(0);
+            panels.Insert(0, new GameplaySetupViewController.Panel(Localization.Get("BUTTON_MODIFIERS"), multiplayerModifiersPanelController, multiplayerModifiersPanelController.gameObject));
+            List<string> panelTitles = new List<string>(panels.Count);
+            foreach (GameplaySetupViewController.Panel panel in panels)
+            {
+                panelTitles.Add(panel.title);
+            }
+            selectionSegmentedControl.SetTexts(panelTitles);
+            gameplaySetupViewController.SetActivePanel(0);
+        }
+
+        private void HideMultiplayerModifiersPanel() => multiplayerModifiersPanelController.gameObject.SetActive(false);
 
         [UIAction("lobby-settings-click")]
         private void PresentLobbySettings()
