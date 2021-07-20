@@ -7,7 +7,6 @@ namespace MultiplayerExtensions
         public virtual bool VerticalHUD { get; set; } = false;
         public virtual bool SingleplayerHUD { get; set; } = false;
         public virtual bool Hologram { get; set; } = true;
-        public virtual bool CustomSongs { get; set; } = true;
         public virtual bool FreeMod { get; set; } = false;
         public virtual bool LagReducer { get; set; } = false;
         public virtual bool MissLighting { get; set; } = true;

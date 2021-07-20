@@ -58,20 +58,6 @@ namespace MultiplayerExtensions.UI
         #endregion
 
         #region UIValues
-        [UIValue("CustomSongs")]
-        public bool CustomSongs
-        {
-            get => Plugin.Config.CustomSongs;
-            set { 
-                Plugin.Config.CustomSongs = value;
-                if (MPState.CustomSongsEnabled != value)
-                {
-                    MPState.CustomSongsEnabled = value;
-                    MPEvents.RaiseCustomSongsChanged(this, value);
-                }
-            }
-        }
-
         [UIValue("FreeMod")]
         public bool FreeMod
         {
@@ -145,15 +131,6 @@ namespace MultiplayerExtensions.UI
         #endregion
 
         #region UIActions
-        [UIAction("SetCustomSongs")]
-        public void SetCustomSongs(bool value)
-        {
-            CustomSongs = value;
-            customSongsToggle.Value = value;
-
-            UpdateStates();
-        }
-
         [UIAction("SetFreeMod")]
         public void SetFreeMod(bool value)
         {
@@ -226,7 +203,6 @@ namespace MultiplayerExtensions.UI
 
         private void UpdateStates()
         {
-            sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
             sessionManager?.SetLocalPlayerState("freemod", FreeMod);
             sessionManager?.SetLocalPlayerState("hostpick", HostPick);
         }

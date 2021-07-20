@@ -1,7 +1,7 @@
 ﻿using BeatSaverSharp;
 using MultiplayerExtensions.Beatmaps;
 using MultiplayerExtensions.Packets;
-using MultiplayerExtensions.Sessions;
+using MultiplayerExtensions.Extensions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,12 +11,12 @@ namespace MultiplayerExtensions.Extensions
     class ExtendedPlayersDataModel : LobbyPlayersDataModel, ILobbyPlayersDataModel, IDisposable
     {
         protected readonly PacketManager _packetManager;
-        protected readonly ExtendedPlayerManager _playerManager;
+        protected readonly ExtendedSessionManager _sessionManager;
 
-        internal ExtendedPlayersDataModel(PacketManager packetManager, ExtendedPlayerManager playerManager)
+        internal ExtendedPlayersDataModel(PacketManager packetManager, IMultiplayerSessionManager sessionManager)
         {
             _packetManager = packetManager;
-            _playerManager = playerManager;
+            _sessionManager = (sessionManager as ExtendedSessionManager)!;
         }
 
         public new void Activate()
@@ -115,7 +115,7 @@ namespace MultiplayerExtensions.Extensions
         {
             ILobbyPlayerData lobbyPlayerDataModel = this.GetLobbyPlayerDataModel(this.localUserId);
             IConnectedPlayer user = _multiplayerSessionManager.GetPlayerByUserId(userId);
-            if (lobbyPlayerDataModel != null && MPState.CurrentGameType != MultiplayerGameType.QuickPlay && user != null && user.HasState("modded") && lobbyPlayerDataModel?.beatmapLevel != null && lobbyPlayerDataModel?.beatmapLevel is PreviewBeatmapStub preview)
+            if (lobbyPlayerDataModel != null && user != null && user.HasState("modded") && lobbyPlayerDataModel?.beatmapLevel != null && lobbyPlayerDataModel?.beatmapLevel is PreviewBeatmapStub preview)
                 _packetManager.Send(new PreviewBeatmapPacket(preview, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
             else if (lobbyPlayerDataModel != null && lobbyPlayerDataModel.beatmapLevel != null)
                 this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(lobbyPlayerDataModel.beatmapLevel.levelID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
@@ -187,7 +187,7 @@ namespace MultiplayerExtensions.Extensions
 
         public override void HandleMenuRpcManagerRecommendGameplayModifiers(string userId, GameplayModifiers gameplayModifiers)
         {
-            ExtendedPlayer? player = _playerManager.GetExtendedPlayer(userId);
+            ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(userId);
             if (player != null)
                 player.lastModifiers = gameplayModifiers;
             base.HandleMenuRpcManagerRecommendGameplayModifiers(userId, gameplayModifiers);
@@ -201,7 +201,7 @@ namespace MultiplayerExtensions.Extensions
 
         public override void HandleMenuRpcManagerClearRecommendedGameplayModifiers(string userId)
         {
-            ExtendedPlayer? player = _playerManager.GetExtendedPlayer(userId);
+            ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(userId);
             if (player != null)
                 player.lastModifiers = null;
             base.HandleMenuRpcManagerClearRecommendedGameplayModifiers(userId);

@@ -135,7 +135,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     {
         static void Postfix(CoreGameHUDController __instance, ref GameObject ____songProgressPanelGO, ref GameObject ____energyPanelGO)
         {
-            if (MPState.CurrentGameType != MultiplayerGameType.None && Plugin.Config.VerticalHUD)
+            if (Plugin.Config.VerticalHUD)
             {
                 Plugin.Log?.Debug("Setting up multiplayer HUD");
 

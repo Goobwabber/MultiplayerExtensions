@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using HMUI;
-using MultiplayerExtensions.Sessions;
+using MultiplayerExtensions.Extensions;
 using MultiplayerExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.UI;

@@ -1,4 +1,4 @@
-﻿using MultiplayerExtensions.Sessions;
+﻿using MultiplayerExtensions.Extensions;
 using UnityEngine;
 using Zenject;
 
@@ -8,16 +8,16 @@ namespace MultiplayerExtensions.Environments
     {
         protected IConnectedPlayer _connectedPlayer = null!;
         protected MultiplayerController _multiplayerController = null!;
-        protected ExtendedPlayerManager _extendedPlayerManager = null!;
+        protected ExtendedSessionManager _sessionManager = null!;
         protected IScoreSyncStateManager _scoreProvider = null!;
         protected MultiplayerLeadPlayerProvider _leadPlayerProvider = null!;
 
         [Inject]
-        internal void Inject(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, ExtendedPlayerManager extendedPlayerManager, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider)
+        internal void Inject(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, IMultiplayerSessionManager sessionManager, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider)
 		{
             _connectedPlayer = connectedPlayer;
             _multiplayerController = multiplayerController;
-            _extendedPlayerManager = extendedPlayerManager;
+            _sessionManager = (sessionManager as ExtendedSessionManager)!;
             _scoreProvider = scoreProvider;
             _leadPlayerProvider = leadPlayerProvider;
 		}
@@ -28,7 +28,7 @@ namespace MultiplayerExtensions.Environments
             {
                 MultiplayerGameplayAnimator gameplayAnimator = transform.GetComponentInChildren<MultiplayerGameplayAnimator>();
                 MultiplayerGameplayLighting gameplayLighting = gameplayAnimator.gameObject.AddComponent<MultiplayerGameplayLighting>();
-                gameplayLighting.Construct(_connectedPlayer, _multiplayerController, _scoreProvider, _leadPlayerProvider, gameplayAnimator, _extendedPlayerManager);
+                gameplayLighting.Construct(_connectedPlayer, _multiplayerController, _scoreProvider, _leadPlayerProvider, gameplayAnimator, _sessionManager);
             }
         }
     }

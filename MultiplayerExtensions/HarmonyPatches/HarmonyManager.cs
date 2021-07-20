@@ -27,7 +27,6 @@ namespace MultiplayerExtensions.HarmonyPatches
         static HarmonyManager()
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
-            AddDefaultPatch<CustomLevelEntitlementPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<LoggingPatch>();
@@ -52,6 +51,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<AprilFoolsPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
             AddDefaultPatch<MultiplayerLobbyAvatarAddedPatch>();
+            AddDefaultPatch<EntitlementCheckerPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class

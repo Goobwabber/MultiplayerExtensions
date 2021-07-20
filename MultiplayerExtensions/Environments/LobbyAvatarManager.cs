@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using IPA.Utilities;
-using MultiplayerExtensions.Sessions;
+using MultiplayerExtensions.Extensions;
 using UnityEngine;
 using Zenject;
 
@@ -9,18 +9,16 @@ namespace MultiplayerExtensions.Environments
 {
     public class LobbyAvatarManager : IInitializable, IDisposable
     {
-        protected readonly IMultiplayerSessionManager _sessionManager;
-        protected readonly ExtendedPlayerManager _playerManager;
+        protected readonly ExtendedSessionManager _sessionManager;
         protected readonly MultiplayerLobbyAvatarManager _avatarManager;
         
         protected Dictionary<string, MultiplayerLobbyAvatarController>? _refPlayerIdToAvatarMap;
 
         private Dictionary<string, ExtendedPlayer> _extendedPlayers;
         
-        internal LobbyAvatarManager(IMultiplayerSessionManager sessionManager, ExtendedPlayerManager playerManager, MultiplayerLobbyAvatarManager avatarManager)
+        internal LobbyAvatarManager(IMultiplayerSessionManager sessionManager, MultiplayerLobbyAvatarManager avatarManager)
         {
-            _sessionManager = sessionManager;
-            _playerManager = playerManager;
+            _sessionManager = (sessionManager as ExtendedSessionManager)!;
             _avatarManager = avatarManager;
             
             _refPlayerIdToAvatarMap = null;
@@ -32,14 +30,14 @@ namespace MultiplayerExtensions.Environments
         {
             MPEvents.LobbyAvatarCreated += HandleLobbyAvatarCreated;
             _sessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
-            _playerManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
+            _sessionManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
         }
 
         public void Dispose()
         {
             MPEvents.LobbyAvatarCreated -= HandleLobbyAvatarCreated;
             _sessionManager.playerDisconnectedEvent -= HandlePlayerDisconnected;
-            _playerManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
+            _sessionManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
         }
 
         #region Events

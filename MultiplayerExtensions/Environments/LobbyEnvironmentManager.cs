@@ -1,7 +1,6 @@
 ﻿using System;
 using IPA.Utilities;
-using MultiplayerExtensions.Sessions;
-using System;
+using MultiplayerExtensions.Extensions;
 using UnityEngine;
 using Zenject;
 
@@ -9,12 +8,11 @@ namespace MultiplayerExtensions.Environments
 {
     public class LobbyEnvironmentManager : IInitializable, IDisposable
     {
-		protected readonly IMultiplayerSessionManager _sessionManager;
+		protected readonly ExtendedSessionManager _sessionManager;
 		protected readonly ILobbyStateDataModel _lobbyStateDataModel;
 		protected readonly MenuEnvironmentManager _menuEnvironmentManager;
 		protected readonly MultiplayerLobbyAvatarPlaceManager _placeManager;
 		protected readonly MultiplayerLobbyCenterStageManager _stageManager;
-		protected readonly ExtendedPlayerManager _playerManager;
 
 		private LobbyAvatarPlaceLighting[] _avatarPlaces = Array.Empty<LobbyAvatarPlaceLighting>();
 		private float _innerCircleRadius;
@@ -22,20 +20,19 @@ namespace MultiplayerExtensions.Environments
 		private float _angleBetweenPlayersWithEvenAdjustment;
 		private float _outerCircleRadius;
 
-		internal LobbyEnvironmentManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, MultiplayerLobbyCenterStageManager stageManager, ExtendedPlayerManager playerManager)
+		internal LobbyEnvironmentManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, MultiplayerLobbyCenterStageManager stageManager)
         {
-			_sessionManager = sessionManager;
+			_sessionManager = (sessionManager as ExtendedSessionManager)!;
 			_lobbyStateDataModel = lobbyStateDataModel;
 			_menuEnvironmentManager = menuEnvironmentManager;
 			_placeManager = placeManager;
 			_stageManager = stageManager;
-			_playerManager = playerManager;
         }
 
 		public void Initialize()
         {
 			MPEvents.LobbyEnvironmentLoaded += HandleLobbyEnvironmentLoaded;
-			_playerManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
+			_sessionManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
 			_sessionManager.playerConnectedEvent += HandlePlayerConnected;
 			_sessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
         }
@@ -43,7 +40,7 @@ namespace MultiplayerExtensions.Environments
 		public void Dispose()
         {
 			MPEvents.LobbyEnvironmentLoaded -= HandleLobbyEnvironmentLoaded;
-			_playerManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
+			_sessionManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
 			_sessionManager.playerConnectedEvent -= HandlePlayerConnected;
 			_sessionManager.playerDisconnectedEvent -= HandlePlayerDisconnected;
 		}
@@ -81,12 +78,12 @@ namespace MultiplayerExtensions.Environments
 		public void SetDefaultPlayerPlaceColors()
 		{
 			SetAllPlayerPlaceColors(Color.black, true);
-			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedPlayerManager.localColor, true);
+			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedSessionManager.localColor, true);
 			
 			foreach (var player in _sessionManager.connectedPlayers)
 				SetPlayerPlaceColor(player, ExtendedPlayer.DefaultColor, false);
 			
-			foreach (var extendedPlayer in _playerManager.players.Values)
+			foreach (var extendedPlayer in _sessionManager.extendedPlayers.Values)
 				SetPlayerPlaceColor(extendedPlayer, extendedPlayer.playerColor, true);
 		}
 

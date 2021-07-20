@@ -50,21 +50,20 @@
             }
         }
 
-        private static MultiplayerGameType? _currentGameType = MultiplayerGameType.None;
+        private static bool _lobbyIsModded;
         /// <summary>
-        /// The current multiplayer game type.
+        /// Whether the current lobby is custom (true) or official (false).
         /// </summary>
-        public static MultiplayerGameType? CurrentGameType
-        {
-            get => _currentGameType;
+        public static bool LobbyIsModded
+		{
+            get => _lobbyIsModded;
             internal set
-            {
-                if (_currentGameType == value)
+			{
+                if (_lobbyIsModded == value)
                     return;
-                _currentGameType = value;
-                Plugin.Log?.Debug($"Updated game type to '{value}'");
-            }
-        }
+                _lobbyIsModded = value;
+			}
+		}
 
         private static bool _customSongsEnabled;
         /// <summary>
@@ -146,11 +145,4 @@
             }
         }
     }
-
-    public enum MultiplayerGameType
-	{
-        QuickPlay,
-        Private,
-        None
-	}
 }

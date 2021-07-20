@@ -1,6 +1,6 @@
-﻿using MultiplayerExtensions.HarmonyPatches;
+﻿using MultiplayerExtensions.Extensions;
+using MultiplayerExtensions.HarmonyPatches;
 using MultiplayerExtensions.Packets;
-using MultiplayerExtensions.Sessions;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -13,11 +13,12 @@ namespace MultiplayerExtensions.Installers
         public override void InstallBindings()
         {
             Plugin.Log?.Info("Injecting Dependencies");
+
             Container.BindInterfacesAndSelfTo<PacketManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<SessionManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<ExtendedPlayerManager>().AsSingle();
 			var _ = Container.Resolve<NetworkConfigSO>().masterServerEndPoint;
-        }
+
+			Container.Inject(Container.Resolve<IMultiplayerSessionManager>() as ExtendedSessionManager);
+		}
 
 		public override void Start()
 		{

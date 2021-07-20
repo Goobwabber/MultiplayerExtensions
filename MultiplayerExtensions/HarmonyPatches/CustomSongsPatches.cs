@@ -17,7 +17,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static bool Prefix(ref bool __result)
         {
-            __result = MPState.CurrentGameType != MultiplayerGameType.QuickPlay && MPState.CustomSongsEnabled;
+            __result = MPState.CustomSongsEnabled;
             return false;
         }
     }
@@ -28,37 +28,10 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// <summary>
         /// Disables starting of game if not all players have song.
         /// </summary>
-        static void Prefix(LobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameButton)
+        static void Prefix(LobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameReadyButton)
         {
-            if (____startGameButton.interactable)
+            if (____startGameReadyButton.interactable)
                 __instance.SetStartGameEnabled(CannotStartGameReason.None);
-        }
-    }
-
-    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), nameof(NetworkPlayerEntitlementChecker.GetEntitlementStatus), MethodType.Normal)]
-    internal class CustomLevelEntitlementPatch
-    {
-        /// <summary>
-        /// Changes the return value of the entitlement checker if it is a custom song.
-        /// </summary>
-        static bool Prefix(string levelId, ref Task<EntitlementsStatus> __result)
-        {
-            string? hash = Utilities.Utils.LevelIdToHash(levelId);
-            if (hash == null)
-                return true;
-
-            if (SongCore.Collections.songWithHashPresent(hash))
-                __result = Task.FromResult(EntitlementsStatus.Ok);
-            else
-                __result = Plugin.BeatSaver.Hash(hash).ContinueWith<EntitlementsStatus>(r =>
-                {
-                    Beatmap? beatmap = r.Result;
-                    if (beatmap == null)
-                        return EntitlementsStatus.NotOwned;
-                    return EntitlementsStatus.NotDownloaded;
-                });
-
-            return false;
         }
     }
 
@@ -89,7 +62,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             //    Plugin.Log.Warn(toggle.gameplayModifier.modifierNameLocalizationKey);
             //}
 
-            bool speedModsEnabled = MPState.CurrentGameType != MultiplayerGameType.Private || !MPState.FreeModEnabled || MPState.LocalPlayerIsHost;
+            bool speedModsEnabled = !MPState.FreeModEnabled || MPState.LocalPlayerIsHost;
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SUPER_FAST_SONG").toggle.interactable = speedModsEnabled;
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_FASTER_SONG").toggle.interactable = speedModsEnabled;
             ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SLOWER_SONG").toggle.interactable = speedModsEnabled;

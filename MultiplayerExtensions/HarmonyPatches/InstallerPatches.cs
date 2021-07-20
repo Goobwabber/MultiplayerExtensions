@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using MultiplayerExtensions.Extensions;
-using MultiplayerExtensions.Sessions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +10,13 @@ using Zenject;
 namespace MultiplayerExtensions.HarmonyPatches
 {
     [HarmonyPatch(typeof(LobbyDataModelInstaller), nameof(LobbyDataModelInstaller.InstallBindings))]
-    class LobbyPlayersDataModelPatch
+    internal class LobbyPlayersDataModelPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(ConcreteBinderNonGeneric).GetMethod(nameof(ConcreteBinderNonGeneric.To), Array.Empty<Type>());
 
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         private static readonly MethodInfo _playersDataModelAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null));
-        //private static readonly MethodInfo _gameStateControllerAttacher = SymbolExtensions.GetMethodInfo(() => GameStateControllerAttacher(null));
+        private static readonly MethodInfo _gameStateControllerAttacher = SymbolExtensions.GetMethodInfo(() => GameStateControllerAttacher(null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         private static readonly MethodInfo _playersDataModelMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyPlayersDataModel) });
@@ -36,11 +35,11 @@ namespace MultiplayerExtensions.HarmonyPatches
                         codes[i] = newCode;
                     }
 
-                    //if (codes[i].Calls(_gameStateControllerMethod))
-                    //{
-                    //    CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _gameStateControllerAttacher);
-                    //    codes[i] = newCode;
-                    //}
+                    if (codes[i].Calls(_gameStateControllerMethod))
+                    {
+                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _gameStateControllerAttacher);
+                        codes[i] = newCode;
+                    }
                 }
             }
 
@@ -52,14 +51,63 @@ namespace MultiplayerExtensions.HarmonyPatches
             return contract.To<ExtendedPlayersDataModel>();
         }
 
-        //private static FromBinderNonGeneric GameStateControllerAttacher(ConcreteBinderNonGeneric contract)
-        //{
-        //    //return contract.To<ExtendedGameStateController>();
-        //}
+        private static FromBinderNonGeneric GameStateControllerAttacher(ConcreteBinderNonGeneric contract)
+        {
+            return contract.To<ExtendedGameStateController>();
+        }
+    }
+
+    [HarmonyPatch(typeof(MainSystemInit), nameof(MainSystemInit.InstallBindings), MethodType.Normal)]
+    internal class EntitlementCheckerPatch
+    {
+        private static readonly MethodInfo _rootMethod = typeof(FromBinder).GetMethod(nameof(FromBinder.FromComponentInNewPrefab), new[] { typeof(UnityEngine.Object) });
+        private static readonly FieldInfo _sessionManagerPrefab = typeof(MainSystemInit).GetField("_multiplayerSessionManagerPrefab", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo _entitlementCheckerPrefab = typeof(MainSystemInit).GetField("_networkPlayerEntitlementCheckerPrefab", BindingFlags.NonPublic | BindingFlags.Instance);
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+        private static readonly MethodInfo _sessionManagerAttacher = SymbolExtensions.GetMethodInfo(() => SessionManagerAttacher(null, null));
+        private static readonly MethodInfo _entitlementCheckerAttacher = SymbolExtensions.GetMethodInfo(() => EntitlementCheckerAttacher(null, null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ldfld && codes[i].OperandIs(_sessionManagerPrefab))
+				{
+                    if (codes[i + 1].opcode == OpCodes.Callvirt && codes[i + 1].Calls(_rootMethod))
+					{
+                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _sessionManagerAttacher);
+                        codes[i + 1] = newCode;
+                    }
+				}
+
+                if (codes[i].opcode == OpCodes.Ldfld && codes[i].OperandIs(_entitlementCheckerPrefab))
+				{
+                    if (codes[i + 1].opcode == OpCodes.Callvirt && codes[i + 1].Calls(_rootMethod))
+                    {
+                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _entitlementCheckerAttacher);
+                        codes[i + 1] = newCode;
+                    }
+                }
+            }
+
+            return codes.AsEnumerable();
+        }
+
+        private static ScopeConcreteIdArgConditionCopyNonLazyBinder SessionManagerAttacher(ConcreteIdBinderGeneric<IMultiplayerSessionManager> contract, UnityEngine.Object prefab)
+        {
+            return contract.To<ExtendedSessionManager>().FromNewComponentOnRoot();
+        }
+
+        private static ScopeConcreteIdArgConditionCopyNonLazyBinder EntitlementCheckerAttacher(ConcreteIdBinderGeneric<NetworkPlayerEntitlementChecker> contract, UnityEngine.Object prefab)
+        {
+            return contract.To<ExtendedEntitlementChecker>().FromNewComponentOnRoot();
+        }
     }
 
     [HarmonyPatch(typeof(MultiplayerMenuInstaller), nameof(MultiplayerMenuInstaller.InstallBindings))]
-    class LevelLoaderPatch
+    internal class LevelLoaderPatch
     {
         private static readonly MethodInfo _rootMethod = typeof(DiContainer).GetMethod(nameof(DiContainer.BindInterfacesAndSelfTo), Array.Empty<Type>());
 
@@ -99,9 +147,9 @@ namespace MultiplayerExtensions.HarmonyPatches
             var mib = __instance as MonoInstallerBase;
             var Container = SiraUtil.Accessors.GetDiContainer(ref mib);
 
-            ExtendedPlayerManager exPlayerManager = Container.Resolve<ExtendedPlayerManager>();
-            ExtendedPlayer? exPlayer = exPlayerManager.GetExtendedPlayer(____connectedPlayer);
-            ExtendedPlayer? hostPlayer = exPlayerManager.GetExtendedPlayer(Container.Resolve<IMultiplayerSessionManager>().connectionOwner);
+            ExtendedSessionManager sessionManager = (Container.Resolve<IMultiplayerSessionManager>() as ExtendedSessionManager)!;
+            ExtendedPlayer? exPlayer = sessionManager.GetExtendedPlayer(____connectedPlayer);
+            ExtendedPlayer? hostPlayer = sessionManager.GetExtendedPlayer(sessionManager.connectionOwner);
 
             GameplayModifiers? newModifiers;
             if (____connectedPlayer.HasState("modded") && MPState.FreeModEnabled && exPlayer?.mpexVersion >= _minVersionFreeMod)
