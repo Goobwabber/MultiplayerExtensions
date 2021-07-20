@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.Extensions;
 using MultiplayerExtensions.Sessions;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         private static readonly MethodInfo _playersDataModelAttacher = SymbolExtensions.GetMethodInfo(() => PlayerDataModelAttacher(null));
-        private static readonly MethodInfo _gameStateControllerAttacher = SymbolExtensions.GetMethodInfo(() => GameStateControllerAttacher(null));
+        //private static readonly MethodInfo _gameStateControllerAttacher = SymbolExtensions.GetMethodInfo(() => GameStateControllerAttacher(null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
         private static readonly MethodInfo _playersDataModelMethod = _rootMethod.MakeGenericMethod(new Type[] { typeof(LobbyPlayersDataModel) });
@@ -36,11 +36,11 @@ namespace MultiplayerExtensions.HarmonyPatches
                         codes[i] = newCode;
                     }
 
-                    if (codes[i].Calls(_gameStateControllerMethod))
-                    {
-                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _gameStateControllerAttacher);
-                        codes[i] = newCode;
-                    }
+                    //if (codes[i].Calls(_gameStateControllerMethod))
+                    //{
+                    //    CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _gameStateControllerAttacher);
+                    //    codes[i] = newCode;
+                    //}
                 }
             }
 
@@ -49,13 +49,13 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         private static FromBinderNonGeneric PlayerDataModelAttacher(ConcreteBinderNonGeneric contract)
         {
-            return contract.To<PlayersDataModelStub>();
+            return contract.To<ExtendedPlayersDataModel>();
         }
 
-        private static FromBinderNonGeneric GameStateControllerAttacher(ConcreteBinderNonGeneric contract)
-        {
-            return contract.To<GameStateControllerStub>();
-        }
+        //private static FromBinderNonGeneric GameStateControllerAttacher(ConcreteBinderNonGeneric contract)
+        //{
+        //    //return contract.To<ExtendedGameStateController>();
+        //}
     }
 
     [HarmonyPatch(typeof(MultiplayerMenuInstaller), nameof(MultiplayerMenuInstaller.InstallBindings))]
@@ -85,7 +85,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         private static FromBinderNonGeneric LevelLoaderAttacher(DiContainer contract)
         {
-            return contract.Bind(typeof(MultiplayerLevelLoader), typeof(ITickable)).To<LevelLoaderStub>();
+            return contract.Bind(typeof(MultiplayerLevelLoader), typeof(ITickable)).To<ExtendedLevelLoader>();
         }
     }
 

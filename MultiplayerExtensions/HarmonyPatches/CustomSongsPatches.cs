@@ -17,21 +17,21 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static bool Prefix(ref bool __result)
         {
-            __result = MPState.CurrentGameType == MultiplayerGameType.Private && MPState.CustomSongsEnabled;
+            __result = MPState.CurrentGameType != MultiplayerGameType.QuickPlay && MPState.CustomSongsEnabled;
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(HostLobbySetupViewController), nameof(HostLobbySetupViewController.SetPlayersMissingLevelText), MethodType.Normal)]
+    [HarmonyPatch(typeof(LobbySetupViewController), nameof(LobbySetupViewController.SetPlayersMissingLevelText), MethodType.Normal)]
     internal class MissingLevelStartPatch
     {
         /// <summary>
         /// Disables starting of game if not all players have song.
         /// </summary>
-        static void Prefix(HostLobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameButton)
+        static void Prefix(LobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameButton)
         {
             if (____startGameButton.interactable)
-                __instance.SetStartGameEnabled(playersMissingLevelText == null, HostLobbySetupViewController.CannotStartGameReason.None);
+                __instance.SetStartGameEnabled(CannotStartGameReason.None);
         }
     }
 
@@ -59,24 +59,6 @@ namespace MultiplayerExtensions.HarmonyPatches
                 });
 
             return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(NetworkPlayerEntitlementChecker), nameof(NetworkPlayerEntitlementChecker.GetPlayerLevelEntitlementsAsync), MethodType.Normal)]
-    internal class StartGameLevelEntitlementPatch
-    {
-        /// <summary>
-        /// Changes the return value if it returns 'NotDownloaded' so that the host can start the game.
-        /// </summary>
-        static void Postfix(ref Task<EntitlementsStatus> __result)
-        {
-            __result = __result.ContinueWith(r =>
-            {
-                if (r.Result == EntitlementsStatus.NotDownloaded)
-                    return EntitlementsStatus.Ok;
-                else
-                    return r.Result;
-            });
         }
     }
 

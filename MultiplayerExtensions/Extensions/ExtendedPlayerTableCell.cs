@@ -10,7 +10,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.OverrideClasses
 {
-    class PlayerTableCellStub : GameServerPlayerTableCell
+    class ExtendedPlayerTableCell : GameServerPlayerTableCell
     {
         protected NetworkPlayerEntitlementChecker _entitlementChecker = null!;
         protected ILobbyPlayersDataModel _playersDataModel = null!;
@@ -70,11 +70,11 @@ namespace MultiplayerExtensions.OverrideClasses
             __buttonBinder.AddBinding(_useModifiersButton, new Action(base.HandleUseModifiersButtonPressed));
         }
 
-        public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, bool isHost, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
+        public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerData playerData, bool hasKickPermissions, bool allowSelection, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
         {
             if (getLevelEntitlementTask != null)
                 getLevelEntitlementTask = getLevelEntitlementTask.ContinueWith<AdditionalContentModel.EntitlementStatus>(r => AdditionalContentModel.EntitlementStatus.Owned);
-            base.SetData(connectedPlayer, playerDataModel, isHost, getLevelEntitlementTask);
+            base.SetData(connectedPlayer, playerData, hasKickPermissions, allowSelection, getLevelEntitlementTask);
             GetLevelEntitlement(connectedPlayer);
             lastPlayer = connectedPlayer;
         }
@@ -85,16 +85,16 @@ namespace MultiplayerExtensions.OverrideClasses
                 entitlementCts.Cancel();
             entitlementCts = new CancellationTokenSource();
 
-            string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.hostUserId)?.levelID;
+            string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.partyOwnerId)?.levelID;
             if (levelId == null) 
                 return;
 
             lastLevelId = levelId;
 
             bool needsRpc = false;
-            Task<EntitlementsStatus> entitlement = player.isMe ? 
-                _entitlementChecker.GetEntitlementStatus(levelId) : 
-                _entitlementChecker.GetTcsTaskCanPlayerPlayLevel(player, levelId, entitlementCts.Token, out needsRpc);
+            Task<EntitlementsStatus> entitlement = player.isMe ?
+                _entitlementChecker.GetEntitlementStatus(levelId) :
+                Task.FromResult(EntitlementsStatus.Ok);
             if (needsRpc)
                 _menuRpcManager.GetIsEntitledToLevel(levelId);
             SetLevelEntitlement(player, await entitlement);

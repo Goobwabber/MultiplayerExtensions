@@ -32,6 +32,7 @@ namespace MultiplayerExtensions.Sessions
 
         public void Dispose()
         {
+            _sessionManager.connectedEvent -= HandleConnected;
             _sessionManager.playerStateChangedEvent -= HandlePlayerStateChanged;
         }
 

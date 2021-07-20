@@ -146,4 +146,11 @@
             }
         }
     }
+
+    public enum MultiplayerGameType
+	{
+        QuickPlay,
+        Private,
+        None
+	}
 }

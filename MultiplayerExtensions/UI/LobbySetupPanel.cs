@@ -5,27 +5,27 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using MultiplayerExtensions.OverrideClasses;
 using Polyglot;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    class ClientLobbySetupPanel : BSMLResourceViewController
+    class LobbySetupPanel : BSMLResourceViewController
     {
-
-        public override string ResourceName => "MultiplayerExtensions.UI.HostLobbySetupPanel.bsml";
+        public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
         private IMultiplayerSessionManager sessionManager;
 
         CurvedTextMeshPro? modifierText;
 
         [Inject]
-        internal void Inject(IMultiplayerSessionManager sessionManager, ClientLobbySetupViewController clientViewController, MultiplayerLevelLoader levelLoader)
+        internal void Inject(IMultiplayerSessionManager sessionManager, LobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader)
         {
             this.sessionManager = sessionManager;
             base.DidActivate(true, false, true);
 
-            clientViewController.didActivateEvent += OnActivate;
+            hostViewController.didActivateEvent += OnActivate;
         }
 
         #region UIComponents
@@ -61,8 +61,9 @@ namespace MultiplayerExtensions.UI
         [UIValue("CustomSongs")]
         public bool CustomSongs
         {
-            get => MPState.CustomSongsEnabled;
-            set {
+            get => Plugin.Config.CustomSongs;
+            set { 
+                Plugin.Config.CustomSongs = value;
                 if (MPState.CustomSongsEnabled != value)
                 {
                     MPState.CustomSongsEnabled = value;
@@ -74,8 +75,9 @@ namespace MultiplayerExtensions.UI
         [UIValue("FreeMod")]
         public bool FreeMod
         {
-            get => MPState.FreeModEnabled;
+            get => Plugin.Config.FreeMod;
             set { 
+                Plugin.Config.FreeMod = value;
                 if (MPState.FreeModEnabled != value)
                 {
                     MPState.FreeModEnabled = value;
@@ -87,9 +89,10 @@ namespace MultiplayerExtensions.UI
         [UIValue("HostPick")]
         public bool HostPick
         {
-            get => MPState.HostPickEnabled;
+            get => Plugin.Config.HostPick;
             set
             {
+                Plugin.Config.HostPick = value;
                 if (MPState.HostPickEnabled != value)
                 {
                     MPState.HostPickEnabled = value;
@@ -147,6 +150,8 @@ namespace MultiplayerExtensions.UI
         {
             CustomSongs = value;
             customSongsToggle.Value = value;
+
+            UpdateStates();
         }
 
         [UIAction("SetFreeMod")]
@@ -154,6 +159,8 @@ namespace MultiplayerExtensions.UI
         {
             FreeMod = value;
             freeModToggle.Value = value;
+
+            UpdateStates();
             SetModifierText();
         }
 
@@ -162,6 +169,8 @@ namespace MultiplayerExtensions.UI
         {
             HostPick = value;
             hostPickToggle.Value = value;
+
+            UpdateStates();
         }
 
         [UIAction("SetVerticalHUD")]
@@ -208,31 +217,18 @@ namespace MultiplayerExtensions.UI
 
         private void OnActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
-            customSongsToggle.interactable = false;
-            freeModToggle.interactable = false;
-
             if (firstActivation)
             {
                 Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
                 spectatorText.position = new Vector3(spectatorText.position.x, 0.25f, spectatorText.position.z);
             }
-
-            if (sessionManager.connectionOwner != null)
-                OnPlayerStateChanged(sessionManager.connectionOwner);
         }
 
-        private void OnPlayerStateChanged(IConnectedPlayer player)
+        private void UpdateStates()
         {
-            customSongsToggle.interactable = false;
-            freeModToggle.interactable = false;
-            hostPickToggle.interactable = false;
-            if (player.userId != sessionManager.localPlayer.userId && player.isConnectionOwner)
-            {
-                SetCustomSongs(player.HasState("customsongs"));
-                SetFreeMod(player.HasState("freemod"));
-                SetHostPick(player.HasState("hostpick"));
-            }
+            sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
+            sessionManager?.SetLocalPlayerState("freemod", FreeMod);
+            sessionManager?.SetLocalPlayerState("hostpick", HostPick);
         }
 
         private void SetModifierText()
