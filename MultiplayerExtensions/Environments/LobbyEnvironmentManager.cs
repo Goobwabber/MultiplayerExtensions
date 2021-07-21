@@ -78,7 +78,7 @@ namespace MultiplayerExtensions.Environments
 		public void SetDefaultPlayerPlaceColors()
 		{
 			SetAllPlayerPlaceColors(Color.black, true);
-			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedSessionManager.localColor, true);
+			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedSessionManager.localExtendedPlayer.playerColor, true);
 			
 			foreach (var player in _sessionManager.connectedPlayers)
 				SetPlayerPlaceColor(player, ExtendedPlayer.DefaultColor, false);

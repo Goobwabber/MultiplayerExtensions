@@ -12,11 +12,11 @@ namespace MultiplayerExtensions.Extensions
 		protected PacketManager _packetManager = null!;
 		protected IPlatformUserModel _platformUserModel = null!;
 
+		public IConnectedPlayer partyOwner { get; internal set; } = null!;
+
 		private Dictionary<string, ExtendedPlayer> _extendedPlayers = new Dictionary<string, ExtendedPlayer>();
 		public Dictionary<string, ExtendedPlayer> extendedPlayers { get => _extendedPlayers; }
-		internal static string? localPlatformID;
-		internal static Platform localPlatform;
-		internal static Color localColor;
+		public static ExtendedPlayer localExtendedPlayer { get; protected set; } = null!;
 
 		public event Action<ExtendedPlayer>? extendedPlayerConnectedEvent;
 
@@ -33,6 +33,8 @@ namespace MultiplayerExtensions.Extensions
 
 			base.StartSession(connectedPlayerManager);
 
+			localExtendedPlayer = new ExtendedPlayer(localPlayer);
+
 			MPState.FreeModEnabled = Plugin.Config.FreeMod;
 			MPState.HostPickEnabled = Plugin.Config.HostPick;
 
@@ -47,17 +49,17 @@ namespace MultiplayerExtensions.Extensions
 			playerDisconnectedEvent += HandlePlayerDisconnected;
 			_packetManager.RegisterCallback<ExtendedPlayerPacket>(HandleExtendedPlayerPacket);
 
-			if (!ColorUtility.TryParseHtmlString(Plugin.Config.Color, out localColor))
-				localColor = new Color(0.031f, 0.752f, 1f);
+			if (!ColorUtility.TryParseHtmlString(Plugin.Config.Color, out localExtendedPlayer.playerColor))
+				localExtendedPlayer.playerColor = new Color(0.031f, 0.752f, 1f);
 
 			_platformUserModel.GetUserInfo().ContinueWith(r =>
 			{
-				localPlatformID = r.Result.platformUserId;
-				localPlatform = r.Result.platform.ToPlatform();
+				localExtendedPlayer.platformID = r.Result.platformUserId;
+				localExtendedPlayer.platform = r.Result.platform.ToPlatform();
 
 				if (Plugin.Config.Statistics)
 				{
-					_ = Statistics.AddUser(localPlatformID, (int)localPlatform);
+					_ = Statistics.AddUser(localExtendedPlayer.platformID, (int)localExtendedPlayer.platform);
 				}
 			});
 		}
@@ -79,16 +81,16 @@ namespace MultiplayerExtensions.Extensions
 			MPState.LocalPlayerIsHost = localPlayer.isConnectionOwner;
 			if (Plugin.Config.Statistics)
 			{
-				_ = Statistics.UseMaster(localPlatformID, (int)localPlatform, MPState.CurrentMasterServer.hostname, MPState.LocalPlayerIsHost);
+				_ = Statistics.UseMaster(localExtendedPlayer.platformID, (int)localExtendedPlayer.platform, MPState.CurrentMasterServer.hostname, MPState.LocalPlayerIsHost);
 			}
 		}
 
 		private void HandlePlayerConnected(IConnectedPlayer player)
 		{
 			Plugin.Log?.Info($"Player '{player.userId}' joined");
-			if (localPlatformID != null)
+			if (localExtendedPlayer.platformID != null)
 			{
-				ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localPlatformID, localPlatform, localColor);
+				ExtendedPlayerPacket localPlayerPacket = new ExtendedPlayerPacket().Init(localExtendedPlayer.platformID, localExtendedPlayer.platform, localExtendedPlayer.playerColor);
 				_packetManager.Send(localPlayerPacket);
 			}
 		}

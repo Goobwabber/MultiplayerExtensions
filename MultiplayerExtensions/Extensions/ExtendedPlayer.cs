@@ -12,7 +12,7 @@ namespace MultiplayerExtensions.Extensions
         /// <summary>
         /// Platform User ID from <see cref="UserInfo.platformUserId"/>
         /// </summary>
-        public string platformID { get; internal set; }
+        public string platformID { get; internal set; } = null!;
 
         /// <summary>
         /// Platform from <see cref="UserInfo.platformUserId">
@@ -30,6 +30,26 @@ namespace MultiplayerExtensions.Extensions
         public Color playerColor;
 
         internal GameplayModifiers? lastModifiers;
+
+        public bool isPartyOwner { get; internal set; }
+        public bool hasRecommendBeatmapPermission { get; internal set; }
+        public bool hasRecommendModifiersPermission { get; internal set; }
+        public bool hasKickVotePermission { get; internal set; }
+
+        public ExtendedPlayer(IConnectedPlayer player)
+		{
+            _connectedPlayer = player;
+            this.mpexVersion = Plugin.PluginMetadata.Version;
+        }
+
+        public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, Color playerColor)
+		{
+            _connectedPlayer = player;
+            this.platformID = platformID;
+            this.platform = platform;
+            this.mpexVersion = Plugin.PluginMetadata.Version;
+            this.playerColor = playerColor;
+        }
 
         public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, SemVer.Version mpexVersion, Color playerColor)
         {

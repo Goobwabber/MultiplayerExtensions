@@ -36,6 +36,8 @@ namespace MultiplayerExtensions.Extensions
             _menuRpcManager.recommendGameplayModifiersEvent += HandleMenuRpcManagerRecommendGameplayModifiers;
             _menuRpcManager.clearRecommendedGameplayModifiersEvent -= base.HandleMenuRpcManagerClearRecommendedGameplayModifiers;
             _menuRpcManager.clearRecommendedGameplayModifiersEvent += HandleMenuRpcManagerClearRecommendedGameplayModifiers;
+            _menuRpcManager.setPlayersPermissionConfigurationEvent -= base.HandleMenuRpcManagerSetPlayersPermissionConfiguration;
+            _menuRpcManager.setPlayersPermissionConfigurationEvent += HandleMenuRpcManagerSetPlayersPermissionConfiguration;
         }
 
         public new void Deactivate()
@@ -54,6 +56,8 @@ namespace MultiplayerExtensions.Extensions
             _menuRpcManager.recommendGameplayModifiersEvent += base.HandleMenuRpcManagerRecommendGameplayModifiers;
             _menuRpcManager.clearRecommendedGameplayModifiersEvent -= HandleMenuRpcManagerClearRecommendedGameplayModifiers;
             _menuRpcManager.clearRecommendedGameplayModifiersEvent += base.HandleMenuRpcManagerClearRecommendedGameplayModifiers;
+            _menuRpcManager.setPlayersPermissionConfigurationEvent -= HandleMenuRpcManagerSetPlayersPermissionConfiguration;
+            _menuRpcManager.setPlayersPermissionConfigurationEvent += base.HandleMenuRpcManagerSetPlayersPermissionConfiguration;
 
             base.Deactivate();
         }
@@ -213,10 +217,26 @@ namespace MultiplayerExtensions.Extensions
             }
         }
 
-        /// <summary>
-        /// Used to raise the <see cref="MultiplayerExtensions.MPEvents.BeatmapSelected"/> event.
-        /// </summary>
-        private void OnSelectedBeatmap(string userId, BeatmapIdentifierNetSerializable? beatmapId)
+		public override void HandleMenuRpcManagerSetPlayersPermissionConfiguration(string userId, PlayersLobbyPermissionConfigurationNetSerializable playersLobbyPermissionConfiguration)
+		{
+            foreach (PlayerLobbyPermissionConfigurationNetSerializable playerLobbyPermissionConfigurationNetSerializable in playersLobbyPermissionConfiguration.playersPermission)
+            {
+                ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(userId);
+                if (player != null)
+				{
+                    player.isPartyOwner = playerLobbyPermissionConfigurationNetSerializable.isServerOwner;
+                    player.hasRecommendBeatmapPermission = playerLobbyPermissionConfigurationNetSerializable.hasRecommendBeatmapsPermission;
+                    player.hasRecommendModifiersPermission = playerLobbyPermissionConfigurationNetSerializable.hasRecommendGameplayModifiersPermission;
+                    player.hasKickVotePermission = playerLobbyPermissionConfigurationNetSerializable.hasKickVotePermission;
+                }
+                this.SetPlayerIsPartyOwner(playerLobbyPermissionConfigurationNetSerializable.userId, playerLobbyPermissionConfigurationNetSerializable.isServerOwner, true);
+            }
+        }
+
+		/// <summary>
+		/// Used to raise the <see cref="MultiplayerExtensions.MPEvents.BeatmapSelected"/> event.
+		/// </summary>
+		private void OnSelectedBeatmap(string userId, BeatmapIdentifierNetSerializable? beatmapId)
         {
             SelectedBeatmapEventArgs args;
             UserType userType = UserType.None;

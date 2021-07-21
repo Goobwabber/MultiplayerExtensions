@@ -1,6 +1,8 @@
-﻿namespace MultiplayerExtensions.Extensions
+﻿using System;
+
+namespace MultiplayerExtensions.Extensions
 {
-	class ExtendedGameStateController : LobbyGameStateController, ILobbyGameStateController
+	class ExtendedGameStateController : LobbyGameStateController, ILobbyGameStateController, IDisposable
 	{
 	}
 }
