@@ -208,7 +208,9 @@ namespace MultiplayerExtensions.Extensions
 
                     HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
                     _packetManager.Send(new PreviewBeatmapPacket(preview!, characteristic.serializedName, beatmapDifficulty));
-                    if (!_sessionManager.connectionOwner.HasState("modded"))
+                    if (_sessionManager.connectionOwner.HasState("modded"))
+                        _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
+                    else
                         _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(PlaceholderSongID, characteristic.serializedName, beatmapDifficulty));
                 }
             }else
