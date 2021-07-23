@@ -48,7 +48,7 @@ namespace MultiplayerExtensions.Beatmaps
             writer.Put(this.songDuration);
 
             writer.Put(this.characteristic);
-            writer.PutVarUInt((uint)this.difficulty);
+            writer.Put((uint)this.difficulty);
         }
 
         public void Deserialize(NetDataReader reader)
@@ -63,7 +63,7 @@ namespace MultiplayerExtensions.Beatmaps
             this.songDuration = reader.GetFloat();
 
             this.characteristic = reader.GetString();
-            this.difficulty = (BeatmapDifficulty)reader.GetVarUInt();
+            this.difficulty = (BeatmapDifficulty)reader.GetUInt();
         }
 
         public void Release()
