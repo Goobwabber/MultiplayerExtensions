@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace MultiplayerExtensions.OverrideClasses
+namespace MultiplayerExtensions.Extensions
 {
     class ExtendedPlayerTableCell : GameServerPlayerTableCell
     {
-        protected NetworkPlayerEntitlementChecker _entitlementChecker = null!;
+        protected ExtendedEntitlementChecker _entitlementChecker = null!;
         protected ILobbyPlayersDataModel _playersDataModel = null!;
         protected IMenuRpcManager _menuRpcManager = null!;
 
@@ -30,7 +30,7 @@ namespace MultiplayerExtensions.OverrideClasses
         [Inject]
         internal void Inject(NetworkPlayerEntitlementChecker entitlementChecker, ILobbyPlayersDataModel playersDataModel, IMenuRpcManager menuRpcManager)
         {
-            _entitlementChecker = entitlementChecker;
+            _entitlementChecker = (entitlementChecker as ExtendedEntitlementChecker)!;
             _playersDataModel = playersDataModel;
             _menuRpcManager = menuRpcManager;
         }
@@ -75,6 +75,7 @@ namespace MultiplayerExtensions.OverrideClasses
             if (getLevelEntitlementTask != null)
                 getLevelEntitlementTask = getLevelEntitlementTask.ContinueWith<AdditionalContentModel.EntitlementStatus>(r => AdditionalContentModel.EntitlementStatus.Owned);
             base.SetData(connectedPlayer, playerData, hasKickPermissions, allowSelection, getLevelEntitlementTask);
+            _localPlayerBackgroundImage.enabled = true;
             GetLevelEntitlement(connectedPlayer);
             lastPlayer = connectedPlayer;
         }
@@ -91,13 +92,8 @@ namespace MultiplayerExtensions.OverrideClasses
 
             lastLevelId = levelId;
 
-            bool needsRpc = false;
-            Task<EntitlementsStatus> entitlement = player.isMe ?
-                _entitlementChecker.GetEntitlementStatus(levelId) :
-                Task.FromResult(EntitlementsStatus.Ok);
-            if (needsRpc)
-                _menuRpcManager.GetIsEntitledToLevel(levelId);
-            SetLevelEntitlement(player, await entitlement);
+            EntitlementsStatus entitlement = await _entitlementChecker.GetUserEntitlementStatus(player.userId, levelId);
+            SetLevelEntitlement(player, entitlement);
         }
 
         private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)

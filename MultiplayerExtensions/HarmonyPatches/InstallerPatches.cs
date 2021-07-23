@@ -149,7 +149,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 
             ExtendedSessionManager sessionManager = (Container.Resolve<IMultiplayerSessionManager>() as ExtendedSessionManager)!;
             ExtendedPlayer? exPlayer = sessionManager.GetExtendedPlayer(____connectedPlayer);
-            ExtendedPlayer? hostPlayer = sessionManager.GetExtendedPlayer(sessionManager.connectionOwner);
+            ExtendedPlayer? hostPlayer = sessionManager.GetExtendedPlayer(sessionManager.partyOwner);
 
             GameplayModifiers? newModifiers;
             if (____connectedPlayer.HasState("modded") && MPState.FreeModEnabled && exPlayer?.mpexVersion >= _minVersionFreeMod)

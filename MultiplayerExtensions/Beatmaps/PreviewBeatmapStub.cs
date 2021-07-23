@@ -121,10 +121,9 @@ namespace MultiplayerExtensions.Beatmaps
 				{
                     Plugin.Log?.Warn($"Failed to fetch beatmap cover: {ex.Message}");
 				}
-
 			}
             
-            return Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
+            return null!;
         }
 
         public Task<AudioClip>? GetPreviewAudioClipAsync(CancellationToken cancellationToken) => _preview?.GetPreviewAudioClipAsync(cancellationToken);

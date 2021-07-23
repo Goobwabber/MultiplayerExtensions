@@ -1,6 +1,7 @@
 ﻿using MultiplayerExtensions.Extensions;
 using MultiplayerExtensions.HarmonyPatches;
 using MultiplayerExtensions.Packets;
+using MultiplayerExtensions.Utilities;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers

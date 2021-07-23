@@ -50,6 +50,22 @@
             }
         }
 
+        private static MultiplayerLobbyState? _currentLobbyState = MultiplayerLobbyState.None;
+        /// <summary>
+        /// The current multiplayer game state.
+        /// </summary>
+        public static MultiplayerLobbyState? CurrentLobbyState
+        {
+            get => _currentLobbyState;
+            internal set
+            {
+                if (_currentLobbyState == value)
+                    return;
+                _currentLobbyState = value;
+                Plugin.Log?.Debug($"Updated game state to '{value}'");
+            }
+        }
+
         private static bool _lobbyIsModded;
         /// <summary>
         /// Whether the current lobby is custom (true) or official (false).

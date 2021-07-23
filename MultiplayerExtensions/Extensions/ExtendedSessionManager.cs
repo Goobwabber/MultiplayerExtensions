@@ -42,7 +42,6 @@ namespace MultiplayerExtensions.Extensions
 			SetLocalPlayerState("freemod", Plugin.Config.FreeMod);
 			SetLocalPlayerState("hostpick", Plugin.Config.HostPick);
 
-			connectedEvent += HandleConnected;
 			playerStateChangedEvent += HandlePlayerStateChanged;
 
 			playerConnectedEvent += HandlePlayerConnected;
@@ -66,7 +65,6 @@ namespace MultiplayerExtensions.Extensions
 
 		public new void EndSession()
 		{
-			connectedEvent -= HandleConnected;
 			playerStateChangedEvent -= HandlePlayerStateChanged;
 
 			playerConnectedEvent -= HandlePlayerConnected;
@@ -74,15 +72,6 @@ namespace MultiplayerExtensions.Extensions
 			_packetManager.UnregisterCallback<ExtendedPlayerPacket>();
 
 			base.EndSession();
-		}
-
-		private void HandleConnected()
-		{
-			MPState.LocalPlayerIsHost = localPlayer.isConnectionOwner;
-			if (Plugin.Config.Statistics)
-			{
-				_ = Statistics.UseMaster(localExtendedPlayer.platformID, (int)localExtendedPlayer.platform, MPState.CurrentMasterServer.hostname, MPState.LocalPlayerIsHost);
-			}
 		}
 
 		private void HandlePlayerConnected(IConnectedPlayer player)

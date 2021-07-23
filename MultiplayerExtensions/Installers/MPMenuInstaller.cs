@@ -1,6 +1,6 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Environments;
-using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.Extensions;
 using MultiplayerExtensions.UI;
 using UnityEngine;
 using Zenject;

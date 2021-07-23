@@ -9,18 +9,42 @@ using UnityEngine.UI;
 /// </summary>
 namespace MultiplayerExtensions.HarmonyPatches
 {
+    [HarmonyPatch(typeof(MultiplayerLobbyConnectionController), nameof(MultiplayerLobbyConnectionController.CreateParty), MethodType.Normal)]
+    internal class CreatePartyPatch
+    {
+        /// <summary>
+        /// Modifies the data used to create a party game
+        /// </summary>
+        static void Prefix(CreateServerFormData data)
+        {
+            data.songPacks = SongPackMask.all | new SongPackMask("custom_levelpack_CustomLevels");
+        }
+    }
+
     [HarmonyPatch(typeof(MultiplayerLevelSelectionFlowCoordinator), "enableCustomLevels", MethodType.Getter)]
     internal class EnableCustomLevelsPatch
     {
         /// <summary>
         /// Overrides getter for <see cref="MultiplayerLevelSelectionFlowCoordinator.enableCustomLevels"/>
         /// </summary>
-        static bool Prefix(ref bool __result)
+        static bool Prefix(ref bool __result, SongPackMask ____songPackMask)
         {
-            __result = MPState.CustomSongsEnabled;
+            __result = ____songPackMask.Contains(new SongPackMask("custom_levelpack_CustomLevels"));
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "DidActivate", MethodType.Normal)]
+    internal class GameServerDidActivatePatch
+	{
+        /// <summary>
+        /// Does stuff as soon as the lobby is loaded.
+        /// </summary>
+        static void Postfix(IUnifiedNetworkPlayerModel ____unifiedNetworkPlayerModel)
+		{
+            MPState.CustomSongsEnabled = ____unifiedNetworkPlayerModel.selectionMask.songPacks.Contains(new SongPackMask("custom_levelpack_CustomLevels"));
+		}
+	}
 
     [HarmonyPatch(typeof(LobbySetupViewController), nameof(LobbySetupViewController.SetPlayersMissingLevelText), MethodType.Normal)]
     internal class MissingLevelStartPatch
