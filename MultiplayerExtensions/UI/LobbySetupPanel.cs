@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using MultiplayerExtensions.Extensions;
 using Polyglot;
 using System.Linq;
 using UnityEngine;
@@ -13,17 +14,21 @@ namespace MultiplayerExtensions.UI
     class LobbySetupPanel : BSMLResourceViewController
     {
         public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupPanel.bsml";
-        private IMultiplayerSessionManager sessionManager;
+
+        private ExtendedSessionManager _sessionManager = null!;
+        private LobbyPlayerPermissionsModel _permissionsModel = null!;
 
         CurvedTextMeshPro? modifierText;
 
         [Inject]
-        internal void Inject(IMultiplayerSessionManager sessionManager, LobbySetupViewController hostViewController, MultiplayerLevelLoader levelLoader)
+        internal void Inject(IMultiplayerSessionManager sessionManager, LobbyPlayerPermissionsModel permissionsModel, LobbySetupViewController lobbyViewController)
         {
-            this.sessionManager = sessionManager;
+            this._sessionManager = (sessionManager as ExtendedSessionManager)!;
+            this._permissionsModel = permissionsModel;
             base.DidActivate(true, false, true);
 
-            hostViewController.didActivateEvent += OnActivate;
+            lobbyViewController.didActivateEvent += OnActivate;
+            _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
 
         #region UIComponents
@@ -59,9 +64,10 @@ namespace MultiplayerExtensions.UI
         [UIValue("FreeMod")]
         public bool FreeMod
         {
-            get => Plugin.Config.FreeMod;
-            set { 
-                Plugin.Config.FreeMod = value;
+            get => _permissionsModel.isPartyOwner ? Plugin.Config.FreeMod : MPState.FreeModEnabled;
+            set {
+                if (_permissionsModel.isPartyOwner)
+                    Plugin.Config.FreeMod = value;
                 if (MPState.FreeModEnabled != value)
                 {
                     MPState.FreeModEnabled = value;
@@ -76,7 +82,8 @@ namespace MultiplayerExtensions.UI
             get => Plugin.Config.HostPick;
             set
             {
-                Plugin.Config.HostPick = value;
+                if (_permissionsModel.isPartyOwner)
+                    Plugin.Config.HostPick = value;
                 if (MPState.HostPickEnabled != value)
                 {
                     MPState.HostPickEnabled = value;
@@ -192,6 +199,9 @@ namespace MultiplayerExtensions.UI
 
         private void OnActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
+            freeModToggle.interactable = _permissionsModel.isPartyOwner;
+            hostPickToggle.interactable = _permissionsModel.isPartyOwner;
+
             if (firstActivation)
             {
                 Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
@@ -199,10 +209,20 @@ namespace MultiplayerExtensions.UI
             }
         }
 
+        private void HandlePlayerStateChanged(IConnectedPlayer player)
+		{
+            ExtendedPlayer? exPlayer = _sessionManager.GetExtendedPlayer(player);
+            if (exPlayer != null && exPlayer.isPartyOwner)
+			{
+                FreeMod = exPlayer.HasState("freemod");
+                HostPick = exPlayer.HasState("hostpick");
+            }
+		}
+
         private void UpdateStates()
         {
-            sessionManager?.SetLocalPlayerState("freemod", FreeMod);
-            sessionManager?.SetLocalPlayerState("hostpick", HostPick);
+            _sessionManager?.SetLocalPlayerState("freemod", FreeMod);
+            _sessionManager?.SetLocalPlayerState("hostpick", HostPick);
         }
 
         private void SetModifierText()
