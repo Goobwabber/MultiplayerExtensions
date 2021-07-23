@@ -18,7 +18,7 @@ jobs:
         dotnet-version: 3.1.101
     - name: GetStrippedRefs
       env:
-        FILES_URL: ${{ secrets.BSFILES_URL }}
+        FILES_URL: ${{ secrets.BSFILES_1_16_3_URL }}
       run: wget --no-check-certificate "$FILES_URL" -q -O bsfiles.zip
     - name: ExtractRefs
       run: unzip -q -n bsfiles.zip -d ./Refs
