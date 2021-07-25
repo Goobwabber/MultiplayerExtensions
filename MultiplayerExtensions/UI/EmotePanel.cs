@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
+using System.Net;
 
 namespace MultiplayerExtensions.UI
 {
@@ -32,6 +33,7 @@ namespace MultiplayerExtensions.UI
 
         private readonly PacketManager packetManager;
         private readonly LobbyEnvironmentManager environmentManager;
+        private readonly IPlatformUserModel platformUserModel;
 
         [UIComponent("emote-list-1")]
         public CustomListTableData emoteList1 = null!;
@@ -39,10 +41,11 @@ namespace MultiplayerExtensions.UI
         [UIComponent("emote-list-2")]
         public CustomListTableData emoteList2 = null!;
 
-        public EmotePanel(LobbyEnvironmentManager environmentManager, PacketManager packetManager)
+        public EmotePanel(LobbyEnvironmentManager environmentManager, PacketManager packetManager, IPlatformUserModel platformUserModel)
         {
             this.packetManager = packetManager;
             this.environmentManager = environmentManager;
+            this.platformUserModel = platformUserModel;
         }
 
         public void Initialize()
@@ -72,6 +75,7 @@ namespace MultiplayerExtensions.UI
                 floatingScreen.transform.localEulerAngles = new Vector3(50, 0);
                 screenPosition = floatingScreen.transform.position;
                 screenAngles = floatingScreen.transform.localEulerAngles;
+                LoadImages();
             }
             // Restore position so it respawns where we expect it to
             floatingScreen.transform.position = screenPosition;
@@ -92,13 +96,19 @@ namespace MultiplayerExtensions.UI
             }
         }
 
-        private void LoadImages()
+        private async Task LoadImages()
         {
-            foreach (var url in Plugin.Config.EmoteURLs)
+            if (localEmoteImages.Count == 0)
             {
-                if (!localEmoteImages.ContainsKey(url))
+                UserInfo user = await platformUserModel.GetUserInfo();
+                EmoteAPI emoteAPIResults = await EmoteAPI.GetEmoteAPIResultAsync(user.platformUserId);
+
+                foreach (var url in emoteAPIResults.GlobalEmotes)
                 {
-                    localEmoteImages.Add(url, new EmoteImage(url));
+                    if (!localEmoteImages.ContainsKey(url))
+                    {
+                        localEmoteImages.Add(url, new EmoteImage(url));
+                    }
                 }
             }
         }
@@ -108,7 +118,7 @@ namespace MultiplayerExtensions.UI
             emoteList1.data.Clear();
             emoteList2.data.Clear();
 
-            LoadImages();
+            await LoadImages();
             foreach (var emoteImage in localEmoteImages)
             {
                 if (!emoteImage.Value.SpriteWasLoaded && !emoteImage.Value.Blacklist)
@@ -145,7 +155,7 @@ namespace MultiplayerExtensions.UI
                 {
                     if (emoteList2.data.Count == 0 || emoteList2.data[emoteList2.data.Count - 1].text != "")
                     {
-                        emoteList1.data.Add(new CustomCellInfo(emoteImage.URL, "", emoteImage.Sprite));
+                        emoteList1.data.Add(new CustomCellInfo(emoteImage.imageID, "", emoteImage.Sprite));
                         emoteList1.tableView.ReloadDataKeepingPosition();
 
                         emoteList2.data.Add(new CustomCellInfo("", "", BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite));
@@ -163,7 +173,7 @@ namespace MultiplayerExtensions.UI
                     }
                     else
                     {
-                        emoteList2.data[emoteList2.data.Count - 1] = new CustomCellInfo(emoteImage.URL, "", emoteImage.Sprite);
+                        emoteList2.data[emoteList2.data.Count - 1] = new CustomCellInfo(emoteImage.imageID, "", emoteImage.Sprite);
                         emoteList2.tableView.ReloadDataKeepingPosition();
                     }
                     _ = ViewControllerMonkeyCleanup();

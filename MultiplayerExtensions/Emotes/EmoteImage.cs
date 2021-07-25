@@ -10,7 +10,7 @@ namespace MultiplayerExtensions.Emotes
 {
     public class EmoteImage
     {
-        public string URL { get; private set; }
+        public string imageID { get; private set; }
         public bool Blacklist { get; private set; }
         private Sprite _sprite;
         private bool SpriteLoadQueued;
@@ -24,9 +24,9 @@ namespace MultiplayerExtensions.Emotes
         private static bool CoroutineRunning = false;
         private static readonly Queue<Action> SpriteQueue = new Queue<Action>();
 
-        public EmoteImage(string url)
+        public EmoteImage(string imageID)
         {
-            URL = url;
+            this.imageID = imageID;
             Blacklist = false;
             SpriteWasLoaded = false;
             spriteLoadSemaphore = new SemaphoreSlim(0, 1);
@@ -56,7 +56,7 @@ namespace MultiplayerExtensions.Emotes
 
         internal async Task DownloadImage()
         {
-            Uri uri = new Uri(URL);
+            Uri uri = new Uri($"https://mpex.goobwabber.com/emotes/{imageID}");
             using (var webClient = new WebClient())
             {
                 imageData = await webClient.DownloadDataTaskAsync(uri);
@@ -88,7 +88,7 @@ namespace MultiplayerExtensions.Emotes
                         }
                         else
                         {
-                            Plugin.Log.Critical("Could not load " + emoteImage.URL);
+                            Plugin.Log.Critical("Could not load " + emoteImage.imageID);
                             emoteImage.SpriteWasLoaded = false;
                             emoteImage.Blacklist = true;
                         }
@@ -98,7 +98,7 @@ namespace MultiplayerExtensions.Emotes
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.Critical("Could not load " + emoteImage.URL + "\nException message: " + e.Message);
+                    Plugin.Log.Critical("Could not load " + emoteImage.imageID + "\nException message: " + e.Message);
                     emoteImage.SpriteWasLoaded = false;
                     emoteImage.Blacklist = true;
                     emoteImage.SpriteLoaded?.Invoke(emoteImage, null);
