@@ -1,8 +1,11 @@
 ﻿<bg id='root' bg='panel-top' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-	<horizontal horizontal-fit='PreferredSize' preferred-width='72' preferred-height='15' align-to-center='true'>
-		<page-button event-click='emote-list#PageUp' direction='Left' />
-		<list id='emote-list' cell-size='15' list-direction='Horizontal' list-style='Box' select-cell='emote-select' />
-		<page-button event-click='emote-list#PageDown' direction='Right' />
+	<horizontal horizontal-fit='PreferredSize' preferred-width='75' preferred-height='30' align-to-center='true'>
+		<page-button event-click='emote-list-1#PageUp,emote-list-2#PageUp' direction='Left' />
+		<vertical horizontal-fit='PreferredSize' preferred-width='60'>
+			<list id='emote-list-1' cell-size='15' list-direction='Horizontal' list-style='Box' select-cell='emote-select' />
+			<list id='emote-list-2' cell-size='15' list-direction='Horizontal' list-style='Box' select-cell='emote-select' />
+		</vertical>
+		<page-button event-click='emote-list-1#PageDown,emote-list-2#PageDown' direction='Right' />
 	</horizontal>
-	<button text='x' on-click='close-screen' anchor-pos-x ='69' anchor-pos-y='-3' />
+	<button text='x' italics='false' on-click='close-screen' anchor-pos-x ='75' anchor-pos-y='-3' />
 </bg>

@@ -3,13 +3,16 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using HMUI;
+using IPA.Utilities;
 using MultiplayerExtensions.Emotes;
 using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.Packets;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
@@ -30,8 +33,11 @@ namespace MultiplayerExtensions.UI
         private readonly PacketManager packetManager;
         private readonly LobbyEnvironmentManager environmentManager;
 
-        [UIComponent("emote-list")]
-        public CustomListTableData customListTableData = null!;
+        [UIComponent("emote-list-1")]
+        public CustomListTableData emoteList1 = null!;
+
+        [UIComponent("emote-list-2")]
+        public CustomListTableData emoteList2 = null!;
 
         public EmotePanel(LobbyEnvironmentManager environmentManager, PacketManager packetManager)
         {
@@ -59,7 +65,7 @@ namespace MultiplayerExtensions.UI
             if (!parsed)
             {
                 parsed = true;
-                floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(75, 30), true, new Vector3(0, 0.25f, 1), new Quaternion(0, 0, 0, 0));
+                floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(80, 30), true, new Vector3(0, 0.25f, 1), new Quaternion(0, 0, 0, 0));
                 BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "MultiplayerExtensions.UI.EmotePanel.bsml"), floatingScreen.gameObject, this);
                 floatingScreen.gameObject.SetActive(false);
                 floatingScreen.gameObject.name = "MultiplayerEmotePanel";
@@ -99,7 +105,8 @@ namespace MultiplayerExtensions.UI
 
         private async void ShowImages()
         {
-            customListTableData.data.Clear();
+            emoteList1.data.Clear();
+            emoteList2.data.Clear();
 
             LoadImages();
             foreach (var emoteImage in localEmoteImages)
@@ -112,11 +119,22 @@ namespace MultiplayerExtensions.UI
                 }
                 else if (emoteImage.Value.SpriteWasLoaded)
                 {
-                    customListTableData.data.Add(new CustomCellInfo(emoteImage.Key, "", emoteImage.Value.Sprite));
+                    if (emoteList2.data.Count == 0 || emoteList2.data[emoteList2.data.Count - 1].text != "")
+                    {
+                        emoteList1.data.Add(new CustomCellInfo(emoteImage.Key, "", emoteImage.Value.Sprite));
+                        emoteList2.data.Add(new CustomCellInfo("", "", BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite));
+                    }
+                    else
+                    {
+                        emoteList2.data[emoteList2.data.Count - 1] = new CustomCellInfo(emoteImage.Key, "", emoteImage.Value.Sprite);
+                    }
                 }
             }
-            customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+            emoteList1.tableView.ReloadDataKeepingPosition();
+            emoteList2.tableView.ReloadDataKeepingPosition();
+            emoteList1.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+            emoteList2.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+            _ = ViewControllerMonkeyCleanup();
         }
 
         private void LocalImage_SpriteLoaded(object sender, EventArgs e)
@@ -125,10 +143,42 @@ namespace MultiplayerExtensions.UI
             {
                 if (emoteImage.SpriteWasLoaded)
                 {
-                    customListTableData.data.Add(new CustomCellInfo(emoteImage.URL, "", emoteImage.Sprite));
-                    customListTableData.tableView.ReloadData();
+                    if (emoteList2.data.Count == 0 || emoteList2.data[emoteList2.data.Count - 1].text != "")
+                    {
+                        emoteList1.data.Add(new CustomCellInfo(emoteImage.URL, "", emoteImage.Sprite));
+                        emoteList1.tableView.ReloadDataKeepingPosition();
+
+                        emoteList2.data.Add(new CustomCellInfo("", "", BeatSaberMarkupLanguage.Utilities.ImageResources.BlankSprite));
+                        emoteList2.tableView.ReloadDataKeepingPosition();
+
+                        if (emoteList1.data.Count == 5)
+                        {
+                            emoteList1.tableView.AddCellToReusableCells(emoteList1.tableView.dataSource.CellForIdx(emoteList1.tableView, 3));
+                        }
+
+                        if (emoteList2.data.Count == 5)
+                        {
+                            emoteList2.tableView.AddCellToReusableCells(emoteList2.tableView.dataSource.CellForIdx(emoteList2.tableView, 3));
+                        }
+                    }
+                    else
+                    {
+                        emoteList2.data[emoteList2.data.Count - 1] = new CustomCellInfo(emoteImage.URL, "", emoteImage.Sprite);
+                        emoteList2.tableView.ReloadDataKeepingPosition();
+                    }
+                    _ = ViewControllerMonkeyCleanup();
                 }
                 emoteImage.SpriteLoaded -= LocalImage_SpriteLoaded;
+            }
+        }
+
+        private async Task ViewControllerMonkeyCleanup()
+        {
+            await SiraUtil.Utilities.PauseChamp;
+            IEnumerable<ImageView> imageViews = emoteList1.tableView.GetComponentsInChildren<ImageView>(true).Concat(emoteList2.tableView.GetComponentsInChildren<ImageView>(true));
+            foreach (var imageView in imageViews)
+            {
+                imageView.SetField("_skew", 0f);
             }
         }
 
@@ -136,13 +186,27 @@ namespace MultiplayerExtensions.UI
         internal void CloseScreen() => floatingScreen?.gameObject?.SetActive(false);
 
         [UIAction("emote-select")]
-        private void EmoteSelect(TableView _, int index)
+        private void EmoteSelect(TableView tableView, int index)
         {
-            customListTableData.tableView.ClearSelection();
-            FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
-            flyingEmote.Setup(customListTableData.data[index].icon, floatingScreen.transform.position, floatingScreen.transform.rotation);
-            packetManager.Send(new EmotePacket() { source = customListTableData.data[index].text, position = floatingScreen.transform.position, rotation = floatingScreen.transform.rotation });
-            Plugin.Log.Debug($"Sent packet with emote {customListTableData.data[index].text}");
+            tableView.ClearSelection();
+
+            CustomListTableData selectedTableData;
+            if (emoteList1.tableView == tableView)
+            {
+                selectedTableData = emoteList1;
+            }
+            else
+            {
+                selectedTableData = emoteList2;
+            }
+
+            if (selectedTableData.data[index].text != "")
+            {
+                FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
+                flyingEmote.Setup(selectedTableData.data[index].icon, floatingScreen.transform.position, floatingScreen.transform.rotation);
+                packetManager.Send(new EmotePacket() { source = selectedTableData.data[index].text, position = floatingScreen.transform.position, rotation = floatingScreen.transform.rotation });
+                Plugin.Log.Debug($"Sent packet with emote {selectedTableData.data[index].text}");
+            }
         }
 
         private async void HandleEmotePacket(EmotePacket packet, IConnectedPlayer player)
