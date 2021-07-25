@@ -84,6 +84,7 @@ namespace MultiplayerExtensions.Emotes
                         if (emoteImage._sprite != null)
                         {
                             emoteImage.SpriteWasLoaded = true;
+                            emoteImage._sprite.texture.wrapMode = TextureWrapMode.Clamp;
                         }
                         else
                         {
