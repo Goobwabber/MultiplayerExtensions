@@ -1,6 +1,6 @@
 ﻿<bg anchor-pos-y='10' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
 	<horizontal>
-		<button text='Lobby Settings' on-click='lobby-settings-click' />
+		<button text='Preferences' on-click='lobby-settings-click' />
 		<button text='🙂' hover-hint='Emotes' on-click='spawn-emote-panel' />
 	</horizontal>
 </bg>

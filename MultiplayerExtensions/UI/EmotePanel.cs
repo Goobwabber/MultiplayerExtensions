@@ -8,7 +8,6 @@ using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.Packets;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading;
 using UnityEngine;

@@ -1,9 +1,16 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-	<vertical min-width='45' horizontal-fit='MinSize'>
-		<toggle-setting text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer' value='singleplayer-hud' apply-on-change='true' bind-value='true' />
-		<toggle-setting text='Vertical HUD' hover-hint='Moves the HUD so that it is vertical' value='vertical-hud' apply-on-change='true' bind-value='true' />
-		<toggle-setting text='Hologram' hover-hint='Toggles the hologram showing the player in first place' value='hologram' apply-on-change='true' bind-value='true' />
-		<toggle-setting text='Lag Reducer' hover-hint='Makes multiplayer easier for computers to handle' value='lag-reducer' apply-on-change='true' bind-value='true' />
-		<toggle-setting text='Miss Lighting' hover-hint='Enables special lighting when someone misses a note.' value='miss-lighting' apply-on-change='true' bind-value='true' />
-	</vertical>
+	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
+		<text text='Personal Preferences' align='Center' font-size='8'></text>
+	</horizontal>
+	<horizontal>
+		<vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='50' spacing='5'>
+			<toggle-setting text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer' value='singleplayer-hud' apply-on-change='true' bind-value='true' />
+			<toggle-setting text='Vertical HUD' hover-hint='Moves the HUD so that it is vertical' value='vertical-hud' apply-on-change='true' bind-value='true' />
+		</vertical>
+		<vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='50' spacing='5'>
+			<toggle-setting text='Hologram' hover-hint='Toggles the hologram showing the player in first place' value='hologram' apply-on-change='true' bind-value='true' />
+			<toggle-setting text='Lag Reducer' hover-hint='Makes multiplayer easier for computers to handle' value='lag-reducer' apply-on-change='true' bind-value='true' />
+			<toggle-setting text='Miss Lighting' hover-hint='Enables special lighting when someone misses a note.' value='miss-lighting' apply-on-change='true' bind-value='true' />
+		</vertical>
+	</horizontal>
 </bg>

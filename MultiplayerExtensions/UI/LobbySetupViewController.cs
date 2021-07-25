@@ -9,10 +9,10 @@ using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    public class LobbySetupViewController : BSMLResourceViewController, IInitializable, IDisposable
+    [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\LobbySetupView.bsml")]
+    [ViewDefinition("MultiplayerExtensions.UI.LobbySetupView.bsml")]
+    public class LobbySetupViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
-        public override string ResourceName => "MultiplayerExtensions.UI.LobbySetupView.bsml";
-
         private IMultiplayerSessionManager sessionManager = null!;
         private HostLobbySetupViewController hostLobbySetupViewController = null!;
         private ClientLobbySetupViewController clientLobbySetupViewController = null!;

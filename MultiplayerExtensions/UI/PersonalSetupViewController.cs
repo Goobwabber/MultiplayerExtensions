@@ -1,17 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiplayerExtensions.UI
 {
-    public class PersonalSetupViewController : BSMLResourceViewController
+    [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\PersonalSetupView.bsml")]
+    [ViewDefinition("MultiplayerExtensions.UI.PersonalSetupView.bsml")]
+    public class PersonalSetupViewController : BSMLAutomaticViewController
     {
-        public override string ResourceName => "MultiplayerExtensions.UI.PersonalSetupView.bsml";
-
         [UIValue("singleplayer-hud")]
         private bool SingleplayerHUD
         {
