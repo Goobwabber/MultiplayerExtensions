@@ -2,8 +2,8 @@
 	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
 		<text text='Lobby Preferences' align='Center' font-size='8'></text>
 	</horizontal>
-	<vertical>
+	<settings-container spacing='5'>
 		<toggle-setting text='Free Mod' hover-hint='Whether players can pick their own modifiers.' value='freemod' apply-on-change='true' bind-value='true' interactable='~is-host' />
 		<toggle-setting text='Host Picks' hover-hint='Host picks the song to be played.' value='host-pick' apply-on-change='true' bind-value='true' interactable='~is-host' />
-	</vertical>
+	</settings-container>
 </bg>

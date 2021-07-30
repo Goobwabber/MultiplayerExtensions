@@ -1,9 +1,15 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
+using System;
+using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    public class MPSettings : PersistentSingleton<MPSettings>
+    [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\SettingsView.bsml")]
+    [ViewDefinition("MultiplayerExtensions.UI.SettingsView.bsml")]
+    public class SettingsViewController : BSMLAutomaticViewController
     {
+
         [UIValue("eastereggs")]
         public bool EasterEggsEnabled
         {

@@ -16,9 +16,10 @@ namespace MultiplayerExtensions.Installers
             Container.BindInterfacesAndSelfTo<LobbyAvatarManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<EmotePanel>().AsSingle();
             Container.BindInterfacesTo<MultiplayerGSViewController>().AsSingle();
-            Container.BindInterfacesAndSelfTo<LobbySetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.BindInterfacesAndSelfTo<MPLobbySetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<MPSetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<PersonalSetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<MPLobbySetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<SettingsViewController>().FromNewComponentAsViewController().AsSingle();
         }
 
         public override void Start()

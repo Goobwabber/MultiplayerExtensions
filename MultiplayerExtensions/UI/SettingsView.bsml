@@ -1,0 +1,9 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
+		<text text='Mod Settings' align='Center' font-size='8'></text>
+	</horizontal>
+	<settings-container spacing='5'>
+		<checkbox-setting text='Easter Eggs' value='eastereggs' hover-hint='Enable Easter Eggs in multiplayer.'></checkbox-setting>
+		<checkbox-setting text='Statistics' value='statistics' hover-hint='Enables statistics tracking.'></checkbox-setting>
+	</settings-container>
+</bg>

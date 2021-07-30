@@ -16,7 +16,7 @@ namespace MultiplayerExtensions.UI
     public class MultiplayerGSViewController : IInitializable, IDisposable
     {
         private readonly MainFlowCoordinator mainFlowCoordinator;
-        private readonly LobbySetupFlowCoordinator lobbySetupFlowCoordinator;
+        private readonly MPSetupFlowCoordinator lobbySetupFlowCoordinator;
         private readonly GameplaySetupViewController gameplaySetupViewController;
         private readonly EmotePanel emotePanel;
         private readonly TextSegmentedControl selectionSegmentedControl;
@@ -24,7 +24,7 @@ namespace MultiplayerExtensions.UI
         private readonly GameplayModifiersPanelController multiplayerModifiersPanelController;
         private readonly MultiplayerSettingsPanelController multiplayerSettingsPanelController;
 
-        public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, LobbySetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController,
+        public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, MPSetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController,
             SelectModifiersViewController selectModifiersViewController, EmotePanel emotePanel)
         {
             this.mainFlowCoordinator = mainFlowCoordinator;
@@ -44,7 +44,7 @@ namespace MultiplayerExtensions.UI
             multiplayerModifiersPanelController.transform.SetParent(singleplayerModifiersPanelController.transform.parent);
             multiplayerModifiersPanelController.transform.localPosition = singleplayerModifiersPanelController.transform.localPosition;
             multiplayerModifiersPanelController.gameObject.SetActive(false);
-            multiplayerModifiersPanelController.gameObject.name = "MultiplayerModifiersPanelController";
+            multiplayerModifiersPanelController.gameObject.name = "MultiplayerGameplayModifiers";
 
             SetLeftSelectionViewPatch.EnteredLevelSelection += ShowMultiplayerModifiersPanel;
             SetupPatch.GameplaySetupChange += HideMultiplayerModifiersPanel;

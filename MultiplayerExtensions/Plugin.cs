@@ -76,7 +76,6 @@ namespace MultiplayerExtensions
         public void OnApplicationStart()
         {
             Plugin.Log?.Info($"MultiplayerExtensions: '{VersionInfo.Description}'");
-            BSMLSettings.instance.AddSettingsMenu("Multiplayer", "MultiplayerExtensions.UI.settings.bsml", MPSettings.instance);
 
             Plugin.Config.MaxPlayers = Math.Max(Math.Min(Config.MaxPlayers, MaxPlayers), MinPlayers);
             MPState.FreeModEnabled = false;

@@ -41,7 +41,7 @@
     <None Remove="UI\LobbySetupView.bsml" />
     <None Remove="UI\MultiplayerGSView.bsml" />
     <None Remove="UI\PersonalSetupView.bsml" />
-    <None Remove="UI\settings.bsml" />
+    <None Remove="UI\SettingsView.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BeatmapCore">
@@ -218,7 +218,7 @@
     <EmbeddedResource Include="UI\LobbySetupView.bsml" />
     <EmbeddedResource Include="UI\MultiplayerGSView.bsml" />
     <EmbeddedResource Include="UI\PersonalSetupView.bsml" />
-    <EmbeddedResource Include="UI\settings.bsml" />
+    <EmbeddedResource Include="UI\SettingsView.bsml" />
     <None Remove="Assets\IconSteam64.png" />
     <EmbeddedResource Include="Assets\IconSteam64.png" />
     <None Remove="Assets\IconOculus64.png" />
