@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Utilities
         private const string BASE_URL = "https://mpex.goobwabber.com/api/v1";
 
         // From com.github.roydejong.BeatSaberServerBrowser
-        private static async Task<HttpResponseMessage?> PerformWebRequest(string method, string endpoint, string json = null)
+        private static async Task<HttpResponseMessage?> PerformWebRequest(string method, string endpoint, string json = null!)
         {
             var targetUrl = BASE_URL + endpoint;
             Plugin.Log?.Debug($"{method} {targetUrl} {json}");
@@ -48,8 +48,8 @@ namespace MultiplayerExtensions.Utilities
                 Plugin.Log?.Debug($"✔ 200 OK: {method} {targetUrl}");
                 return response;
             }
-            catch (TaskCanceledException ex)
-            {
+            catch (TaskCanceledException)
+			{
                 return null;
             }
             catch (Exception ex)

@@ -50,21 +50,36 @@
             }
         }
 
-        private static MultiplayerGameType? _currentGameType = MultiplayerGameType.None;
+        private static MultiplayerLobbyState? _currentLobbyState = MultiplayerLobbyState.None;
         /// <summary>
-        /// The current multiplayer game type.
+        /// The current multiplayer game state.
         /// </summary>
-        public static MultiplayerGameType? CurrentGameType
+        public static MultiplayerLobbyState? CurrentLobbyState
         {
-            get => _currentGameType;
+            get => _currentLobbyState;
             internal set
             {
-                if (_currentGameType == value)
+                if (_currentLobbyState == value)
                     return;
-                _currentGameType = value;
-                Plugin.Log?.Debug($"Updated game type to '{value}'");
+                _currentLobbyState = value;
+                Plugin.Log?.Debug($"Updated game state to '{value}'");
             }
         }
+
+        private static bool _lobbyIsModded;
+        /// <summary>
+        /// Whether the current lobby is custom (true) or official (false).
+        /// </summary>
+        public static bool LobbyIsModded
+		{
+            get => _lobbyIsModded;
+            internal set
+			{
+                if (_lobbyIsModded == value)
+                    return;
+                _lobbyIsModded = value;
+			}
+		}
 
         private static bool _customSongsEnabled;
         /// <summary>

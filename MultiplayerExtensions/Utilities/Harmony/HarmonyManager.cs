@@ -1,22 +1,17 @@
 ﻿using HarmonyLib;
+using MultiplayerExtensions.HarmonyPatches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MultiplayerExtensions.HarmonyPatches
+namespace MultiplayerExtensions.Utilities
 {
     public static class HarmonyManager
     {
-        public static readonly string HarmonyId = "com.github.Zingabopp.MultiplayerExtensions";
-        private static Harmony? _harmony;
-        internal static Harmony Harmony
-        {
-            get
-            {
-                return _harmony ??= new Harmony(HarmonyId);
-            }
-        }
+        internal static string HarmonyId => Plugin.HarmonyId;
+        internal static Harmony Harmony => Plugin.Harmony;
+
         internal static readonly BindingFlags allBindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         internal static readonly BindingFlags allInstanceBindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         internal static readonly BindingFlags allStaticBindingFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
@@ -27,14 +22,13 @@ namespace MultiplayerExtensions.HarmonyPatches
         static HarmonyManager()
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
-            AddDefaultPatch<CustomLevelEntitlementPatch>();
+            AddDefaultPatch<CreatePartyPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<LoggingPatch>();
             AddDefaultPatch<GetMasterServerEndPointPatch>();
             AddDefaultPatch<SetLobbyCodePatch>();
             AddDefaultPatch<LobbyEnvironmentLoadPatch>();
-            AddDefaultPatch<StartGameLevelEntitlementPatch>();
             AddDefaultPatch<UpdateReliableFrequencyPatch>();
             AddDefaultPatch<UpdateUnreliableFrequencyPatch>();
             AddDefaultPatch<PlayerPlacementAnglePatch>();
@@ -59,6 +53,8 @@ namespace MultiplayerExtensions.HarmonyPatches
             AddDefaultPatch<CancelSelectLevelPatch>();
             AddDefaultPatch<AprilFoolsPatch>();
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
+            AddDefaultPatch<MultiplayerLobbyAvatarAddedPatch>();
+            AddDefaultPatch<EntitlementCheckerPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class

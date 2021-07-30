@@ -6,119 +6,43 @@ using UnityEngine;
 
 namespace MultiplayerExtensions.Beatmaps
 {
-    class PreviewBeatmapStub : IPreviewBeatmapLevel
+    public class PreviewBeatmapStub : IPreviewBeatmapLevel
     {
-        public string levelHash { get; private set; }
-        public string downloadURL => $"https://beatsaver.com/api/download/hash/{levelHash.ToLower()}";
-        public Beatmap? beatmap;
-
-        private Task<Sprite?>? _coverTask;
-        private Task<byte[]> _rawCoverTask;
-        private Task<AudioClip>? _audioTask;
-
-        public bool isDownloaded;
-
-        private enum DownloadableState
-        {
-            True, False, Unchecked
-        }
-
+        private Beatmap? _beatmap { get; set; }
+        private IPreviewBeatmapLevel? _preview { get; set; }
         private DownloadableState _downloadable = DownloadableState.Unchecked;
         private Task<bool>? _downloadableTask;
+
+        public bool isDownloaded { get; private set; }
         public Task<bool> isDownloadable
         {
             get
             {
+                if (_downloadable != DownloadableState.Unchecked)
+                    return Task.FromResult(_downloadable == DownloadableState.True);
+
                 if (_downloadableTask == null)
-                {
-                    _downloadableTask = _downloadable != DownloadableState.Unchecked ?
-                        new Task<bool>(() => _downloadable == DownloadableState.True) :
-                        Plugin.BeatSaver.Hash(levelHash)
-                        .ContinueWith<bool>(r =>
-                        {
-                            try
-                            {
-                                beatmap = r.Result;
-                                _downloadable = beatmap is Beatmap ? DownloadableState.True : DownloadableState.False;
-                                return _downloadable == DownloadableState.True;
-                            }
-                            catch
-                            {
-                                Plugin.Log.Warn($"Beat Saver request for song '{levelHash}' failed.");
-                                _downloadable = DownloadableState.False;
-                                return _downloadable == DownloadableState.True;
-                            }
-                        });
-                }
+				{
+                    _downloadableTask = Plugin.BeatSaver.Hash(levelHash).ContinueWith<bool>(r => r.Exception == null && r.Result is Beatmap);
+                    _downloadableTask.ContinueWith(r => _downloadable = r.Result ? DownloadableState.True : DownloadableState.False);
+				}
 
                 return _downloadableTask!;
             }
         }
 
-        public PreviewBeatmapStub(string levelHash, IPreviewBeatmapLevel preview)
-        {
-            this.levelID = preview.levelID;
-            this.levelHash = levelHash;
-            this.isDownloaded = true;
 
-            this.songName = preview.songName;
-            this.songSubName = preview.songSubName;
-            this.songAuthorName = preview.songAuthorName;
-            this.levelAuthorName = preview.levelAuthorName;
-
-            this.beatsPerMinute = preview.beatsPerMinute;
-            this.songDuration = preview.songDuration;
-
-            _coverTask = preview.GetCoverImageAsync(CancellationToken.None);
-            _rawCoverTask = GetCoverImageAsync(CancellationToken.None).ContinueWith<byte[]>(task => Utilities.Sprites.GetRaw(task.Result));
-            _audioTask = preview.GetPreviewAudioClipAsync(CancellationToken.None);
-        }
-
-        public PreviewBeatmapStub(PreviewBeatmapPacket packet)
-        {
-            this.levelID = packet.levelId;
-            this.levelHash = Utilities.Utils.LevelIdToHash(levelID)!;
-            this.isDownloaded = false;
-
-            this.songName = packet.songName;
-            this.songSubName = packet.songSubName;
-            this.songAuthorName = packet.songAuthorName;
-            this.levelAuthorName = packet.levelAuthorName;
-
-            this.beatsPerMinute = packet.beatsPerMinute;
-            this.songDuration = packet.songDuration;
-
-            _rawCoverTask = Task.FromResult(packet.coverImage);
-        }
-
-        public PreviewBeatmapStub(string levelID, Beatmap bm)
-        {
-            this.levelID = levelID;
-            this.levelHash = bm.Hash;
-            
-            this.beatmap = bm;
-            this.isDownloaded = false;
-
-            this.songName = bm.Metadata.SongName;
-            this.songSubName = bm.Metadata.SongSubName;
-            this.songAuthorName = bm.Metadata.SongAuthorName;
-            this.levelAuthorName = bm.Metadata.LevelAuthorName;
-
-            this.beatsPerMinute = bm.Metadata.BPM;
-            this.songDuration = bm.Metadata.Duration;
-
-            this._downloadable = DownloadableState.True;
-
-            _rawCoverTask = bm.CoverImageBytes();
-        }
 
         public string levelID { get; private set; }
+        public string levelHash { get; private set; }
+
         public string songName { get; private set; }
         public string songSubName { get; private set; }
         public string songAuthorName { get; private set; }
         public string levelAuthorName { get; private set; }
         public float beatsPerMinute { get; private set; }
         public float songDuration { get; private set; }
+
         public float songTimeOffset { get; private set; }
         public float shuffle { get; private set; }
         public float shufflePeriod { get; private set; }
@@ -128,38 +52,85 @@ namespace MultiplayerExtensions.Beatmaps
         public EnvironmentInfoSO? allDirectionsEnvironmentInfo { get; private set; }
         public PreviewDifficultyBeatmapSet[]? previewDifficultyBeatmapSets { get; private set; }
 
-        public async Task<byte[]?> DownloadZip(CancellationToken cancellationToken, IProgress<double>? progress = null)
+
+
+        public PreviewBeatmapStub(string levelHash, IPreviewBeatmapLevel previewBeatmapLevel)
         {
-            if (beatmap == null)
-            {
-                try
-                {
-                    beatmap = await Plugin.BeatSaver.Hash(levelHash);
-                }
-                catch
-                {
-                    Plugin.Log?.Warn($"Song '{levelHash}' cannot be downloaded form Beat Saver.");
-                    return null;
-                }
-            }
-            return await beatmap.ZipBytes(false);
+            this._preview = previewBeatmapLevel;
+            this.isDownloaded = true;
+
+            this.levelID = this._preview.levelID;
+            this.levelHash = levelHash;
+
+            this.songName = this._preview.songName;
+            this.songSubName = this._preview.songSubName;
+            this.songAuthorName = this._preview.songAuthorName;
+            this.levelAuthorName = this._preview.levelAuthorName;
+            this.beatsPerMinute = this._preview.beatsPerMinute;
+            this.songDuration = this._preview.songDuration;
         }
 
-        public Task<byte[]> GetRawCoverAsync(CancellationToken cancellationToken) => _rawCoverTask;
-        public Task<AudioClip>? GetPreviewAudioClipAsync(CancellationToken cancellationToken) => _audioTask;
+        public PreviewBeatmapStub(PreviewBeatmapPacket packet)
+        {
+            this.isDownloaded = false;
+
+            this.levelID = packet.levelId;
+            this.levelHash = packet.levelHash;
+
+            this.songName = packet.songName;
+            this.songSubName = packet.songSubName;
+            this.songAuthorName = packet.songAuthorName;
+            this.levelAuthorName = packet.levelAuthorName;
+            this.beatsPerMinute = packet.beatsPerMinute;
+            this.songDuration = packet.songDuration;
+        }
+
+        public PreviewBeatmapStub(string levelID, Beatmap bm)
+        {
+            this._beatmap = bm;
+            this._downloadable = DownloadableState.True;
+            this.isDownloaded = false;
+
+            this.levelID = levelID;
+            this.levelHash = bm.Hash;
+
+            this.songName = bm.Metadata.SongName;
+            this.songSubName = bm.Metadata.SongSubName;
+            this.songAuthorName = bm.Metadata.SongAuthorName;
+            this.levelAuthorName = bm.Metadata.LevelAuthorName;
+            this.beatsPerMinute = bm.Metadata.BPM;
+            this.songDuration = bm.Metadata.Duration;
+        }
+
+
 
         public async Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken)
         {
-            Sprite? cover = null;
-            if (_coverTask != null)
-                cover = await _coverTask;
-            else
-                cover = Utilities.Sprites.GetSprite(await _rawCoverTask);
+            if (_preview != null)
+                return await _preview.GetCoverImageAsync(cancellationToken);
 
-            if (cover == null)
-                cover = Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
+            if (_beatmap != null)
+			{
+                try
+                {
+                    Sprite? cover = Utilities.Sprites.GetSprite(await _beatmap.CoverImageBytes());
+                    if (cover != null)
+                        return cover;
+				}
+				catch(Exception ex)
+				{
+                    Plugin.Log?.Warn($"Failed to fetch beatmap cover: {ex.Message}");
+				}
+			}
 
-            return cover;
+            return Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
+        }
+
+        public Task<AudioClip>? GetPreviewAudioClipAsync(CancellationToken cancellationToken) => _preview?.GetPreviewAudioClipAsync(cancellationToken);
+
+        private enum DownloadableState
+        {
+            True, False, Unchecked
         }
     }
 }

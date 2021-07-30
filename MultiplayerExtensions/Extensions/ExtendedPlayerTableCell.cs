@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace MultiplayerExtensions.OverrideClasses
+namespace MultiplayerExtensions.Extensions
 {
-    class PlayerTableCellStub : GameServerPlayerTableCell
+    class ExtendedPlayerTableCell : GameServerPlayerTableCell
     {
-        protected NetworkPlayerEntitlementChecker _entitlementChecker = null!;
+        protected ExtendedEntitlementChecker _entitlementChecker = null!;
         protected ILobbyPlayersDataModel _playersDataModel = null!;
         protected IMenuRpcManager _menuRpcManager = null!;
 
@@ -30,7 +30,7 @@ namespace MultiplayerExtensions.OverrideClasses
         [Inject]
         internal void Inject(NetworkPlayerEntitlementChecker entitlementChecker, ILobbyPlayersDataModel playersDataModel, IMenuRpcManager menuRpcManager)
         {
-            _entitlementChecker = entitlementChecker;
+            _entitlementChecker = (entitlementChecker as ExtendedEntitlementChecker)!;
             _playersDataModel = playersDataModel;
             _menuRpcManager = menuRpcManager;
         }
@@ -70,11 +70,12 @@ namespace MultiplayerExtensions.OverrideClasses
             __buttonBinder.AddBinding(_useModifiersButton, new Action(base.HandleUseModifiersButtonPressed));
         }
 
-        public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerDataModel playerDataModel, bool isHost, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
+        public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerData playerData, bool hasKickPermissions, bool allowSelection, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
         {
             if (getLevelEntitlementTask != null)
                 getLevelEntitlementTask = getLevelEntitlementTask.ContinueWith<AdditionalContentModel.EntitlementStatus>(r => AdditionalContentModel.EntitlementStatus.Owned);
-            base.SetData(connectedPlayer, playerDataModel, isHost, getLevelEntitlementTask);
+            base.SetData(connectedPlayer, playerData, hasKickPermissions, allowSelection, getLevelEntitlementTask);
+            _localPlayerBackgroundImage.enabled = true;
             GetLevelEntitlement(connectedPlayer);
             lastPlayer = connectedPlayer;
         }
@@ -85,19 +86,14 @@ namespace MultiplayerExtensions.OverrideClasses
                 entitlementCts.Cancel();
             entitlementCts = new CancellationTokenSource();
 
-            string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.hostUserId)?.levelID;
+            string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.partyOwnerId)?.levelID;
             if (levelId == null) 
                 return;
 
             lastLevelId = levelId;
 
-            bool needsRpc = false;
-            Task<EntitlementsStatus> entitlement = player.isMe ? 
-                _entitlementChecker.GetEntitlementStatus(levelId) : 
-                _entitlementChecker.GetTcsTaskCanPlayerPlayLevel(player, levelId, entitlementCts.Token, out needsRpc);
-            if (needsRpc)
-                _menuRpcManager.GetIsEntitledToLevel(levelId);
-            SetLevelEntitlement(player, await entitlement);
+            EntitlementsStatus entitlement = await _entitlementChecker.GetUserEntitlementStatus(player.userId, levelId);
+            SetLevelEntitlement(player, entitlement);
         }
 
         private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)

@@ -17,14 +17,13 @@ using Zenject;
 using MultiplayerExtensions.UI;
 using BeatSaberMarkupLanguage.Settings;
 using System.Net.Http;
-using MultiplayerExtensions.Sessions;
 
 namespace MultiplayerExtensions
 {
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        public static readonly string HarmonyId = "com.github.Zingabopp.MultiplayerExtensions";
+        public static readonly string HarmonyId = "com.github.Goobwabber.MultiplayerExtensions";
 
         internal static Plugin Instance { get; private set; } = null!;
         internal static PluginMetadata PluginMetadata = null!;
@@ -85,6 +84,8 @@ namespace MultiplayerExtensions
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
             MPEvents_Test();
+            
+            Sprites.PreloadSprites();
         }
 
         [Conditional("DEBUG")]
@@ -113,7 +114,7 @@ namespace MultiplayerExtensions
         {
             try
             {
-                GithubVersion latest = await VersionCheck.GetLatestVersionAsync("Zingabopp", "MultiplayerExtensions");
+                GithubVersion latest = await VersionCheck.GetLatestVersionAsync("Goobwabber", "MultiplayerExtensions");
                 Log?.Debug($"Latest version is {latest}, released on {latest.ReleaseDate.ToShortDateString()}");
                 if (PluginMetadata != null)
                 {

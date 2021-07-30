@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace MultiplayerExtensions.HarmonyPatches
+namespace MultiplayerExtensions.Utilities
 {
     public class HarmonyPatchInfo
     {
@@ -67,7 +67,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                     patchTypeName = PostfixMethod.method.DeclaringType?.Name;
                 else if (TranspilerMethod != null)
                     patchTypeName = TranspilerMethod.method.DeclaringType?.Name;
-                Plugin.Log?.Debug($"Harmony patching '{OriginalMethod.Name}' with '{patchTypeName}'");
+                //Plugin.Log?.Debug($"Harmony patching '{OriginalMethod.Name}' with '{patchTypeName}'");
                 harmony.Patch(OriginalMethod, PrefixMethod, PostfixMethod, TranspilerMethod);
                 IsApplied = true;
                 HarmonyManager.AppliedPatches.Add(this);

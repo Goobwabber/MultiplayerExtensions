@@ -1,6 +1,6 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Environments;
-using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.Extensions;
 using MultiplayerExtensions.UI;
 using SiraUtil;
 using UnityEngine;
@@ -13,6 +13,7 @@ namespace MultiplayerExtensions.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<LobbyEnvironmentManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LobbyAvatarManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<EmotePanel>().AsSingle();
             Container.BindInterfacesTo<MultiplayerGSViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LobbySetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
@@ -27,12 +28,12 @@ namespace MultiplayerExtensions.Installers
             CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
             Container.InstantiateComponent<CenterScreenLoadingPanel>(centerScreenController.gameObject);
 
-            ServerPlayerListController playerListController = Container.Resolve<ServerPlayerListController>();
-            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListController>("_gameServerPlayersTableView");
+            ServerPlayerListViewController playerListController = Container.Resolve<ServerPlayerListViewController>();
+            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListViewController>("_gameServerPlayersTableView");
             GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
             GameServerPlayerTableCell newPlayerTableCell = GameObject.Instantiate(playerTableCell);
             newPlayerTableCell.gameObject.SetActive(false);
-            PlayerTableCellStub playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
+            ExtendedPlayerTableCell playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<ExtendedPlayerTableCell>();
             playerTableCellStub.Construct(newPlayerTableCell);
             Destroy(newPlayerTableCell.GetComponent<GameServerPlayerTableCell>());
             playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);
