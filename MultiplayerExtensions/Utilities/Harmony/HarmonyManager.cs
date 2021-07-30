@@ -47,7 +47,7 @@ namespace MultiplayerExtensions.Utilities
             //AddDefaultPatch<RemoveByteLimitPatch>(); (doesn't support generics)
             AddDefaultPatch<MultiplayerLobbyAvatarAddedPatch>();
             AddDefaultPatch<EntitlementCheckerPatch>();
-            //AddDefaultPatch<EnableCancelButtonPatch>(); (buggy asf)
+            AddDefaultPatch<EnableCancelButtonPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class

@@ -25,6 +25,7 @@ namespace MultiplayerExtensions.Extensions
             base.Activate();
 
             (this as ILobbyGameStateController).lobbyStateChangedEvent += this.HandleLobbyStateChanged;
+            _lobbyPlayersDataModel.didChangeEvent += this.HandleDataModelChanged;
         }
 
 		public override void Deactivate()
@@ -37,6 +38,7 @@ namespace MultiplayerExtensions.Extensions
             base.Deactivate();
 
             (this as ILobbyGameStateController).lobbyStateChangedEvent -= this.HandleLobbyStateChanged;
+            _lobbyPlayersDataModel.didChangeEvent -= this.HandleDataModelChanged;
         }
 
         public override void Dispose()
@@ -74,6 +76,24 @@ namespace MultiplayerExtensions.Extensions
 
 
 
+        private void HandleDataModelChanged(string userId)
+		{
+            if (state == MultiplayerLobbyState.GameStarting)
+			{
+                ILobbyPlayerData partyOwnerData = _lobbyPlayersDataModel.GetLobbyPlayerDataModel(_lobbyPlayersDataModel.partyOwnerId);
+                if (partyOwnerData.isReady)
+				{
+                    PredictCountdownEndTime();
+                    HandleMenuRpcManagerStartedLevel(_lobbyPlayersDataModel.partyOwnerId, new BeatmapIdentifierNetSerializable(partyOwnerData.beatmapLevel.levelID, partyOwnerData.beatmapCharacteristic.serializedName, partyOwnerData.beatmapDifficulty), partyOwnerData.gameplayModifiers, _predictedStartTime);
+                } else
+				{
+                    HandleMenuRpcManagerCancelledLevelStart(_lobbyPlayersDataModel.partyOwnerId);
+				}
+			}
+		}
+
+
+
         private IPreviewBeatmapLevel? _previewBeatmapLevel;
         private BeatmapDifficulty _beatmapDifficulty;
         private BeatmapCharacteristicSO? _beatmapCharacteristic;
@@ -82,7 +102,17 @@ namespace MultiplayerExtensions.Extensions
 
         public override void HandleMenuRpcManagerStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
 		{
-            if (_sessionManager.partyOwner != null)
+            if (this.levelStartInitiated)
+			{
+                if (userId == _sessionManager.connectionOwner.userId)
+				{
+                    Plugin.Log?.Debug("Server map start initiated");
+                    base.HandleMultiplayerLevelLoaderCountdownFinished(_previewBeatmapLevel, _beatmapDifficulty, _beatmapCharacteristic, _difficultyBeatmap, _gameplayModifiers);
+                }
+                return;
+			}
+
+            if (_sessionManager.partyOwner != null && state == MultiplayerLobbyState.GameStarting)
             {
                 ILobbyPlayerData partyOwnerData = _lobbyPlayersDataModel.GetLobbyPlayerDataModel(_sessionManager.partyOwner.userId);
                 beatmapId = new BeatmapIdentifierNetSerializable(partyOwnerData.beatmapLevel.levelID, partyOwnerData.beatmapCharacteristic.serializedName, partyOwnerData.beatmapDifficulty);
@@ -142,7 +172,8 @@ namespace MultiplayerExtensions.Extensions
                 if (readyStates.All(x => x) && await _entitlementChecker.GetEntitlementStatus(startedBeatmapId.levelID) == EntitlementsStatus.Ok)
 				{
                     Plugin.Log.Debug("All players ready, starting game.");
-                    base.HandleMultiplayerLevelLoaderCountdownFinished(_previewBeatmapLevel, _beatmapDifficulty, _beatmapCharacteristic, _difficultyBeatmap, _gameplayModifiers);
+                    _menuRpcManager.SetIsReady(true);
+                    //base.HandleMultiplayerLevelLoaderCountdownFinished(_previewBeatmapLevel, _beatmapDifficulty, _beatmapCharacteristic, _difficultyBeatmap, _gameplayModifiers);
                 }
 			}
         }

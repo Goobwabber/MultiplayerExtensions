@@ -26,6 +26,7 @@ namespace MultiplayerExtensions.Extensions
             MPEvents.CustomSongsChanged += this.HandleCustomSongsChanged;
             MPEvents.FreeModChanged += this.HandleFreeModChanged;
             this._packetManager.RegisterCallback<PreviewBeatmapPacket>(this.HandlePreviewBeatmapPacket);
+            this._packetManager.RegisterCallback<ExtendedPlayerReadyPacket>(this.HandlePlayerReadyPacket);
             base.Activate();
 
             _menuRpcManager.recommendBeatmapEvent -= base.HandleMenuRpcManagerRecommendBeatmap;
@@ -47,6 +48,7 @@ namespace MultiplayerExtensions.Extensions
             MPEvents.CustomSongsChanged -= HandleCustomSongsChanged;
             MPEvents.FreeModChanged -= HandleFreeModChanged;
             this._packetManager.UnregisterCallback<PreviewBeatmapPacket>();
+            this._packetManager.UnregisterCallback<ExtendedPlayerReadyPacket>();
 
             _menuRpcManager.recommendBeatmapEvent -= this.HandleMenuRpcManagerRecommendBeatmap;
             _menuRpcManager.recommendBeatmapEvent += base.HandleMenuRpcManagerRecommendBeatmap;
@@ -67,23 +69,6 @@ namespace MultiplayerExtensions.Extensions
         public new void Dispose()
         {
             this.Deactivate();
-        }
-
-        public override void SetLocalPlayerIsReady(bool isReady, bool notifyChange)
-		{
-            if (!Plugin.Config.HostPick && this.localUserId == this.partyOwnerId)
-            {
-                ILobbyPlayerData localPlayerDataModel = this.GetLobbyPlayerDataModel(localUserId);
-                IEnumerable<ILobbyPlayerData> validDataModels = this.playersData.Values.Where(data => data.beatmapLevel != null);
-                ILobbyPlayerData chosenPlayerDataModel = validDataModels.ElementAt(new Random().Next(0, validDataModels.Count()));
-                localPlayerDataModel.beatmapLevel = chosenPlayerDataModel.beatmapLevel;
-                localPlayerDataModel.beatmapDifficulty = chosenPlayerDataModel.beatmapDifficulty;
-                localPlayerDataModel.beatmapCharacteristic = chosenPlayerDataModel.beatmapCharacteristic;
-                localPlayerDataModel.gameplayModifiers = chosenPlayerDataModel.gameplayModifiers;
-                this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(chosenPlayerDataModel.beatmapLevel.levelID, chosenPlayerDataModel.beatmapCharacteristic.serializedName, chosenPlayerDataModel.beatmapDifficulty));
-                this._menuRpcManager.RecommendGameplayModifiers(chosenPlayerDataModel.gameplayModifiers);
-                this.NotifyModelChange(this.localUserId);
-            }
         }
 
         private void HandleCustomSongsChanged(object sender, bool value)
@@ -263,6 +248,36 @@ namespace MultiplayerExtensions.Extensions
             MPState.LocalPlayerIsHost = localUserId == partyOwnerId;
             _sessionManager.partyOwner = _sessionManager.GetPlayerByUserId(partyOwnerId);
         }
+
+        private void HandlePlayerReadyPacket(ExtendedPlayerReadyPacket packet, IConnectedPlayer player)
+		{
+            base.SetPlayerIsReady(player.userId, packet.ready, true);
+		}
+
+		public override void SetLocalPlayerIsReady(bool isReady)
+		{
+			this.SetLocalPlayerIsReady(isReady, true);
+		}
+
+		public override void SetLocalPlayerIsReady(bool isReady, bool notifyChange)
+		{
+            if (!Plugin.Config.HostPick && this.localUserId == this.partyOwnerId)
+            {
+                ILobbyPlayerData localPlayerDataModel = this.GetLobbyPlayerDataModel(localUserId);
+                IEnumerable<ILobbyPlayerData> validDataModels = this.playersData.Values.Where(data => data.beatmapLevel != null);
+                ILobbyPlayerData chosenPlayerDataModel = validDataModels.ElementAt(new Random().Next(0, validDataModels.Count()));
+                localPlayerDataModel.beatmapLevel = chosenPlayerDataModel.beatmapLevel;
+                localPlayerDataModel.beatmapDifficulty = chosenPlayerDataModel.beatmapDifficulty;
+                localPlayerDataModel.beatmapCharacteristic = chosenPlayerDataModel.beatmapCharacteristic;
+                localPlayerDataModel.gameplayModifiers = chosenPlayerDataModel.gameplayModifiers;
+                this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(chosenPlayerDataModel.beatmapLevel.levelID, chosenPlayerDataModel.beatmapCharacteristic.serializedName, chosenPlayerDataModel.beatmapDifficulty));
+                this._menuRpcManager.RecommendGameplayModifiers(chosenPlayerDataModel.gameplayModifiers);
+                this.NotifyModelChange(this.localUserId);
+            }
+
+            _packetManager.Send(new ExtendedPlayerReadyPacket().Init(isReady));
+            base.SetPlayerIsReady(this.localUserId, isReady, notifyChange);
+		}
 
 		/// <summary>
 		/// Used to raise the <see cref="MultiplayerExtensions.MPEvents.BeatmapSelected"/> event.
