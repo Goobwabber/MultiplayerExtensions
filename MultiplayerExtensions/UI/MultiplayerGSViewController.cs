@@ -44,6 +44,7 @@ namespace MultiplayerExtensions.UI
             multiplayerModifiersPanelController.transform.SetParent(singleplayerModifiersPanelController.transform.parent);
             multiplayerModifiersPanelController.transform.localPosition = singleplayerModifiersPanelController.transform.localPosition;
             multiplayerModifiersPanelController.gameObject.SetActive(false);
+            multiplayerModifiersPanelController.gameObject.name = "MultiplayerModifiersPanelController";
 
             SetLeftSelectionViewPatch.EnteredLevelSelection += ShowMultiplayerModifiersPanel;
             SetupPatch.GameplaySetupChange += HideMultiplayerModifiersPanel;

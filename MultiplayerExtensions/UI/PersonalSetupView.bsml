@@ -1,7 +1,4 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
-		<text text='Personal Preferences' align='Center' font-size='8'></text>
-	</horizontal>
 	<horizontal>
 		<vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='50' spacing='5'>
 			<toggle-setting text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer' value='singleplayer-hud' apply-on-change='true' bind-value='true' />

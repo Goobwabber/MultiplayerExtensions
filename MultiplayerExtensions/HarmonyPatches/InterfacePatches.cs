@@ -19,7 +19,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "DidActivate", MethodType.Normal)]
     internal class DidActivatePatch
     {
-        static void Postfix(GameplaySetupViewController ____gameplaySetupViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        static void Postfix(GameplaySetupViewController ____gameplaySetupViewController)
         {
             ____gameplaySetupViewController.Setup(false, true, true, GameplaySetupViewController.GameplayMode.MultiplayerPrivate);
         }
@@ -35,13 +35,17 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "HandleLobbySetupViewControllerSelectBeatmap", MethodType.Normal)]
+    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), nameof(GameServerLobbyFlowCoordinator.HandleLobbySetupViewControllerSelectBeatmap), MethodType.Normal)]
     internal class SelectBeatmapPatch
     {
-        static void Prefix(SelectModifiersViewController ___selectModifiersViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        static void Prefix(SelectModifiersViewController ____selectModifiersViewController, ILobbyPlayersDataModel ____lobbyPlayersDataModel)
         {
-            GameplayModifiers playerGameplayModifiers = ___lobbyPlayersDataModel.GetPlayerGameplayModifiers(___lobbyPlayersDataModel.localUserId);
-            ___selectModifiersViewController.Setup(playerGameplayModifiers);
+            GameplayModifiers playerGameplayModifiers = ____lobbyPlayersDataModel.GetPlayerGameplayModifiers(____lobbyPlayersDataModel.localUserId);
+            ____selectModifiersViewController.Setup(playerGameplayModifiers);
+            if (playerGameplayModifiers == null)
+            {
+                Plugin.Log.Debug("Bruh");
+            }
         }
     }
 
@@ -62,23 +66,23 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "HandleMultiplayerLevelSelectionFlowCoordinatorDidSelectLevel", MethodType.Normal)]
+    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), nameof(GameServerLobbyFlowCoordinator.HandleMultiplayerLevelSelectionFlowCoordinatorDidSelectLevel), MethodType.Normal)]
     internal class DidSelectLevelPatch
     {
-        static void Prefix(GameplaySetupViewController ____gameplaySetupViewController, SelectModifiersViewController ___selectModifiersViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        static void Prefix(GameplaySetupViewController ____gameplaySetupViewController, SelectModifiersViewController ____selectModifiersViewController, ILobbyPlayersDataModel ____lobbyPlayersDataModel)
         {
 
-            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(___selectModifiersViewController.gameplayModifiers);
+            ____lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(____selectModifiersViewController.gameplayModifiers);
             ____gameplaySetupViewController.Setup(false, true, true, GameplaySetupViewController.GameplayMode.MultiplayerPrivate);
         }
     }
 
-    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), "HandleMultiplayerLevelSelectionFlowCoordinatorCancelSelectLevel", MethodType.Normal)]
+    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), nameof(GameServerLobbyFlowCoordinator.HandleMultiplayerLevelSelectionFlowCoordinatorCancelSelectLevel), MethodType.Normal)]
     internal class CancelSelectLevelPatch
     {
-        static void Prefix(GameplaySetupViewController ____gameplaySetupViewController, SelectModifiersViewController ___selectModifiersViewController, ILobbyPlayersDataModel ___lobbyPlayersDataModel)
+        static void Prefix(GameplaySetupViewController ____gameplaySetupViewController, SelectModifiersViewController ____selectModifiersViewController, ILobbyPlayersDataModel ____lobbyPlayersDataModel)
         {
-            ___lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(___selectModifiersViewController.gameplayModifiers);
+            ____lobbyPlayersDataModel.SetLocalPlayerGameplayModifiers(____selectModifiersViewController.gameplayModifiers);
             ____gameplaySetupViewController.Setup(false, true, true, GameplaySetupViewController.GameplayMode.MultiplayerPrivate);
         }
     }
