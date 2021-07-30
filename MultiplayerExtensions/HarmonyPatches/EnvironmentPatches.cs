@@ -7,6 +7,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.Playables;
+using System.Reflection.Emit;
+using UnityEngine.UI;
+using System.Reflection;
 
 namespace MultiplayerExtensions.HarmonyPatches
 {
@@ -136,6 +139,39 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Postfix(IConnectedPlayer connectedPlayer, MultiplayerLobbyAvatarManager __instance)
         {
             MPEvents.RaiseLobbyAvatarCreated(__instance, connectedPlayer);
+        }
+    }
+
+    [HarmonyPatch(typeof(LobbySetupViewController), nameof(LobbySetupViewController.SetLobbyState), MethodType.Normal)]
+    internal class EnableCancelButtonPatch
+	{
+        private static readonly MethodInfo _rootMethod = typeof(Selectable).GetProperty(nameof(Selectable.interactable)).GetSetMethod();
+        private static readonly FieldInfo _cancelGameUnreadyButtonPrefab = typeof(LobbySetupViewController).GetField("_cancelGameUnreadyButton", BindingFlags.NonPublic | BindingFlags.Instance);
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+        private static readonly MethodInfo _setInteractableAttacher = SymbolExtensions.GetMethodInfo(() => SetInteractableAttacher(null, false));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+            var codes = instructions.ToList();
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ldfld && codes[i].OperandIs(_cancelGameUnreadyButtonPrefab))
+                {
+                    if (codes[i + 4].opcode == OpCodes.Callvirt && codes[i + 4].Calls(_rootMethod))
+                    {
+                        CodeInstruction newCode = new CodeInstruction(OpCodes.Callvirt, _setInteractableAttacher);
+                        codes[i + 4] = newCode;
+                    }
+                }
+            }
+
+            return codes.AsEnumerable();
+        }
+
+        private static void SetInteractableAttacher(Selectable contract, bool value)
+        {
+            contract.interactable = true;
         }
     }
 }
