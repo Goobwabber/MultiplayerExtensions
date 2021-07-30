@@ -1,6 +1,6 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
 	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
-		<text text='Lobby Preferences' align='Center' font-size='8'></text>
+		<text text='Lobby Preferences' align='Center' font-size='8' />
 	</horizontal>
 	<settings-container spacing='5'>
 		<toggle-setting text='Free Mod' hover-hint='Whether players can pick their own modifiers.' value='freemod' apply-on-change='true' bind-value='true' interactable='~is-host' />

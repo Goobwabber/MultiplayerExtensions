@@ -10,7 +10,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\LobbySetupView.bsml")]
+    [HotReload(RelativePathToLayout = @"..\UI\LobbySetupView.bsml")]
     [ViewDefinition("MultiplayerExtensions.UI.LobbySetupView.bsml")]
     public class MPLobbySetupViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {

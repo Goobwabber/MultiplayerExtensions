@@ -5,7 +5,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\SettingsView.bsml")]
+    [HotReload(RelativePathToLayout = @"..\UI\SettingsView.bsml")]
     [ViewDefinition("MultiplayerExtensions.UI.SettingsView.bsml")]
     public class SettingsViewController : BSMLAutomaticViewController
     {

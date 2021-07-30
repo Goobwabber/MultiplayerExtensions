@@ -40,6 +40,7 @@
     <None Remove="UI\EmotePanel.bsml" />
     <None Remove="UI\LobbySetupView.bsml" />
     <None Remove="UI\MultiplayerGSView.bsml" />
+    <None Remove="UI\OpenSettingsView.bsml" />
     <None Remove="UI\PersonalSetupView.bsml" />
     <None Remove="UI\SettingsView.bsml" />
   </ItemGroup>
@@ -217,6 +218,7 @@
     <EmbeddedResource Include="UI\EmotePanel.bsml" />
     <EmbeddedResource Include="UI\LobbySetupView.bsml" />
     <EmbeddedResource Include="UI\MultiplayerGSView.bsml" />
+    <EmbeddedResource Include="UI\OpenSettingsView.bsml" />
     <EmbeddedResource Include="UI\PersonalSetupView.bsml" />
     <EmbeddedResource Include="UI\SettingsView.bsml" />
     <None Remove="Assets\IconSteam64.png" />

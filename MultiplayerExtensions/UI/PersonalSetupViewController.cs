@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 
 namespace MultiplayerExtensions.UI
 {
-    [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\PersonalSetupView.bsml")]
+    [HotReload(RelativePathToLayout = @"..\UI\PersonalSetupView.bsml")]
     [ViewDefinition("MultiplayerExtensions.UI.PersonalSetupView.bsml")]
     public class PersonalSetupViewController : BSMLAutomaticViewController
     {

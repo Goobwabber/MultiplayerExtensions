@@ -19,6 +19,7 @@ namespace MultiplayerExtensions.Installers
             Container.BindInterfacesAndSelfTo<MPSetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<PersonalSetupViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<MPLobbySetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<OpenSettingsViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<SettingsViewController>().FromNewComponentAsViewController().AsSingle();
         }
 
