@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
+using IPA.Utilities;
 using Polyglot;
 using System;
 using System.Linq;
@@ -11,45 +12,35 @@ namespace MultiplayerExtensions.UI
 {
     [HotReload(@"C:\Users\rithik\source\repos\MultiplayerExtensions\MultiplayerExtensions\UI\LobbySetupView.bsml")]
     [ViewDefinition("MultiplayerExtensions.UI.LobbySetupView.bsml")]
-    public class LobbySetupViewController : BSMLAutomaticViewController, IInitializable, IDisposable
+    public class MPLobbySetupViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         private IMultiplayerSessionManager sessionManager = null!;
-        private HostLobbySetupViewController hostLobbySetupViewController = null!;
-        private ClientLobbySetupViewController clientLobbySetupViewController = null!;
-
-        private bool _isHost = false;
+        private LobbySetupViewController lobbySetupViewController = null!;
         CurvedTextMeshPro? modifierText;
+        private bool _isHost;
 
         [Inject]
-        private void Inject(IMultiplayerSessionManager sessionManager, HostLobbySetupViewController hostLobbySetupViewController, ClientLobbySetupViewController clientLobbySetupViewController)
+        private void Inject(IMultiplayerSessionManager sessionManager, LobbySetupViewController lobbySetupViewController)
         {
             this.sessionManager = sessionManager;
-            this.hostLobbySetupViewController = hostLobbySetupViewController;
-            this.clientLobbySetupViewController = clientLobbySetupViewController;
+            this.lobbySetupViewController = lobbySetupViewController;
         }
 
         public void Initialize()
         {
-            hostLobbySetupViewController.didActivateEvent += HostLobbySetupViewController_didActivateEvent;
-            clientLobbySetupViewController.didActivateEvent += ClientLobbySetupViewController_didActivateEvent;
+            lobbySetupViewController.didActivateEvent += LobbySetupViewController_didActivateEvent;
             sessionManager.playerStateChangedEvent += OnPlayerStateChanged;
         }
 
         public void Dispose()
         {
-            hostLobbySetupViewController.didActivateEvent -= HostLobbySetupViewController_didActivateEvent;
-            clientLobbySetupViewController.didActivateEvent -= ClientLobbySetupViewController_didActivateEvent;
+            lobbySetupViewController.didActivateEvent -= LobbySetupViewController_didActivateEvent;
             sessionManager.playerStateChangedEvent -= OnPlayerStateChanged;
         }
 
-        private void HostLobbySetupViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        private void LobbySetupViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            IsHost = true;
-        }
-
-        private void ClientLobbySetupViewController_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-        {
-            IsHost = false;
+            IsHost = lobbySetupViewController.GetField<bool, LobbySetupViewController>("_isPartyOwner");
 
             if (sessionManager.connectionOwner != null)
                 OnPlayerStateChanged(sessionManager.connectionOwner);

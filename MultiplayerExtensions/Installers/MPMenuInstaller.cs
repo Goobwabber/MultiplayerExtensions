@@ -17,7 +17,7 @@ namespace MultiplayerExtensions.Installers
             Container.BindInterfacesAndSelfTo<EmotePanel>().AsSingle();
             Container.BindInterfacesTo<MultiplayerGSViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LobbySetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.BindInterfacesAndSelfTo<LobbySetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<MPLobbySetupViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<PersonalSetupViewController>().FromNewComponentAsViewController().AsSingle();
         }
 

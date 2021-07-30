@@ -8,10 +8,10 @@ namespace MultiplayerExtensions.UI
     {
         internal FlowCoordinator parentFlowCoordinator = null!;
         private PersonalSetupViewController personalSetupViewController = null!;
-        private LobbySetupViewController lobbySetupViewController = null!;
+        private MPLobbySetupViewController lobbySetupViewController = null!;
 
         [Inject]
-        public void Construct(MainFlowCoordinator mainFlowCoordinator, PersonalSetupViewController personalSetupViewController, LobbySetupViewController lobbySetupViewController)
+        public void Construct(MainFlowCoordinator mainFlowCoordinator, PersonalSetupViewController personalSetupViewController, MPLobbySetupViewController lobbySetupViewController)
         {
             parentFlowCoordinator = mainFlowCoordinator;
             this.personalSetupViewController = personalSetupViewController;

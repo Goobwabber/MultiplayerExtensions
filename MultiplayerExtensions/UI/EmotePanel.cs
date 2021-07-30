@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
-using System.Net;
 
 namespace MultiplayerExtensions.UI
 {
@@ -224,7 +223,7 @@ namespace MultiplayerExtensions.UI
             Plugin.Log.Debug($"Recieved packet with emote {packet.source}");
             await flyingEmoteSemaphore.WaitAsync();
             
-            Vector3 playerPosition = environmentManager.GetPositionOfPlayer(player);
+            Vector3 playerPosition = environmentManager.GetConnectedPlayerPlace(player).transform.position;
             Quaternion playerRotation = environmentManager.GetRotationOfPlayer(player);
 
             Vector3 position = playerRotation * packet.position + playerPosition;
