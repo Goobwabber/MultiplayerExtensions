@@ -24,7 +24,6 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<EnableCustomLevelsPatch>();
             AddDefaultPatch<CreatePartyPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
-            AddDefaultPatch<CoreGameHUDController_Start>();
             AddDefaultPatch<LoggingPatch>();
             AddDefaultPatch<GetMasterServerEndPointPatch>();
             AddDefaultPatch<SetLobbyCodePatch>();

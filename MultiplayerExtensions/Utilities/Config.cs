@@ -4,7 +4,6 @@ namespace MultiplayerExtensions
 {
     public class PluginConfig
     {
-        public virtual bool VerticalHUD { get; set; } = false;
         public virtual bool SingleplayerHUD { get; set; } = false;
         public virtual bool Hologram { get; set; } = true;
         public virtual bool FreeMod { get; set; } = false;

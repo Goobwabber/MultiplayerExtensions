@@ -41,9 +41,6 @@ namespace MultiplayerExtensions.UI
         [UIComponent("HostPickToggle")]
         public ToggleSetting hostPickToggle = null!;
 
-        [UIComponent("VerticalHUDToggle")]
-        public ToggleSetting verticalHUDToggle = null!;
-
         [UIComponent("DefaultHUDToggle")]
         public ToggleSetting defaultHUDToggle = null!;
 
@@ -90,13 +87,6 @@ namespace MultiplayerExtensions.UI
                     MPEvents.RaiseHostPickChanged(this, value);
                 }
             }
-        }
-
-        [UIValue("VerticalHUD")]
-        public bool VerticalHUD
-        {
-            get => Plugin.Config.VerticalHUD;
-            set { Plugin.Config.VerticalHUD = value; }
         }
 
         [UIValue("DefaultHUD")]
@@ -155,24 +145,14 @@ namespace MultiplayerExtensions.UI
             UpdateStates();
         }
 
-        [UIAction("SetVerticalHUD")]
-        public void SetVerticalHUD(bool value)
-        {
-            VerticalHUD = value;
-            verticalHUDToggle.Value = value;
-
-            DefaultHUD = !(!DefaultHUD || !value);
-            defaultHUDToggle.Value = !(!DefaultHUD || !value);
-        }
-
         [UIAction("SetDefaultHUD")]
         public void SetDefaultHUD(bool value)
         {
             DefaultHUD = value;
             defaultHUDToggle.Value = value;
 
-            VerticalHUD = VerticalHUD || value;
-            verticalHUDToggle.Value = VerticalHUD || value;
+            //VerticalHUD = VerticalHUD || value;
+            //verticalHUDToggle.Value = VerticalHUD || value;
         }
 
         [UIAction("SetHologram")]

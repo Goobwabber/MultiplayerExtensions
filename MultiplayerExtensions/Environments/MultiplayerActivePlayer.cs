@@ -24,12 +24,16 @@ namespace MultiplayerExtensions.Environments
 
         protected void Awake()
         {
+            MultiplayerGameplayAnimator gameplayAnimator = transform.GetComponentInChildren<MultiplayerGameplayAnimator>();
+
             if (Plugin.Config.MissLighting)
             {
-                MultiplayerGameplayAnimator gameplayAnimator = transform.GetComponentInChildren<MultiplayerGameplayAnimator>();
                 MultiplayerGameplayLighting gameplayLighting = gameplayAnimator.gameObject.AddComponent<MultiplayerGameplayLighting>();
                 gameplayLighting.Construct(_connectedPlayer, _multiplayerController, _scoreProvider, _leadPlayerProvider, gameplayAnimator, _sessionManager);
             }
+
+            MultiplayerGameplayHud gameplayHud = gameplayAnimator.gameObject.AddComponent<MultiplayerGameplayHud>();
+            gameplayHud.Construct(_connectedPlayer, gameplayAnimator);
         }
     }
 }
