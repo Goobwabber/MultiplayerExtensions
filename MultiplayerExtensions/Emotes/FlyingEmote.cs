@@ -8,7 +8,7 @@ namespace MultiplayerExtensions.Emotes
         private int MAX_TIME = 3;
         private float time;
 
-        internal void Setup(Sprite sprite, Vector3 position, Quaternion rotation)
+        internal void Setup(Sprite sprite, Material material, Vector3 position, Quaternion rotation)
         {
             gameObject.SetActive(false);
 
@@ -21,6 +21,7 @@ namespace MultiplayerExtensions.Emotes
             canvas.sortingOrder = 4;
 
             this.sprite = sprite;
+            this.material = material;
             time = 0;
             rectTransform.sizeDelta = new Vector2(0.4f, 0.4f);
             rectTransform.position = position;

@@ -19,6 +19,7 @@ namespace MultiplayerExtensions.Installers
 			var _ = Container.Resolve<NetworkConfigSO>().masterServerEndPoint;
 
 			Container.Inject(Container.Resolve<IMultiplayerSessionManager>() as ExtendedSessionManager);
+			Container.BindInterfacesAndSelfTo<ResourceLoader>().AsSingle();
 		}
 
 		public override void Start()

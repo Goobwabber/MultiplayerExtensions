@@ -50,7 +50,6 @@ namespace MultiplayerExtensions.UI
         {
             if (IsHost)
             {
-                sessionManager?.SetLocalPlayerState("customsongs", CustomSongs);
                 sessionManager?.SetLocalPlayerState("freemod", FreeMod);
                 sessionManager?.SetLocalPlayerState("hostpick", HostPick);
             }
@@ -62,7 +61,6 @@ namespace MultiplayerExtensions.UI
             {
                 if (player.userId != sessionManager.localPlayer.userId && player.isConnectionOwner)
                 {
-                    CustomSongs = player.HasState("customsongs");
                     FreeMod = player.HasState("freemod");
                     HostPick = player.HasState("hostpick");
                 }
@@ -79,19 +77,6 @@ namespace MultiplayerExtensions.UI
 
             if (modifierText != null)
                 modifierText.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
-        }
-
-        [UIValue("custom-songs")]
-        private bool CustomSongs
-        {
-            get => MPState.CustomSongsEnabled;
-            set
-            {
-                MPState.CustomSongsEnabled = value;
-                MPEvents.RaiseCustomSongsChanged(this, value);
-                UpdateStates();
-                NotifyPropertyChanged(nameof(CustomSongs));
-            }
         }
 
         [UIValue("freemod")]

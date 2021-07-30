@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
+using MultiplayerExtensions.Utilities;
 
 namespace MultiplayerExtensions.UI
 {
@@ -26,10 +27,11 @@ namespace MultiplayerExtensions.UI
         private Vector3 screenAngles;
 
         private bool parsed;
-        private SemaphoreSlim flyingEmoteSemaphore;
+        private SemaphoreSlim flyingEmoteSemaphore = null!;
         private Dictionary<string, EmoteImage> localEmoteImages = null!;
         private Dictionary<string, EmoteImage> remoteEmoteImages = null!;
 
+        private readonly ResourceLoader resourceLoader;
         private readonly PacketManager packetManager;
         private readonly LobbyEnvironmentManager environmentManager;
         private readonly IPlatformUserModel platformUserModel;
@@ -40,8 +42,9 @@ namespace MultiplayerExtensions.UI
         [UIComponent("emote-list-2")]
         public CustomListTableData emoteList2 = null!;
 
-        public EmotePanel(LobbyEnvironmentManager environmentManager, PacketManager packetManager, IPlatformUserModel platformUserModel)
+        internal EmotePanel(ResourceLoader resourceLoader, PacketManager packetManager, LobbyEnvironmentManager environmentManager, IPlatformUserModel platformUserModel)
         {
+            this.resourceLoader = resourceLoader;
             this.packetManager = packetManager;
             this.environmentManager = environmentManager;
             this.platformUserModel = platformUserModel;
@@ -195,7 +198,7 @@ namespace MultiplayerExtensions.UI
         internal void CloseScreen() => floatingScreen?.gameObject?.SetActive(false);
 
         [UIAction("emote-select")]
-        private void EmoteSelect(TableView tableView, int index)
+        private async void EmoteSelect(TableView tableView, int index)
         {
             tableView.ClearSelection();
 
@@ -212,7 +215,8 @@ namespace MultiplayerExtensions.UI
             if (selectedTableData.data[index].text != "")
             {
                 FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
-                flyingEmote.Setup(selectedTableData.data[index].icon, floatingScreen.transform.position, floatingScreen.transform.rotation);
+                Material material = await resourceLoader.LoadSpriteMaterial();
+                flyingEmote.Setup(selectedTableData.data[index].icon, material, floatingScreen.transform.position, floatingScreen.transform.rotation);
                 packetManager.Send(new EmotePacket() { source = selectedTableData.data[index].text, position = floatingScreen.transform.position, rotation = floatingScreen.transform.rotation });
                 Plugin.Log.Debug($"Sent packet with emote {selectedTableData.data[index].text}");
             }
@@ -230,19 +234,20 @@ namespace MultiplayerExtensions.UI
             Quaternion rotation = playerRotation * packet.rotation;
 
             FlyingEmote flyingEmote = new GameObject("FlyingEmote", typeof(FlyingEmote)).GetComponent<FlyingEmote>();
-            
+            Material material = await resourceLoader.LoadSpriteMaterial();
+
             if (localEmoteImages.TryGetValue(packet.source, out EmoteImage localEmoteImage))
             {
                 if (localEmoteImage.SpriteWasLoaded)
                 {
-                    flyingEmote.Setup(localEmoteImage.Sprite, position, rotation);
+                    flyingEmote.Setup(localEmoteImage.Sprite, material, position, rotation);
                 }
                 else if (!localEmoteImage.Blacklist)
                 {
                     await localEmoteImage.WaitSpriteLoadAsync();
                     if (localEmoteImage.SpriteWasLoaded)
                     {
-                        flyingEmote.Setup(localEmoteImage.Sprite, position, rotation);
+                        flyingEmote.Setup(localEmoteImage.Sprite, material, position, rotation);
                     }
                 }
             }
@@ -250,7 +255,7 @@ namespace MultiplayerExtensions.UI
             {
                 if (remoteEmoteImage.SpriteWasLoaded)
                 {
-                    flyingEmote.Setup(remoteEmoteImage.Sprite, position, rotation);
+                    flyingEmote.Setup(remoteEmoteImage.Sprite, material, position, rotation);
                 }
             }
             else
@@ -262,7 +267,7 @@ namespace MultiplayerExtensions.UI
                 await emoteImage.WaitSpriteLoadAsync();
                 if (emoteImage.SpriteWasLoaded)
                 {
-                    flyingEmote.Setup(emoteImage.Sprite, position, rotation);
+                    flyingEmote.Setup(emoteImage.Sprite, material, position, rotation);
                 }
             }
 

@@ -23,7 +23,7 @@ namespace MultiplayerExtensions.UI
             SetTitle("Multiplayer Preferences");
             showBackButton = true;
 
-            ProvideInitialViewControllers(lobbySetupViewController, personalSetupViewController);
+            ProvideInitialViewControllers(personalSetupViewController, lobbySetupViewController);
         }
 
         protected override void BackButtonWasPressed(ViewController topViewController)
