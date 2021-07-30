@@ -1,5 +1,8 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
+using IPA.Utilities;
+using UnityEngine;
+using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
@@ -7,6 +10,26 @@ namespace MultiplayerExtensions.UI
     [ViewDefinition("MultiplayerExtensions.UI.PersonalSetupView.bsml")]
     public class PersonalSetupViewController : BSMLAutomaticViewController
     {
+        private MultiplayerSettingsPanelController multiplayerSettingsPanelController = null!;
+
+        [UIComponent("toggle")]
+        private readonly RectTransform toggleTransform = null!;
+
+        [Inject]
+        public void Construct(GameplaySetupViewController gameplaySetupViewController)
+        {
+            multiplayerSettingsPanelController = gameplaySetupViewController.GetField<MultiplayerSettingsPanelController, GameplaySetupViewController>("_multiplayerSettingsPanelController");
+        }
+
+        [UIAction("#post-parse")]
+        public void PostParse()
+        {
+            Transform spectatorTransform = multiplayerSettingsPanelController.transform.Find("Spectator");
+            spectatorTransform.SetParent(toggleTransform.parent);
+            spectatorTransform.gameObject.SetActive(true);
+            spectatorTransform.SetAsFirstSibling();
+        }
+
         [UIValue("singleplayer-hud")]
         private bool SingleplayerHUD
         {

@@ -1,4 +1,4 @@
-﻿<bg anchor-pos-y='10' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+﻿<bg anchor-pos-y='20' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
 	<horizontal>
 		<button text='Preferences' on-click='lobby-settings-click' />
 		<button text='🙂' italics='false' hover-hint='Emotes' on-click='spawn-emote-panel' />

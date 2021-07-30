@@ -7,6 +7,7 @@ using Polyglot;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.UI
@@ -23,6 +24,7 @@ namespace MultiplayerExtensions.UI
         private readonly GameplayModifiersPanelController singleplayerModifiersPanelController;
         private readonly GameplayModifiersPanelController multiplayerModifiersPanelController;
         private readonly MultiplayerSettingsPanelController multiplayerSettingsPanelController;
+        private Transform? spectatorTransform;
 
         public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, MPSetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController,
             SelectModifiersViewController selectModifiersViewController, EmotePanel emotePanel)
@@ -41,19 +43,22 @@ namespace MultiplayerExtensions.UI
         public void Initialize()
         {
             BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "MultiplayerExtensions.UI.MultiplayerGSView.bsml"), multiplayerSettingsPanelController.gameObject, this);
+            spectatorTransform = multiplayerSettingsPanelController.transform.Find("Spectator");
+            multiplayerSettingsPanelController.transform.Find("ConnectionSettingsWrapper").localPosition = Vector3.zero;
+
             multiplayerModifiersPanelController.transform.SetParent(singleplayerModifiersPanelController.transform.parent);
             multiplayerModifiersPanelController.transform.localPosition = singleplayerModifiersPanelController.transform.localPosition;
             multiplayerModifiersPanelController.gameObject.SetActive(false);
             multiplayerModifiersPanelController.gameObject.name = "MultiplayerGameplayModifiers";
 
             SetLeftSelectionViewPatch.EnteredLevelSelection += ShowMultiplayerModifiersPanel;
-            SetupPatch.GameplaySetupChange += HideMultiplayerModifiersPanel;
+            SetupPatch.GameplaySetupChange += GameplaySetupChanged;
         }
 
         public void Dispose()
         {
             SetLeftSelectionViewPatch.EnteredLevelSelection -= ShowMultiplayerModifiersPanel;
-            SetupPatch.GameplaySetupChange -= HideMultiplayerModifiersPanel;
+            SetupPatch.GameplaySetupChange -= GameplaySetupChanged;
         }
 
         private void ShowMultiplayerModifiersPanel()
@@ -71,7 +76,20 @@ namespace MultiplayerExtensions.UI
             gameplaySetupViewController.SetActivePanel(0);
         }
 
-        private void HideMultiplayerModifiersPanel() => multiplayerModifiersPanelController.gameObject.SetActive(false);
+        private void GameplaySetupChanged()
+        {
+            multiplayerModifiersPanelController.gameObject.SetActive(false);
+
+            if (spectatorTransform != null)
+            {
+                if (spectatorTransform.parent != multiplayerSettingsPanelController.transform)
+                {
+                    spectatorTransform = null;
+                    return;
+                }
+                spectatorTransform.gameObject.SetActive(false);
+            }
+        }
 
         [UIAction("lobby-settings-click")]
         private void PresentLobbySettings()
