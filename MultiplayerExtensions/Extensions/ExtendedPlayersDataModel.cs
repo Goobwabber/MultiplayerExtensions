@@ -160,7 +160,7 @@ namespace MultiplayerExtensions.Extensions
             string? hash = Utilities.Utils.LevelIdToHash(beatmapId.levelID);
             if (hash != null)
             {
-                Plugin.Log?.Debug($"'{userId}' selected song '{hash ?? beatmapId.levelID}'.");
+                Plugin.Log?.Debug($"'{userId}' selected song '{beatmapId.levelID}'.");
                 BeatmapCharacteristicSO characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(beatmapId.beatmapCharacteristicSerializedName);
                 if (_playersData.Values.Any(playerData => playerData.beatmapLevel?.levelID == beatmapId.levelID))
                 {
@@ -179,7 +179,7 @@ namespace MultiplayerExtensions.Extensions
                 }
             }
             else
-                base.HandleMenuRpcManagerRecommendBeatmap(userId, beatmapId);
+                return; //base.HandleMenuRpcManagerRecommendBeatmap(userId, beatmapId);
         }
 
         /// <summary>

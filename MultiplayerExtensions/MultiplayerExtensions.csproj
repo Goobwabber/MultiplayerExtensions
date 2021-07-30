@@ -62,6 +62,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="Hive.Versioning">
+      <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="HMRendering">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
       <Private>False</Private>

@@ -87,8 +87,11 @@ namespace MultiplayerExtensions.Extensions
             entitlementCts = new CancellationTokenSource();
 
             string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.partyOwnerId)?.levelID;
-            if (levelId == null) 
+            if (levelId == null)
+            {
+                SetLevelEntitlement(player, EntitlementsStatus.Unknown);
                 return;
+            }
 
             lastLevelId = levelId;
 
