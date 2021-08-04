@@ -1,6 +1,11 @@
-﻿<bg anchor-pos-y='20' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-	<horizontal>
-		<button text='Preferences' on-click='lobby-settings-click' />
-		<button text='🙂' italics='false' hover-hint='Emotes' on-click='spawn-emote-panel' />
-	</horizontal>
+﻿<bg anchor-pos-y='12' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='70' pref-height='25'>
+    <horizontal>
+      <button text='Preferences' on-click='lobby-settings-click' />
+      <button text='🙂' italics='false' hover-hint='Emotes' on-click='spawn-emote-panel' />
+    </horizontal>
+    <horizontal horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='60' pref-height='20'>
+      <text-page text='~current-settings' italics='false' />
+    </horizontal>
+  </vertical>
 </bg>

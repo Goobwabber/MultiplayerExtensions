@@ -6,6 +6,7 @@ using MultiplayerExtensions.HarmonyPatches;
 using Polyglot;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using UnityEngine;
 using Zenject;
@@ -14,7 +15,7 @@ namespace MultiplayerExtensions.UI
 {
     // GS = GameplaySetup
     // Has all the stuff in the GameplaySetup tab we add
-    public class MultiplayerGSViewController : IInitializable, IDisposable
+    public class MultiplayerGSViewController : IInitializable, IDisposable, INotifyPropertyChanged
     {
         private readonly MainFlowCoordinator mainFlowCoordinator;
         private readonly MPSetupFlowCoordinator lobbySetupFlowCoordinator;
@@ -25,6 +26,8 @@ namespace MultiplayerExtensions.UI
         private readonly GameplayModifiersPanelController multiplayerModifiersPanelController;
         private readonly MultiplayerSettingsPanelController multiplayerSettingsPanelController;
         private Transform? spectatorTransform;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, MPSetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController,
             SelectModifiersViewController selectModifiersViewController, EmotePanel emotePanel)
@@ -53,12 +56,16 @@ namespace MultiplayerExtensions.UI
 
             SetLeftSelectionViewPatch.EnteredLevelSelection += ShowMultiplayerModifiersPanel;
             SetupPatch.GameplaySetupChange += GameplaySetupChanged;
+            MPEvents.FreeModChanged += UpdateCurrentSettings;
+            MPEvents.HostPickChanged += UpdateCurrentSettings;
         }
 
         public void Dispose()
         {
             SetLeftSelectionViewPatch.EnteredLevelSelection -= ShowMultiplayerModifiersPanel;
             SetupPatch.GameplaySetupChange -= GameplaySetupChanged;
+            MPEvents.FreeModChanged -= UpdateCurrentSettings;
+            MPEvents.HostPickChanged -= UpdateCurrentSettings;
         }
 
         private void ShowMultiplayerModifiersPanel()
@@ -68,12 +75,15 @@ namespace MultiplayerExtensions.UI
             panels.RemoveAt(0);
             panels.Insert(0, new GameplaySetupViewController.Panel(Localization.Get("BUTTON_MODIFIERS"), multiplayerModifiersPanelController, multiplayerModifiersPanelController.gameObject));
             List<string> panelTitles = new List<string>(panels.Count);
+
             foreach (GameplaySetupViewController.Panel panel in panels)
             {
                 panelTitles.Add(panel.title);
             }
+
             selectionSegmentedControl.SetTexts(panelTitles);
             gameplaySetupViewController.SetActivePanel(0);
+            UpdateCurrentSettings(this, true);
         }
 
         private void GameplaySetupChanged()
@@ -90,6 +100,8 @@ namespace MultiplayerExtensions.UI
                 spectatorTransform.gameObject.SetActive(false);
             }
         }
+
+        private void UpdateCurrentSettings(object sender, bool e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentSettings)));
 
         [UIAction("lobby-settings-click")]
         private void PresentLobbySettings()
@@ -115,5 +127,11 @@ namespace MultiplayerExtensions.UI
         {
             emotePanel.ToggleActive();
         }
+
+        private string BoolToString(bool state) => state ? "✔" : "❌";
+
+        [UIValue("current-settings")]
+        private string CurrentSettings => $"Freemod     {BoolToString(MPState.FreeModEnabled)}" +
+                                          $"\n\nHost Picks  {BoolToString(MPState.HostPickEnabled)}";
     }
 }
