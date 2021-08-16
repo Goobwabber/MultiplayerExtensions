@@ -1,4 +1,5 @@
 ﻿using BeatSaverSharp;
+using BeatSaverSharp.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace MultiplayerExtensions.Beatmaps
 
                 if (_downloadableTask == null)
 				{
-                    _downloadableTask = Plugin.BeatSaver.Hash(levelHash).ContinueWith<bool>(r => r.Exception == null && r.Result is Beatmap);
+                    _downloadableTask = Plugin.BeatSaver.BeatmapByHash(levelHash).ContinueWith<bool>(r => r.Exception == null && r.Result is Beatmap);
                     _downloadableTask.ContinueWith(r => _downloadable = r.Result ? DownloadableState.True : DownloadableState.False);
 				}
 
@@ -92,7 +93,7 @@ namespace MultiplayerExtensions.Beatmaps
             this.isDownloaded = false;
 
             this.levelID = levelID;
-            this.levelHash = bm.Hash;
+            this.levelHash = bm.LatestVersion.Hash;
 
             this.songName = bm.Metadata.SongName;
             this.songSubName = bm.Metadata.SongSubName;
@@ -113,7 +114,7 @@ namespace MultiplayerExtensions.Beatmaps
 			{
                 try
                 {
-                    Sprite? cover = Utilities.Sprites.GetSprite(await _beatmap.CoverImageBytes());
+                    Sprite? cover = Utilities.Sprites.GetSprite(await _beatmap.LatestVersion.DownloadCoverImage());
                     if (cover != null)
                         return cover;
 				}

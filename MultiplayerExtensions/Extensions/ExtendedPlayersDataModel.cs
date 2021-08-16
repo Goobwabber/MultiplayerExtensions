@@ -1,4 +1,5 @@
 ﻿using BeatSaverSharp;
+using BeatSaverSharp.Models;
 using MultiplayerExtensions.Beatmaps;
 using MultiplayerExtensions.Packets;
 using System;
@@ -316,7 +317,7 @@ namespace MultiplayerExtensions.Extensions
         {
             try
             {
-                Beatmap? bm = await Plugin.BeatSaver.Hash(hash);
+                Beatmap? bm = await Plugin.BeatSaver.BeatmapByHash(hash);
                 if (bm != null)
                     return new PreviewBeatmapStub(levelID, bm);
                 return null;
