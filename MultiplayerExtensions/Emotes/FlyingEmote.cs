@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace MultiplayerExtensions.Emotes
@@ -7,6 +8,8 @@ namespace MultiplayerExtensions.Emotes
     {
         private int MAX_TIME = 3;
         private float time;
+
+        private static System.Random random = new System.Random();
 
         internal void Setup(Sprite sprite, Material material, Vector3 position, Quaternion rotation)
         {
@@ -23,8 +26,11 @@ namespace MultiplayerExtensions.Emotes
             this.sprite = sprite;
             this.material = material;
             time = 0;
-            rectTransform.sizeDelta = new Vector2(0.4f, 0.4f);
+
+            float size = random.Next(3, 10);
+            rectTransform.sizeDelta = new Vector2(size/10f, size/10f);
             rectTransform.position = position;
+            rectTransform.Translate(new Vector3(random.Next(-5, 6)/10f, random.Next(-5, 6)/10f));
             rectTransform.rotation = rotation;
             gameObject.SetActive(true);
         }

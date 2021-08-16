@@ -9,7 +9,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(GameplaySetupViewController), "Setup", MethodType.Normal)]
     internal class SetupPatch
     {
-        public static event Action GameplaySetupChange;
+        public static event Action? GameplaySetupChange;
         static void Prefix()
         {
             GameplaySetupChange?.Invoke();
@@ -52,7 +52,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(LevelSelectionFlowCoordinator), "initialLeftScreenViewController", MethodType.Getter)]
     internal class SetLeftSelectionViewPatch
     {
-        public static event Action EnteredLevelSelection;
+        public static event Action? EnteredLevelSelection;
         static bool Prefix(ref ViewController __result, LevelSelectionFlowCoordinator __instance, FlowCoordinator ____parentFlowCoordinator)
         {
             if (__instance is MultiplayerLevelSelectionFlowCoordinator && ____parentFlowCoordinator is GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator)

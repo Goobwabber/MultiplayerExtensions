@@ -27,7 +27,7 @@ namespace MultiplayerExtensions.UI
         private readonly MultiplayerSettingsPanelController multiplayerSettingsPanelController;
         private Transform? spectatorTransform;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged = null!;
 
         public MultiplayerGSViewController(MainFlowCoordinator mainFlowCoordinator, MPSetupFlowCoordinator lobbySetupFlowCoordinator, GameplaySetupViewController gameplaySetupViewController,
             SelectModifiersViewController selectModifiersViewController, EmotePanel emotePanel)

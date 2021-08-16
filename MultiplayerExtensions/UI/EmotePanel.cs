@@ -77,7 +77,6 @@ namespace MultiplayerExtensions.UI
                 floatingScreen.transform.localEulerAngles = new Vector3(50, 0);
                 screenPosition = floatingScreen.transform.position;
                 screenAngles = floatingScreen.transform.localEulerAngles;
-                LoadImages();
             }
             // Restore position so it respawns where we expect it to
             floatingScreen.transform.position = screenPosition;
