@@ -1,4 +1,4 @@
-﻿using BeatSaverSharp;
+﻿using BeatSaverSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -75,7 +75,7 @@ namespace MultiplayerExtensions.Extensions
 
 			if (SongCore.Collections.songWithHashPresent(hash))
 				return Task.FromResult(EntitlementsStatus.Ok);
-			return Plugin.BeatSaver.Hash(hash).ContinueWith<EntitlementsStatus>(r =>
+			return Plugin.BeatSaver.BeatmapByHash(hash).ContinueWith<EntitlementsStatus>(r =>
 			{
 				Beatmap? beatmap = r.Result;
 				if (beatmap == null)

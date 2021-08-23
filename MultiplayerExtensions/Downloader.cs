@@ -4,8 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MultiplayerExtensions.Utilities;
 using System.Collections.Concurrent;
-using BeatSaverSharp;
 using System.Diagnostics;
+using BeatSaverSharp.Models;
 #nullable enable
 
 namespace MultiplayerExtensions
@@ -25,14 +25,14 @@ namespace MultiplayerExtensions
 
         private static async Task<IPreviewBeatmapLevel?> DownloadSong(string hash, CancellationToken cancellationToken)
         {
-            Beatmap? bm = await Plugin.BeatSaver.Hash(hash);
+            Beatmap? bm = await Plugin.BeatSaver.BeatmapByHash(hash);
 
             if (bm == null)
             {
                 Plugin.Log?.Warn($"Could not find song '{hash}' on Beat Saver.");
                 return null;
             }
-            Plugin.Log.Info($"Attempting to download song '({bm.Key}) {bm.Name ?? hash}'");
+            Plugin.Log.Info($"Attempting to download song '({bm.ID}) {bm.Name ?? hash}'");
 #if DEBUG
             if((Plugin.Config.DebugConfig?.FailDownloads ?? false))
             {
@@ -43,16 +43,7 @@ namespace MultiplayerExtensions
 #endif
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            byte[] beatmapBytes = await bm.ZipBytes(false, new StandardRequestOptions()
-            {
-                Progress = new Progress<double>(d =>
-                {
-#if DEBUG
-                    Plugin.Log.Debug($"Downloading '{hash}': {d}");
-#endif
-                    DownloadProgressChanged?.Invoke(hash, d);
-                })
-            });
+            byte[]? beatmapBytes = await bm.LatestVersion.DownloadZIP();
 #if DEBUG
             TimeSpan delay = TimeSpan.FromSeconds(Plugin.Config.DebugConfig?.MinDownloadTime ?? 0) - TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
             if (delay > TimeSpan.Zero)
@@ -62,7 +53,7 @@ namespace MultiplayerExtensions
                 Plugin.Log.Debug($"Delay finished.");
             }
 #endif
-            string folderPath = Utils.GetSongDirectoryName(bm.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
+            string folderPath = Utils.GetSongDirectoryName(bm.LatestVersion.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
             using (var ms = new MemoryStream(beatmapBytes))
             {
