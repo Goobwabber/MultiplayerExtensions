@@ -22,7 +22,7 @@ namespace MultiplayerExtensions.Utilities
         static HarmonyManager()
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
-            AddDefaultPatch<CreatePartyPatch>();
+            //AddDefaultPatch<CreatePartyPatch>(); (disabled for official)
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<LoggingPatch>();
             AddDefaultPatch<GetMasterServerEndPointPatch>();
