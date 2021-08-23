@@ -13,8 +13,6 @@ namespace MultiplayerExtensions.Extensions
         protected readonly PacketManager _packetManager;
         protected readonly ExtendedSessionManager _sessionManager;
 
-        private static readonly string PlaceholderSongID = "100Bills";
-
         internal ExtendedPlayersDataModel(PacketManager packetManager, IMultiplayerSessionManager sessionManager)
         {
             _packetManager = packetManager;
@@ -26,7 +24,6 @@ namespace MultiplayerExtensions.Extensions
             MPEvents.CustomSongsChanged += this.HandleCustomSongsChanged;
             MPEvents.FreeModChanged += this.HandleFreeModChanged;
             this._packetManager.RegisterCallback<PreviewBeatmapPacket>(this.HandlePreviewBeatmapPacket);
-            this._packetManager.RegisterCallback<ExtendedPlayerReadyPacket>(this.HandlePlayerReadyPacket);
             base.Activate();
 
             _menuRpcManager.recommendBeatmapEvent -= base.HandleMenuRpcManagerRecommendBeatmap;
@@ -48,7 +45,6 @@ namespace MultiplayerExtensions.Extensions
             MPEvents.CustomSongsChanged -= HandleCustomSongsChanged;
             MPEvents.FreeModChanged -= HandleFreeModChanged;
             this._packetManager.UnregisterCallback<PreviewBeatmapPacket>();
-            this._packetManager.UnregisterCallback<ExtendedPlayerReadyPacket>();
 
             _menuRpcManager.recommendBeatmapEvent -= this.HandleMenuRpcManagerRecommendBeatmap;
             _menuRpcManager.recommendBeatmapEvent += base.HandleMenuRpcManagerRecommendBeatmap;
@@ -126,13 +122,7 @@ namespace MultiplayerExtensions.Extensions
 			{
                 if (lobbyPlayerDataModel.beatmapLevel is PreviewBeatmapStub preview)
                     _packetManager.Send(new PreviewBeatmapPacket(preview, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
-                else
-                {
-                    if (_sessionManager.connectionOwner.HasState("modded"))
-                        this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(lobbyPlayerDataModel.beatmapLevel.levelID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
-                    else
-                        this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(PlaceholderSongID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
-                }
+                this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(lobbyPlayerDataModel.beatmapLevel.levelID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
             }
         }
 
@@ -193,10 +183,7 @@ namespace MultiplayerExtensions.Extensions
 
                     HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
                     _packetManager.Send(new PreviewBeatmapPacket(preview!, characteristic.serializedName, beatmapDifficulty));
-                    if (_sessionManager.connectionOwner.HasState("modded"))
-                        _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
-                    else
-                        _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(PlaceholderSongID, characteristic.serializedName, beatmapDifficulty));
+                    _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                 }
             }else
                 base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
@@ -249,11 +236,6 @@ namespace MultiplayerExtensions.Extensions
             _sessionManager.partyOwner = _sessionManager.GetPlayerByUserId(partyOwnerId);
         }
 
-        private void HandlePlayerReadyPacket(ExtendedPlayerReadyPacket packet, IConnectedPlayer player)
-		{
-            base.SetPlayerIsReady(player.userId, packet.ready, true);
-		}
-
 		public override void SetLocalPlayerIsReady(bool isReady)
 		{
 			this.SetLocalPlayerIsReady(isReady, true);
@@ -275,8 +257,7 @@ namespace MultiplayerExtensions.Extensions
                 this.NotifyModelChange(this.localUserId);
             }
 
-            _packetManager.Send(new ExtendedPlayerReadyPacket().Init(isReady));
-            base.SetPlayerIsReady(this.localUserId, isReady, notifyChange);
+            base.SetLocalPlayerIsReady(isReady, notifyChange);
 		}
 
 		/// <summary>
