@@ -98,7 +98,8 @@ namespace MultiplayerExtensions.Extensions
 
 			if (!_tcsDictionary.ContainsKey(userId))
 				_tcsDictionary[userId] = new Dictionary<string, TaskCompletionSource<EntitlementsStatus>>();
-			_tcsDictionary[userId][levelId] = new TaskCompletionSource<EntitlementsStatus>();
+			if (!_tcsDictionary[userId].ContainsKey(levelId))
+				_tcsDictionary[userId][levelId] = new TaskCompletionSource<EntitlementsStatus>();
 			_rpcManager.GetIsEntitledToLevel(levelId);
 			return _tcsDictionary[userId][levelId].Task;
 		}

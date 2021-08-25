@@ -6,6 +6,7 @@ using MultiplayerExtensions.Utilities;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using BeatSaverSharp.Models;
+using System.Linq;
 #nullable enable
 
 namespace MultiplayerExtensions
@@ -43,7 +44,7 @@ namespace MultiplayerExtensions
 #endif
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            byte[]? beatmapBytes = await bm.LatestVersion.DownloadZIP();
+            byte[]? beatmapBytes = await bm.Versions.ToList().Find(version => version.Hash == hash).DownloadZIP();
 #if DEBUG
             TimeSpan delay = TimeSpan.FromSeconds(Plugin.Config.DebugConfig?.MinDownloadTime ?? 0) - TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
             if (delay > TimeSpan.Zero)
