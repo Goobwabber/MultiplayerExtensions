@@ -154,7 +154,7 @@ namespace MultiplayerExtensions.Extensions
                 }
             }
             else
-                return; //base.HandleMenuRpcManagerRecommendBeatmap(userId, beatmapId);
+                base.HandleMenuRpcManagerRecommendBeatmap(userId, beatmapId);
         }
 
         /// <summary>

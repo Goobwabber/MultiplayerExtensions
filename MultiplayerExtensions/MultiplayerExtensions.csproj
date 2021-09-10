@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>MultiplayerExtensions</AssemblyName>
-    <AssemblyVersion>0.6.0</AssemblyVersion>
+    <AssemblyVersion>0.6.1</AssemblyVersion>
     <TargetFramework>net472</TargetFramework>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>

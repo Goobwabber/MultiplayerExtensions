@@ -42,6 +42,8 @@ namespace MultiplayerExtensions.Extensions
 			SetLocalPlayerState("freemod", Plugin.Config.FreeMod);
 			SetLocalPlayerState("hostpick", Plugin.Config.HostPick);
 
+			connectedEvent += HandleConnected;
+
 			playerStateChangedEvent += HandlePlayerStateChanged;
 
 			playerConnectedEvent += HandlePlayerConnected;
@@ -73,6 +75,11 @@ namespace MultiplayerExtensions.Extensions
 
 			base.EndSession();
 		}
+
+		private void HandleConnected()
+        {
+			Plugin.Log?.Info($"Connected to lobby.");
+        }
 
 		private void HandlePlayerConnected(IConnectedPlayer player)
 		{

@@ -17,7 +17,8 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static void Prefix(CreateServerFormData data)
         {
-            data.songPacks = SongPackMask.all | new SongPackMask("custom_levelpack_CustomLevels");
+            if (!MPState.CurrentMasterServer.isOfficial)
+                data.songPacks = SongPackMask.all | new SongPackMask("custom_levelpack_CustomLevels");
         }
     }
 
