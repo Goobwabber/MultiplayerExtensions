@@ -44,7 +44,14 @@ namespace MultiplayerExtensions
 #endif
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            byte[]? beatmapBytes = await bm.Versions.ToList().Find(version => version.Hash == hash).DownloadZIP();
+            // Plugin.Log.Debug(bm.Versions.ToList().ToString());
+            BeatmapVersion bmv = bm.Versions.ToList().Find(version => version.Hash.ToLower().Equals(hash.ToLower()));
+            if (ReferenceEquals(bmv, null))
+            {
+                Plugin.Log.Error($"Could not find the exact version {hash}");
+                throw new NullReferenceException("Could not find the exact version.");
+            }
+            byte[]? beatmapBytes = await bmv.DownloadZIP(cancellationToken);
 #if DEBUG
             TimeSpan delay = TimeSpan.FromSeconds(Plugin.Config.DebugConfig?.MinDownloadTime ?? 0) - TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
             if (delay > TimeSpan.Zero)
@@ -54,8 +61,16 @@ namespace MultiplayerExtensions
                 Plugin.Log.Debug($"Delay finished.");
             }
 #endif
+            if (beatmapBytes == null)
+            {
+                Plugin.Log.Error("Downloaded bytes are null.");
+                throw new NullReferenceException("Downloaded bytes are null.");
+            }
+            Plugin.Log.Debug("Trying to get new song dir name");
             string folderPath = Utils.GetSongDirectoryName(bm.LatestVersion.Key, bm.Metadata.SongName, bm.Metadata.LevelAuthorName);
+            Plugin.Log.Debug(folderPath);
             folderPath = Path.Combine(CustomLevelsFolder, folderPath);
+            Plugin.Log.Debug(folderPath);
             using (var ms = new MemoryStream(beatmapBytes))
             {
                 var result = await ZipUtils.ExtractZip(ms, folderPath);
@@ -112,6 +127,7 @@ namespace MultiplayerExtensions
         private static async Task<IPreviewBeatmapLevel?> TryDownloadSongInternal(string levelId, CancellationToken cancellationToken)
         {
             Plugin.DebugLog($"TryDownloadSongInternal: {levelId}");
+            Plugin.Log.Debug($"TryDownloadSongInternal: {levelId}");
             try
             {
                 string? hash = Utils.LevelIdToHash(levelId);
@@ -121,6 +137,7 @@ namespace MultiplayerExtensions
                     return null;
                 }
                 IPreviewBeatmapLevel? beatmap = await DownloadSong(hash, cancellationToken);
+                Plugin.Log.Debug("Return from DownloadSong");
                 if (beatmap is CustomPreviewBeatmapLevel customLevel)
                 {
                     Plugin.Log?.Debug($"Download was successful.");
