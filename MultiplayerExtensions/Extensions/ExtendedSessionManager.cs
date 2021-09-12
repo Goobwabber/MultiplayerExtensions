@@ -150,6 +150,8 @@ namespace MultiplayerExtensions.Extensions
 
 		public ExtendedPlayer? GetExtendedPlayer(string userId)
 		{
+			if (localExtendedPlayer.userId == userId)
+				return localExtendedPlayer;
 			if (_extendedPlayers.TryGetValue(userId, out ExtendedPlayer extendedPlayer))
 				return extendedPlayer;
 			return null;
