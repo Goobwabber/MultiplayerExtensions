@@ -1,4 +1,4 @@
-﻿using BeatSaverSharp.Models;
+using BeatSaverSharp.Models;
 using MultiplayerExtensions.Beatmaps;
 using MultiplayerExtensions.Packets;
 using System;
@@ -217,19 +217,31 @@ namespace MultiplayerExtensions.Extensions
             }
         }
 
-		public override void HandleMenuRpcManagerSetPlayersPermissionConfiguration(string userId, PlayersLobbyPermissionConfigurationNetSerializable playersLobbyPermissionConfiguration)
+		public override void HandleMenuRpcManagerSetPlayersPermissionConfiguration(string userId, PlayersLobbyPermissionConfigurationNetSerializable permissionConfiguration)
 		{
-            foreach (PlayerLobbyPermissionConfigurationNetSerializable playerLobbyPermissionConfigurationNetSerializable in playersLobbyPermissionConfiguration.playersPermission)
+            foreach (PlayerLobbyPermissionConfigurationNetSerializable playerPermission in permissionConfiguration.playersPermission)
             {
-                ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(playerLobbyPermissionConfigurationNetSerializable.userId);
+                Plugin.Log?.Info($"Processing PermissionConfiguration for '{playerPermission.userId}'");
+
+                ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(playerPermission.userId);
                 if (player != null)
 				{
-                    player.isPartyOwner = playerLobbyPermissionConfigurationNetSerializable.isServerOwner;
-                    player.hasRecommendBeatmapPermission = playerLobbyPermissionConfigurationNetSerializable.hasRecommendBeatmapsPermission;
-                    player.hasRecommendModifiersPermission = playerLobbyPermissionConfigurationNetSerializable.hasRecommendGameplayModifiersPermission;
-                    player.hasKickVotePermission = playerLobbyPermissionConfigurationNetSerializable.hasKickVotePermission;
+                    player.isPartyOwner = playerPermission.isServerOwner;
+                    player.hasRecommendBeatmapPermission = playerPermission.hasRecommendBeatmapsPermission;
+                    player.hasRecommendModifiersPermission = playerPermission.hasRecommendGameplayModifiersPermission;
+                    player.hasKickVotePermission = playerPermission.hasKickVotePermission;
                 }
-                this.SetPlayerIsPartyOwner(playerLobbyPermissionConfigurationNetSerializable.userId, playerLobbyPermissionConfigurationNetSerializable.isServerOwner, true);
+
+                // Base game is bugged and this method is fucked
+                // this.SetPlayerIsPartyOwner(playerPermission.userId, playerPermission.isServerOwner, true);
+                ILobbyPlayerData lobbyPlayerData = this.GetOrCreateLobbyPlayerDataModel(playerPermission.userId, out bool alreadyExists);
+                if (playerPermission.isServerOwner)
+                    this.SetPlayerIsPartyOwner(playerPermission.userId, playerPermission.isServerOwner, true);
+                else if (lobbyPlayerData.isPartyOwner != playerPermission.isServerOwner)
+				{
+                    lobbyPlayerData.isPartyOwner = playerPermission.isServerOwner;
+                    this.NotifyModelChange(playerPermission.userId);
+				}
             }
 
             MPState.LocalPlayerIsHost = localUserId == partyOwnerId;

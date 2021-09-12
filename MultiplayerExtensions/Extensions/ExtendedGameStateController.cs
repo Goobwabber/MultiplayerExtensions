@@ -82,14 +82,8 @@ namespace MultiplayerExtensions.Extensions
 
         public override void HandleMenuRpcManagerStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
 		{
-            if (_sessionManager.partyOwner != null)
-            {
-                ILobbyPlayerData partyOwnerData = _lobbyPlayersDataModel.GetLobbyPlayerDataModel(_sessionManager.partyOwner.userId);
-                beatmapId = new BeatmapIdentifierNetSerializable(partyOwnerData.beatmapLevel.levelID, partyOwnerData.beatmapCharacteristic.serializedName, partyOwnerData.beatmapDifficulty);
-
-                if (_sessionManager.partyOwner.HasState("freemod"))
-                    gameplayModifiers = _lobbyPlayersDataModel.GetPlayerGameplayModifiers(_lobbyPlayersDataModel.localUserId);
-            }
+            if (_sessionManager.partyOwner != null && _sessionManager.partyOwner.HasState("freemod"))
+                gameplayModifiers = _lobbyPlayersDataModel.GetPlayerGameplayModifiers(_lobbyPlayersDataModel.localUserId);
 
 			base.HandleMenuRpcManagerStartedLevel(userId, beatmapId, gameplayModifiers, startTime);
             _multiplayerLevelLoader.countdownFinishedEvent -= base.HandleMultiplayerLevelLoaderCountdownFinished;
@@ -137,6 +131,12 @@ namespace MultiplayerExtensions.Extensions
         {
             if (state == MultiplayerLobbyState.GameStarting)
 			{
+                if (_levelStartedOnTime == false)
+				{
+                    Plugin.Log.Debug("Loaded level late, starting game.");
+                    base.HandleMultiplayerLevelLoaderCountdownFinished(_previewBeatmapLevel, _beatmapDifficulty, _beatmapCharacteristic, _difficultyBeatmap, _gameplayModifiers);
+                }
+
                 IEnumerable<Task<bool>> readyTasks = _sessionManager.connectedPlayers.Select(IsPlayerReady);
                 bool[] readyStates = await Task.WhenAll<bool>(readyTasks);
                 if (readyStates.All(x => x) && await _entitlementChecker.GetEntitlementStatus(startedBeatmapId.levelID) == EntitlementsStatus.Ok)
