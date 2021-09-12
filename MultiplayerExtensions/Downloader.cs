@@ -44,7 +44,12 @@ namespace MultiplayerExtensions
 #endif
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            byte[]? beatmapBytes = await bm.Versions.ToList().Find(version => version.Hash == hash).DownloadZIP();
+
+            Plugin.Log?.Info($"Target hash: '{hash}'");
+            byte[]? beatmapBytes = await bm.Versions.ToList().Find(version => {
+                Plugin.Log?.Info($"Version: '{version.Key}' '{version.Hash}'");
+                return version.Hash.ToUpper() == hash;
+            }).DownloadZIP();
 #if DEBUG
             TimeSpan delay = TimeSpan.FromSeconds(Plugin.Config.DebugConfig?.MinDownloadTime ?? 0) - TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
             if (delay > TimeSpan.Zero)
