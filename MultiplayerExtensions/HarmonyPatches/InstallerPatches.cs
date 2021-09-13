@@ -140,30 +140,12 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(MultiplayerConnectedPlayerInstaller), nameof(MultiplayerConnectedPlayerInstaller.InstallBindings))]
     internal class ConnectedPlayerInstallerPatch
     {
-        private static readonly SemVer.Version _minVersionFreeMod = new SemVer.Version("0.4.6");
-
         internal static void Prefix(ref GameplayCoreInstaller __instance, ref IConnectedPlayer ____connectedPlayer, ref GameplayCoreSceneSetupData ____sceneSetupData)
         {
-            var mib = __instance as MonoInstallerBase;
-            var Container = SiraUtil.Accessors.GetDiContainer(ref mib);
-
-            ExtendedSessionManager sessionManager = (Container.Resolve<IMultiplayerSessionManager>() as ExtendedSessionManager)!;
-            ExtendedPlayer? exPlayer = sessionManager.GetExtendedPlayer(____connectedPlayer);
-            ExtendedPlayer? hostPlayer = sessionManager.GetExtendedPlayer(sessionManager.partyOwner);
-
-            GameplayModifiers? newModifiers;
-            if (____connectedPlayer.HasState("modded") && MPState.FreeModEnabled && exPlayer?.mpexVersion >= _minVersionFreeMod)
-                newModifiers = exPlayer.lastModifiers;
-            else
-                newModifiers = hostPlayer?.lastModifiers;
-
-            if (newModifiers == null)
-                newModifiers = ____sceneSetupData.gameplayModifiers;
-
             ____sceneSetupData = new GameplayCoreSceneSetupData(
                 ____sceneSetupData.difficultyBeatmap,
                 ____sceneSetupData.previewBeatmapLevel,
-                newModifiers.CopyWith(zenMode: Plugin.Config.LagReducer),
+                ____sceneSetupData.gameplayModifiers.CopyWith(zenMode: Plugin.Config.LagReducer),
                 ____sceneSetupData.playerSpecificSettings,
                 ____sceneSetupData.practiceSettings,
                 ____sceneSetupData.useTestNoteCutSoundEffects,

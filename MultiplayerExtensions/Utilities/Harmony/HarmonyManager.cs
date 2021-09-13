@@ -24,7 +24,6 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<EnableCustomLevelsPatch>();
             //AddDefaultPatch<CreatePartyPatch>(); (disabled for official)
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
-            AddDefaultPatch<LoggingPatch>();
             AddDefaultPatch<GetMasterServerEndPointPatch>();
             AddDefaultPatch<SetLobbyCodePatch>();
             AddDefaultPatch<LobbyEnvironmentLoadPatch>();
@@ -36,8 +35,6 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<IncreaseMaxPlayersPatch>();
             AddDefaultPatch<MissingLevelStartPatch>();
             AddDefaultPatch<ConnectedPlayerInstallerPatch>();
-            AddDefaultPatch<CenterStageGameDataPatch>();
-            AddDefaultPatch<DisableSpeedModifiersPatch>();
             AddDefaultPatch<ShortCircuitPlatformLightRegistry>();
             AddDefaultPatch<MultiplayerResultsPyramidPatch>();
             AddDefaultPatch<AnimationPlayerCountPatch>();
@@ -48,6 +45,7 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<MultiplayerLobbyAvatarAddedPatch>();
             AddDefaultPatch<EntitlementCheckerPatch>();
             AddDefaultPatch<EnableCancelButtonPatch>();
+            AddDefaultPatch<PacketErrorLoggingPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class

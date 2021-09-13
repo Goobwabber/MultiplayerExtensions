@@ -13,15 +13,5 @@ namespace MultiplayerExtensions.UI
                 MPState.EasterEggsEnabled = value;
             }
         }
-
-        [UIValue("statistics")]
-        public bool StatisticsEnabled
-        {
-            get => Plugin.Config.Statistics;
-            set
-            {
-                Plugin.Config.Statistics = value;
-            }
-        }
     }
 }

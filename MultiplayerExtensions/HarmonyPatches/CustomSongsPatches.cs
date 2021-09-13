@@ -39,7 +39,7 @@ namespace MultiplayerExtensions.HarmonyPatches
     internal class GameServerDidActivatePatch
 	{
         /// <summary>
-        /// Does stuff as soon as the lobby is loaded.
+        /// Check if lobby supports custom songs.
         /// </summary>
         static void Postfix(IUnifiedNetworkPlayerModel ____unifiedNetworkPlayerModel)
 		{
@@ -56,41 +56,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         static void Prefix(LobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameReadyButton)
         {
             if (____startGameReadyButton.interactable)
-                __instance.SetStartGameEnabled(CannotStartGameReason.None);
-        }
-    }
-
-    [HarmonyPatch(typeof(CenterStageScreenController), nameof(CenterStageScreenController.HandleLobbyPlayersDataModelDidChange), MethodType.Normal)]
-    internal class CenterStageGameDataPatch
-    {
-        /// <summary>
-        /// Replaces selected gameplay modifiers if freemod is enabled.
-        /// </summary>
-        static void Postfix(string userId, ref ILobbyPlayersDataModel ____lobbyPlayersDataModel, ref ModifiersSelectionView ____modifiersSelectionView)
-        {
-            if (userId == ____lobbyPlayersDataModel.localUserId && MPState.FreeModEnabled)
-            {
-                GameplayModifiers gameplayModifiers = ____lobbyPlayersDataModel.GetPlayerGameplayModifiers(userId);
-                if (gameplayModifiers != null)
-                    ____modifiersSelectionView.SetGameplayModifiers(gameplayModifiers);
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(GameplayModifiersPanelController), nameof(GameplayModifiersPanelController.RefreshTotalMultiplierAndRankUI), MethodType.Normal)]
-    internal class DisableSpeedModifiersPatch
-    {
-        static void Postfix(ref GameplayModifierToggle[] ____gameplayModifierToggles)
-        {
-            //foreach(GameplayModifierToggle toggle in ____gameplayModifierToggles)
-            //{
-            //    Plugin.Log.Warn(toggle.gameplayModifier.modifierNameLocalizationKey);
-            //}
-
-            bool speedModsEnabled = !MPState.FreeModEnabled || MPState.LocalPlayerIsHost;
-            ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SUPER_FAST_SONG").toggle.interactable = speedModsEnabled;
-            ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_FASTER_SONG").toggle.interactable = speedModsEnabled;
-            ____gameplayModifierToggles.ToList().Find(toggle => toggle.gameplayModifier.modifierNameLocalizationKey == "MODIFIER_SLOWER_SONG").toggle.interactable = speedModsEnabled;
+                __instance.SetStartGameEnabled(CannotStartGameReason.DoNotOwnSong);
         }
     }
 

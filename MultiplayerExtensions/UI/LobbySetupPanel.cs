@@ -28,15 +28,9 @@ namespace MultiplayerExtensions.UI
             base.DidActivate(true, false, true);
 
             lobbyViewController.didActivateEvent += OnActivate;
-            _sessionManager.playerStateChangedEvent += HandlePlayerStateChanged;
         }
 
         #region UIComponents
-        [UIComponent("CustomSongsToggle")]
-        public ToggleSetting customSongsToggle = null!;
-
-        [UIComponent("FreeModToggle")]
-        public ToggleSetting freeModToggle = null!;
 
         [UIComponent("HostPickToggle")]
         public ToggleSetting hostPickToggle = null!;
@@ -58,36 +52,6 @@ namespace MultiplayerExtensions.UI
         #endregion
 
         #region UIValues
-        [UIValue("FreeMod")]
-        public bool FreeMod
-        {
-            get => _permissionsModel.isPartyOwner ? Plugin.Config.FreeMod : MPState.FreeModEnabled;
-            set {
-                if (_permissionsModel.isPartyOwner)
-                    Plugin.Config.FreeMod = value;
-                if (MPState.FreeModEnabled != value)
-                {
-                    MPState.FreeModEnabled = value;
-                    MPEvents.RaiseFreeModChanged(this, value);
-                }
-            }
-        }
-
-        [UIValue("HostPick")]
-        public bool HostPick
-        {
-            get => Plugin.Config.HostPick;
-            set
-            {
-                if (_permissionsModel.isPartyOwner)
-                    Plugin.Config.HostPick = value;
-                if (MPState.HostPickEnabled != value)
-                {
-                    MPState.HostPickEnabled = value;
-                    MPEvents.RaiseHostPickChanged(this, value);
-                }
-            }
-        }
 
         [UIValue("DefaultHUD")]
         public bool DefaultHUD
@@ -126,24 +90,6 @@ namespace MultiplayerExtensions.UI
         #endregion
 
         #region UIActions
-        [UIAction("SetFreeMod")]
-        public void SetFreeMod(bool value)
-        {
-            FreeMod = value;
-            freeModToggle.Value = value;
-
-            UpdateStates();
-            SetModifierText();
-        }
-
-        [UIAction("SetHostPick")]
-        public void SetHostPick(bool value)
-        {
-            HostPick = value;
-            hostPickToggle.Value = value;
-
-            UpdateStates();
-        }
 
         [UIAction("SetDefaultHUD")]
         public void SetDefaultHUD(bool value)
@@ -179,42 +125,11 @@ namespace MultiplayerExtensions.UI
 
         private void OnActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            freeModToggle.interactable = _permissionsModel.isPartyOwner;
-            hostPickToggle.interactable = _permissionsModel.isPartyOwner;
-
             if (firstActivation)
             {
                 Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
                 spectatorText.position = new Vector3(spectatorText.position.x, 0.25f, spectatorText.position.z);
             }
-        }
-
-        private void HandlePlayerStateChanged(IConnectedPlayer player)
-		{
-            ExtendedPlayer? exPlayer = _sessionManager.GetExtendedPlayer(player);
-            if (exPlayer != null && exPlayer.isPartyOwner)
-			{
-                FreeMod = exPlayer.HasState("freemod");
-                HostPick = exPlayer.HasState("hostpick");
-            }
-		}
-
-        private void UpdateStates()
-        {
-            _sessionManager?.SetLocalPlayerState("freemod", FreeMod);
-            _sessionManager?.SetLocalPlayerState("hostpick", HostPick);
-        }
-
-        private void SetModifierText()
-        {
-            if (modifierText == null)
-            {
-                modifierText = Resources.FindObjectsOfTypeAll<CurvedTextMeshPro>().ToList().Find(text => text.gameObject.name == "SuggestedModifiers");
-                Destroy(modifierText.gameObject.GetComponent<LocalizedTextMeshPro>());
-            }
-
-            if (modifierText != null)
-                modifierText.text = MPState.FreeModEnabled ? "Selected Modifiers" : Localization.Get("SUGGESTED_MODIFIERS");
         }
     }
 }

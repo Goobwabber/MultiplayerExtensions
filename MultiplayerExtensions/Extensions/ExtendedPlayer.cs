@@ -29,8 +29,6 @@ namespace MultiplayerExtensions.Extensions
         /// </summary>
         public Color playerColor;
 
-        internal GameplayModifiers? lastModifiers;
-
         public bool isPartyOwner { get; internal set; }
         public bool hasRecommendBeatmapPermission { get; internal set; }
         public bool hasRecommendModifiersPermission { get; internal set; }

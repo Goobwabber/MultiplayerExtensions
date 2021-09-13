@@ -79,7 +79,6 @@ namespace MultiplayerExtensions
             BSMLSettings.instance.AddSettingsMenu("Multiplayer", "MultiplayerExtensions.UI.settings.bsml", MPSettings.instance);
 
             Plugin.Config.MaxPlayers = Math.Max(Math.Min(Config.MaxPlayers, MaxPlayers), MinPlayers);
-            MPState.FreeModEnabled = false;
 
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();

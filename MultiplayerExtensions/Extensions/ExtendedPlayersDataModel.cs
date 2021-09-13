@@ -21,8 +21,6 @@ namespace MultiplayerExtensions.Extensions
 
         public override void Activate()
         {
-            MPEvents.CustomSongsChanged += this.HandleCustomSongsChanged;
-            MPEvents.FreeModChanged += this.HandleFreeModChanged;
             this._packetManager.RegisterCallback<PreviewBeatmapPacket>(this.HandlePreviewBeatmapPacket);
             base.Activate();
 
@@ -42,8 +40,6 @@ namespace MultiplayerExtensions.Extensions
 
         public override void Deactivate()
         {
-            MPEvents.CustomSongsChanged -= HandleCustomSongsChanged;
-            MPEvents.FreeModChanged -= HandleFreeModChanged;
             this._packetManager.UnregisterCallback<PreviewBeatmapPacket>();
 
             _menuRpcManager.recommendBeatmapEvent -= this.HandleMenuRpcManagerRecommendBeatmap;
@@ -65,25 +61,6 @@ namespace MultiplayerExtensions.Extensions
         public new void Dispose()
         {
             this.Deactivate();
-        }
-
-        private void HandleCustomSongsChanged(object sender, bool value)
-        {
-            if (!value && GetPlayerBeatmapLevel(localUserId) is PreviewBeatmapStub)
-            {
-                base.ClearLocalPlayerBeatmapLevel();
-            }
-        }
-
-        private void HandleFreeModChanged(object sender, bool value)
-        {
-            if (value && localUserId != partyOwnerId)
-            {
-                GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
-                GameplayModifiers hostModifiers = GetPlayerGameplayModifiers(partyOwnerId);
-                if (localModifiers.songSpeed != hostModifiers.songSpeed)
-                    base.SetLocalPlayerGameplayModifiers(localModifiers.CopyWith(songSpeed: hostModifiers.songSpeed));
-            }
         }
 
         /// <summary>
@@ -189,34 +166,6 @@ namespace MultiplayerExtensions.Extensions
                 base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
         }
 
-        public override void HandleMenuRpcManagerRecommendGameplayModifiers(string userId, GameplayModifiers gameplayModifiers)
-        {
-            ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(userId);
-            if (player != null)
-                player.lastModifiers = gameplayModifiers;
-            base.HandleMenuRpcManagerRecommendGameplayModifiers(userId, gameplayModifiers);
-            if (userId == partyOwnerId && MPState.FreeModEnabled)
-            {
-                GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
-                if (localModifiers.songSpeed != gameplayModifiers.songSpeed)
-                    base.SetLocalPlayerGameplayModifiers(localModifiers.CopyWith(songSpeed: gameplayModifiers.songSpeed));
-            }
-        }
-
-        public override void HandleMenuRpcManagerClearRecommendedGameplayModifiers(string userId)
-        {
-            ExtendedPlayer? player = _sessionManager.GetExtendedPlayer(userId);
-            if (player != null)
-                player.lastModifiers = null;
-            base.HandleMenuRpcManagerClearRecommendedGameplayModifiers(userId);
-            if (userId == partyOwnerId && MPState.FreeModEnabled)
-            {
-                GameplayModifiers localModifiers = GetPlayerGameplayModifiers(localUserId);
-                if (localModifiers.songSpeed != GameplayModifiers.SongSpeed.Normal)
-                    base.SetLocalPlayerGameplayModifiers(localModifiers.CopyWith(songSpeed: GameplayModifiers.SongSpeed.Normal));
-            }
-        }
-
 		public override void HandleMenuRpcManagerSetPlayersPermissionConfiguration(string userId, PlayersLobbyPermissionConfigurationNetSerializable permissionConfiguration)
 		{
             foreach (PlayerLobbyPermissionConfigurationNetSerializable playerPermission in permissionConfiguration.playersPermission)
@@ -247,30 +196,6 @@ namespace MultiplayerExtensions.Extensions
             MPState.LocalPlayerIsHost = localUserId == partyOwnerId;
             _sessionManager.partyOwner = _sessionManager.GetPlayerByUserId(partyOwnerId);
         }
-
-		public override void SetLocalPlayerIsReady(bool isReady)
-		{
-			this.SetLocalPlayerIsReady(isReady, true);
-		}
-
-		public override void SetLocalPlayerIsReady(bool isReady, bool notifyChange)
-		{
-            if (!Plugin.Config.HostPick && this.localUserId == this.partyOwnerId)
-            {
-                ILobbyPlayerData localPlayerDataModel = this.GetLobbyPlayerDataModel(localUserId);
-                IEnumerable<ILobbyPlayerData> validDataModels = this.playersData.Values.Where(data => data.beatmapLevel != null);
-                ILobbyPlayerData chosenPlayerDataModel = validDataModels.ElementAt(new Random().Next(0, validDataModels.Count()));
-                localPlayerDataModel.beatmapLevel = chosenPlayerDataModel.beatmapLevel;
-                localPlayerDataModel.beatmapDifficulty = chosenPlayerDataModel.beatmapDifficulty;
-                localPlayerDataModel.beatmapCharacteristic = chosenPlayerDataModel.beatmapCharacteristic;
-                localPlayerDataModel.gameplayModifiers = chosenPlayerDataModel.gameplayModifiers;
-                this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(chosenPlayerDataModel.beatmapLevel.levelID, chosenPlayerDataModel.beatmapCharacteristic.serializedName, chosenPlayerDataModel.beatmapDifficulty));
-                this._menuRpcManager.RecommendGameplayModifiers(chosenPlayerDataModel.gameplayModifiers);
-                this.NotifyModelChange(this.localUserId);
-            }
-
-            base.SetLocalPlayerIsReady(isReady, notifyChange);
-		}
 
 		/// <summary>
 		/// Used to raise the <see cref="MultiplayerExtensions.MPEvents.BeatmapSelected"/> event.

@@ -66,21 +66,6 @@
             }
         }
 
-        private static bool _lobbyIsModded;
-        /// <summary>
-        /// Whether the current lobby is custom (true) or official (false).
-        /// </summary>
-        public static bool LobbyIsModded
-		{
-            get => _lobbyIsModded;
-            internal set
-			{
-                if (_lobbyIsModded == value)
-                    return;
-                _lobbyIsModded = value;
-			}
-		}
-
         private static bool _customSongsEnabled;
         /// <summary>
         /// Whether custom songs are enabled in the current lobby.
@@ -94,38 +79,6 @@
                     return;
                 _customSongsEnabled = value;
                 Plugin.Log?.Debug($"Updated custom songs to '{value}'");
-            }
-        }
-
-        private static bool _freeModEnabled;
-        /// <summary>
-        /// Whether free mod is enabled in the current lobby.
-        /// </summary>
-        public static bool FreeModEnabled
-        {
-            get => _freeModEnabled;
-            internal set
-            {
-                if (_freeModEnabled == value)
-                    return;
-                _freeModEnabled = value;
-                Plugin.Log?.Debug($"Updated free mod to '{value}'");
-            }
-        }
-
-        private static bool _hostPickEnabled;
-        /// <summary>
-        /// Whether host pick is enabled in the current lobby.
-        /// </summary>
-        public static bool HostPickEnabled
-        {
-            get => _hostPickEnabled;
-            internal set
-            {
-                if (_hostPickEnabled == value)
-                    return;
-                _hostPickEnabled = value;
-                Plugin.Log?.Debug($"Updated host pick to '{value}'");
             }
         }
 

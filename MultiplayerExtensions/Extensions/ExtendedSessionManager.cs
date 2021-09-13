@@ -35,16 +35,9 @@ namespace MultiplayerExtensions.Extensions
 
 			localExtendedPlayer = new ExtendedPlayer(localPlayer);
 
-			MPState.FreeModEnabled = Plugin.Config.FreeMod;
-			MPState.HostPickEnabled = Plugin.Config.HostPick;
-
 			SetLocalPlayerState("modded", true);
-			SetLocalPlayerState("freemod", Plugin.Config.FreeMod);
-			SetLocalPlayerState("hostpick", Plugin.Config.HostPick);
 
 			connectedEvent += HandleConnected;
-
-			playerStateChangedEvent += HandlePlayerStateChanged;
 
 			playerConnectedEvent += HandlePlayerConnected;
 			playerDisconnectedEvent += HandlePlayerDisconnected;
@@ -57,18 +50,11 @@ namespace MultiplayerExtensions.Extensions
 			{
 				localExtendedPlayer.platformID = r.Result.platformUserId;
 				localExtendedPlayer.platform = r.Result.platform.ToPlatform();
-
-				if (Plugin.Config.Statistics)
-				{
-					_ = Statistics.AddUser(localExtendedPlayer.platformID, (int)localExtendedPlayer.platform);
-				}
 			});
 		}
 
 		public new void EndSession()
 		{
-			playerStateChangedEvent -= HandlePlayerStateChanged;
-
 			playerConnectedEvent -= HandlePlayerConnected;
 			playerDisconnectedEvent -= HandlePlayerDisconnected;
 			_packetManager.UnregisterCallback<ExtendedPlayerPacket>();
@@ -124,24 +110,6 @@ namespace MultiplayerExtensions.Extensions
 
 				_extendedPlayers[player.userId] = extendedPlayer;
 				extendedPlayerConnectedEvent?.Invoke(extendedPlayer);
-			}
-		}
-
-		private void HandlePlayerStateChanged(IConnectedPlayer player)
-		{
-			if (player.isConnectionOwner)
-			{
-				if (MPState.CustomSongsEnabled != player.HasState("customsongs"))
-				{
-					MPState.CustomSongsEnabled = player.HasState("customsongs");
-					MPEvents.RaiseCustomSongsChanged(this, player.HasState("customsongs"));
-				}
-
-				if (MPState.FreeModEnabled != player.HasState("freemod"))
-				{
-					MPState.FreeModEnabled = player.HasState("freemod");
-					MPEvents.RaiseCustomSongsChanged(this, player.HasState("freemod"));
-				}
 			}
 		}
 

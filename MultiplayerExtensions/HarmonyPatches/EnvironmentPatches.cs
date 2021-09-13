@@ -171,7 +171,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 
         private static void SetInteractableAttacher(Selectable contract, bool value)
         {
-            contract.interactable = true;
+            contract.interactable = !MPState.CurrentMasterServer.isOfficial ? true : value;
         }
     }
 }
