@@ -22,6 +22,19 @@ namespace MultiplayerExtensions.HarmonyPatches
         }
     }
 
+    [HarmonyPatch(typeof(MultiplayerLobbyConnectionController), nameof(MultiplayerLobbyConnectionController.ConnectToMatchmaking), MethodType.Normal)]
+    internal class ConnectToMatchmakingPatch
+	{
+        /// <summary>
+        /// Modifies the data used to matchmake
+        /// </summary>
+        static void Prefix(SongPackMask ____songPackMask)
+        {
+            if (!MPState.CurrentMasterServer.isOfficial)
+                ____songPackMask |= new SongPackMask("custom_levelpack_CustomLevels");
+        }
+    }
+
     [HarmonyPatch(typeof(MultiplayerLevelSelectionFlowCoordinator), "enableCustomLevels", MethodType.Getter)]
     internal class EnableCustomLevelsPatch
     {
