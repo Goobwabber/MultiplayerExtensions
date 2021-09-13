@@ -127,8 +127,8 @@ namespace MultiplayerExtensions.UI
         {
             if (firstActivation)
             {
-                Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
-                spectatorText.position = new Vector3(spectatorText.position.x, 0.25f, spectatorText.position.z);
+                //Transform spectatorText = transform.Find("Wrapper").Find("SpectatorModeWarningText");
+                //spectatorText.position = new Vector3(spectatorText.position.x, 0.25f, spectatorText.position.z);
             }
         }
     }

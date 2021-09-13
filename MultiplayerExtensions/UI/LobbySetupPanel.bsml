@@ -1,8 +1,7 @@
 <vertical>
-  <horizontal pad-top='12'>
-    <vertical min-width='45' horizontal-fit='MinSize'>
-      
-    </vertical>
+  <horizontal pad-top='18'>
+    <vertical min-width='45' horizontal-fit='MinSize'> </vertical>
+	<vertical min-width='45' horizontal-fit='MinSize'> </vertical>
     <vertical min-width='45' horizontal-fit='MinSize'>
       <toggle-setting id="DefaultHUDToggle" value='DefaultHUD' on-change='SetDefaultHUD' text='Singleplayer HUD' hover-hint='Rearranges the HUD to look like it does in singleplayer.'></toggle-setting>
       <toggle-setting id="HologramToggle" value='Hologram' on-change='SetHologram' text='Hologram' hover-hint='Toggles the hologram showing the player in first place.'></toggle-setting>
