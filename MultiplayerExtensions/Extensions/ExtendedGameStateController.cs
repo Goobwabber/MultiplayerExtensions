@@ -10,8 +10,6 @@ namespace MultiplayerExtensions.Extensions
         protected readonly ExtendedSessionManager _sessionManager;
         protected readonly ExtendedEntitlementChecker _entitlementChecker;
 
-        private static readonly SemVer.Version _minVersionStart = new SemVer.Version("0.6.0");
-
         internal ExtendedGameStateController(IMultiplayerSessionManager sessionManager, NetworkPlayerEntitlementChecker entitlementChecker)
         {
             _sessionManager = (sessionManager as ExtendedSessionManager)!;
@@ -112,15 +110,7 @@ namespace MultiplayerExtensions.Extensions
 
         private async Task<bool> IsPlayerReady(IConnectedPlayer player)
         {
-            if (!player.HasState("modded")) return true; // player is not modded: always assume ready
             if (await _entitlementChecker.GetUserEntitlementStatusWithoutRequest(player.userId, startedBeatmapId.levelID) == EntitlementsStatus.Ok) return true;
-
-            ExtendedPlayer? extendedPlayer = _sessionManager.GetExtendedPlayer(player);
-
-            // did not recieve mpexVersion from player or the version is too old: assume the player is ready
-            if (extendedPlayer == null) return true;
-            if (extendedPlayer.mpexVersion == null || extendedPlayer.mpexVersion < _minVersionStart) return true;
-
             return false;
 		}
 
