@@ -82,9 +82,6 @@ namespace MultiplayerExtensions.Extensions
 
         public override void HandleMenuRpcManagerStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
 		{
-            if (_sessionManager.partyOwner != null && _sessionManager.partyOwner.HasState("freemod"))
-                gameplayModifiers = _lobbyPlayersDataModel.GetPlayerGameplayModifiers(_lobbyPlayersDataModel.localUserId);
-
 			base.HandleMenuRpcManagerStartedLevel(userId, beatmapId, gameplayModifiers, startTime);
             _multiplayerLevelLoader.countdownFinishedEvent -= base.HandleMultiplayerLevelLoaderCountdownFinished;
             _multiplayerLevelLoader.countdownFinishedEvent += this.HandleMultiplayerLevelLoaderCountdownFinished;

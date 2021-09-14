@@ -28,10 +28,10 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// <summary>
         /// Modifies the data used to matchmake
         /// </summary>
-        static void Prefix(SongPackMask ____songPackMask)
+        static void Prefix(ref SongPackMask songPackMask)
         {
             if (!MPState.CurrentMasterServer.isOfficial)
-                ____songPackMask |= new SongPackMask("custom_levelpack_CustomLevels");
+                songPackMask |= new SongPackMask("custom_levelpack_CustomLevels");
         }
     }
 
