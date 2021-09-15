@@ -68,7 +68,7 @@ namespace MultiplayerExtensions.HarmonyPatches
         /// </summary>
         static void Prefix(LobbySetupViewController __instance, string playersMissingLevelText, ref Button ____startGameReadyButton)
         {
-            if (____startGameReadyButton.interactable)
+            if (string.IsNullOrEmpty(playersMissingLevelText) && ____startGameReadyButton.interactable)
                 __instance.SetStartGameEnabled(CannotStartGameReason.DoNotOwnSong);
         }
     }
