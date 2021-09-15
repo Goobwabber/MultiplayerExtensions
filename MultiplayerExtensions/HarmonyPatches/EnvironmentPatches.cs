@@ -174,4 +174,32 @@ namespace MultiplayerExtensions.HarmonyPatches
             contract.interactable = !MPState.CurrentMasterServer.isOfficial ? true : value;
         }
     }
+
+    [HarmonyPatch(typeof(GameServerLobbyFlowCoordinator), nameof(GameServerLobbyFlowCoordinator.HandleLobbySetupViewControllerStartGameOrReady), MethodType.Normal)]
+    internal class YeetPredictionsPatch
+	{
+        private static readonly MethodInfo _rootMethod = typeof(LobbyPlayerPermissionsModel).GetProperty(nameof(LobbyPlayerPermissionsModel.isPartyOwner)).GetGetMethod();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+        private static readonly MethodInfo _getIsPartyOwnerAttacher = SymbolExtensions.GetMethodInfo(() => GetIsPartyOwnerAttacher(null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+            var codes = instructions.ToList();
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Callvirt && codes[i].OperandIs(_rootMethod))
+                {
+                    codes[i] = new CodeInstruction(OpCodes.Callvirt, _getIsPartyOwnerAttacher);
+                }
+            }
+
+            return codes.AsEnumerable();
+        }
+
+        private static bool GetIsPartyOwnerAttacher(LobbyPlayerPermissionsModel contract)
+		{
+            return false;
+		}
+	}
 }

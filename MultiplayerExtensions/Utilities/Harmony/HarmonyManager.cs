@@ -47,6 +47,7 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<EntitlementCheckerPatch>();
             AddDefaultPatch<EnableCancelButtonPatch>();
             AddDefaultPatch<PacketErrorLoggingPatch>();
+            AddDefaultPatch<YeetPredictionsPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
