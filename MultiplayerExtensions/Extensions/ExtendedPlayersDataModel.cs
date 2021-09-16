@@ -96,7 +96,7 @@ namespace MultiplayerExtensions.Extensions
         {
             ILobbyPlayerData lobbyPlayerDataModel = this.GetLobbyPlayerDataModel(this.localUserId);
             if (lobbyPlayerDataModel != null && lobbyPlayerDataModel.beatmapLevel != null)
-			{
+			{       
                 if (lobbyPlayerDataModel.beatmapLevel is PreviewBeatmapStub preview)
                     _packetManager.Send(new PreviewBeatmapPacket(preview, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
                 this._menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(lobbyPlayerDataModel.beatmapLevel.levelID, lobbyPlayerDataModel.beatmapCharacteristic.serializedName, lobbyPlayerDataModel.beatmapDifficulty));
@@ -159,8 +159,8 @@ namespace MultiplayerExtensions.Extensions
                         preview = await FetchBeatSaverPreview(levelId, hash);
 
                     HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(base.localUserId, preview, beatmapDifficulty, characteristic));
-                    _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                     _packetManager.Send(new PreviewBeatmapPacket(preview!, characteristic.serializedName, beatmapDifficulty));
+                    _menuRpcManager.RecommendBeatmap(new BeatmapIdentifierNetSerializable(levelId, characteristic.serializedName, beatmapDifficulty));
                 }
             }else
                 base.SetLocalPlayerBeatmapLevel(levelId, beatmapDifficulty, characteristic);
