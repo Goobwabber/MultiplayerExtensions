@@ -202,4 +202,16 @@ namespace MultiplayerExtensions.HarmonyPatches
             return false;
 		}
 	}
+
+    [HarmonyPatch(typeof(AvatarPoseRestrictions), nameof(AvatarPoseRestrictions.HandleAvatarPoseControllerPositionsWillBeSet), MethodType.Normal)]
+    internal class DisableAvatarRestrictions
+    {
+        static bool Prefix(AvatarPoseRestrictions __instance, Vector3 headPosition, Vector3 leftHandPosition, Vector3 rightHandPosition, out Vector3 newHeadPosition, out Vector3 newLeftHandPosition, out Vector3 newRightHandPosition)
+        {
+            newHeadPosition = headPosition;
+            newLeftHandPosition = __instance.LimitHandPositionRelativeToHead(leftHandPosition, headPosition);
+            newRightHandPosition = __instance.LimitHandPositionRelativeToHead(rightHandPosition, headPosition);
+            return false;
+        }
+    }
 }

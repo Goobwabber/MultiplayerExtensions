@@ -48,6 +48,7 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<EnableCancelButtonPatch>();
             AddDefaultPatch<PacketErrorLoggingPatch>();
             //AddDefaultPatch<YeetPredictionsPatch>();
+            AddDefaultPatch<DisableAvatarRestrictions>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
