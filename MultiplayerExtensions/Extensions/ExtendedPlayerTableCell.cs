@@ -17,7 +17,9 @@ namespace MultiplayerExtensions.Extensions
         protected IMenuRpcManager _menuRpcManager = null!;
 
         private ButtonBinder __buttonBinder = new ButtonBinder();
-        private CancellationTokenSource entitlementCts = null!;
+
+        private static float alphaIsMe = 0.4f;
+        private static float alphaIsNotMe = 0.2f;
 
         private static Color green = new Color(0f, 1f, 0f, 1f);
         private static Color yellow = new Color(0.125f, 0.75f, 1f, 1f);
@@ -57,6 +59,7 @@ namespace MultiplayerExtensions.Extensions
             _statusImageView = playerTableCell.GetField<ImageView, GameServerPlayerTableCell>("_statusImageView");
             _readyIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_readyIcon");
             _spectatingIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_spectatingIcon");
+            _hostIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_hostIcon");
             // Helpers
             _gameplayModifiers = playerTableCell.GetField<GameplayModifiersModelSO, GameServerPlayerTableCell>("_gameplayModifiers");
             // TableCellWithSeparator
@@ -80,12 +83,8 @@ namespace MultiplayerExtensions.Extensions
             lastPlayer = connectedPlayer;
         }
 
-        private async void GetLevelEntitlement(IConnectedPlayer player)
+        private void GetLevelEntitlement(IConnectedPlayer player)
         {
-            if (entitlementCts != null)
-                entitlementCts.Cancel();
-            entitlementCts = new CancellationTokenSource();
-
             string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.partyOwnerId)?.levelID;
             if (levelId == null)
             {
@@ -95,8 +94,15 @@ namespace MultiplayerExtensions.Extensions
 
             lastLevelId = levelId;
 
-            EntitlementsStatus entitlement = await _entitlementChecker.GetUserEntitlementStatus(player.userId, levelId);
-            SetLevelEntitlement(player, entitlement);
+            EntitlementsStatus entitlement = EntitlementsStatus.Unknown;
+            if (!player.isMe)
+                entitlement = _entitlementChecker.GetUserEntitlementStatusWithoutRequest(player.userId, levelId);
+            if (entitlement != EntitlementsStatus.Unknown)
+                SetLevelEntitlement(player, entitlement);
+            else
+            {
+                _entitlementChecker.GetUserEntitlementStatus(player.userId, levelId);
+            }
         }
 
         private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)
@@ -109,7 +115,7 @@ namespace MultiplayerExtensions.Extensions
                 _ => normal,
             };
 
-            backgroundColor.a = player.isMe ? 0.4f : 0.2f;
+            backgroundColor.a = player.isMe ? alphaIsMe : alphaIsNotMe;
             _localPlayerBackgroundImage.color = backgroundColor;
         }
 

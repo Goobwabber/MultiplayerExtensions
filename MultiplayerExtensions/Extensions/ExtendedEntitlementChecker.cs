@@ -104,16 +104,13 @@ namespace MultiplayerExtensions.Extensions
 			return _tcsDictionary[userId][levelId].Task;
 		}
 
-		public Task<EntitlementsStatus> GetUserEntitlementStatusWithoutRequest(string userId, string levelId)
+		public EntitlementsStatus GetUserEntitlementStatusWithoutRequest(string userId, string levelId)
 		{
-			if (userId == _sessionManager.localPlayer.userId)
-				return GetEntitlementStatus(levelId);
-
 			if (_entitlementsDictionary.TryGetValue(userId, out Dictionary<string, EntitlementsStatus> userDictionary))
 				if (userDictionary.TryGetValue(levelId, out EntitlementsStatus entitlement))
-					return Task.FromResult(entitlement);
+					return entitlement;
 
-			return Task.FromResult(EntitlementsStatus.NotDownloaded);
+			return EntitlementsStatus.Unknown;
 		}
 	}
 }

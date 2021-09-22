@@ -110,7 +110,10 @@ namespace MultiplayerExtensions.Extensions
 
         private async Task<bool> IsPlayerReady(IConnectedPlayer player)
         {
-            if (await _entitlementChecker.GetUserEntitlementStatusWithoutRequest(player.userId, startedBeatmapId.levelID) == EntitlementsStatus.Ok) return true;
+            if (player.isMe && await _entitlementChecker.GetEntitlementStatus(startedBeatmapId.levelID) == EntitlementsStatus.Ok) 
+                return true;
+            if (_entitlementChecker.GetUserEntitlementStatusWithoutRequest(player.userId, startedBeatmapId.levelID) == EntitlementsStatus.Ok) 
+                return true;
             return false;
 		}
 
