@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MultiplayerExtensions.Extensions
@@ -19,7 +20,6 @@ namespace MultiplayerExtensions.Extensions
         public override void Activate()
         {
             this._lobbyGameStateModel.gameStateDidChangeEvent += this.HandleGameStateChanged;
-            this._entitlementChecker.receivedEntitlementEvent += this.HandleEntitlement;
             base.Activate();
 
             (this as ILobbyGameStateController).lobbyStateChangedEvent += this.HandleLobbyStateChanged;
@@ -28,7 +28,6 @@ namespace MultiplayerExtensions.Extensions
 		public override void Deactivate()
 		{
             this._lobbyGameStateModel.gameStateDidChangeEvent -= this.HandleGameStateChanged;
-            this._entitlementChecker.receivedEntitlementEvent -= this.HandleEntitlement;
 
             this._menuRpcManager.startedLevelEvent -= this.HandleMenuRpcManagerStartedLevel;
             this._menuRpcManager.startedLevelEvent += base.HandleMenuRpcManagerStartedLevel;
@@ -70,14 +69,6 @@ namespace MultiplayerExtensions.Extensions
             base.StopListeningToGameStart();
         }
 
-
-
-        private IPreviewBeatmapLevel? _previewBeatmapLevel;
-        private BeatmapDifficulty _beatmapDifficulty;
-        private BeatmapCharacteristicSO? _beatmapCharacteristic;
-        private IDifficultyBeatmap? _difficultyBeatmap;
-        private GameplayModifiers? _gameplayModifiers;
-
         public override void HandleMenuRpcManagerStartedLevel(string userId, BeatmapIdentifierNetSerializable beatmapId, GameplayModifiers gameplayModifiers, float startTime)
 		{
 			base.HandleMenuRpcManagerStartedLevel(userId, beatmapId, gameplayModifiers, startTime);
@@ -89,52 +80,42 @@ namespace MultiplayerExtensions.Extensions
 		{
             _multiplayerLevelLoader.countdownFinishedEvent += base.HandleMultiplayerLevelLoaderCountdownFinished;
             _multiplayerLevelLoader.countdownFinishedEvent -= this.HandleMultiplayerLevelLoaderCountdownFinished;
+
+            if (_levelLoadSyncCts != null)
+                _levelLoadSyncCts.Cancel();
+
             base.StopLoading();
 		}
 
-        public override void HandleMultiplayerLevelLoaderCountdownFinished(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
+        private CancellationTokenSource? _levelLoadSyncCts;
+
+        public async override void HandleMultiplayerLevelLoaderCountdownFinished(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
 		{
             Plugin.Log?.Debug("Map finished loading, waiting for other players...");
-
-            this._previewBeatmapLevel = previewBeatmapLevel;
-            this._beatmapDifficulty = beatmapDifficulty;
-            this._beatmapCharacteristic = beatmapCharacteristic;
-            this._difficultyBeatmap = difficultyBeatmap;
-            this._gameplayModifiers = gameplayModifiers;
-
             _menuRpcManager.SetIsEntitledToLevel(previewBeatmapLevel.levelID, EntitlementsStatus.Ok);
-            HandleEntitlement(_lobbyPlayersDataModel.localUserId, startedBeatmapId.levelID, EntitlementsStatus.Ok);
-        }
 
+            if (_levelStartedOnTime == false)
+            {
+                Plugin.Log?.Debug("Loaded level late, starting game.");
+                base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
+                return;
+            }
 
+            _levelLoadSyncCts = new CancellationTokenSource();
+            IEnumerable<Task> playerReadyTasks = _sessionManager.connectedPlayers.Select(p => p.isMe 
+                ? Task.CompletedTask 
+                : _entitlementChecker.WaitForOkEntitlement(p.userId, previewBeatmapLevel.levelID, _levelLoadSyncCts.Token)
+            );
+            await Task.WhenAll(playerReadyTasks);
 
-        private async Task<bool> IsPlayerReady(IConnectedPlayer player)
-        {
-            if (player.isMe && await _entitlementChecker.GetEntitlementStatus(startedBeatmapId.levelID) == EntitlementsStatus.Ok) 
-                return true;
-            if (_entitlementChecker.GetUserEntitlementStatusWithoutRequest(player.userId, startedBeatmapId.levelID) == EntitlementsStatus.Ok) 
-                return true;
-            return false;
-		}
+            if (_levelLoadSyncCts.IsCancellationRequested) {
+                _levelLoadSyncCts = null;
+                return;
+            }
+            _levelLoadSyncCts = null;
 
-        private async void HandleEntitlement(string userId, string levelId, EntitlementsStatus entitlement)
-        {
-            if (state == MultiplayerLobbyState.GameStarting)
-			{
-                if (_levelStartedOnTime == false)
-				{
-                    Plugin.Log.Debug("Loaded level late, starting game.");
-                    base.HandleMultiplayerLevelLoaderCountdownFinished(_previewBeatmapLevel, _beatmapDifficulty, _beatmapCharacteristic, _difficultyBeatmap, _gameplayModifiers);
-                }
-
-                IEnumerable<Task<bool>> readyTasks = _sessionManager.connectedPlayers.Select(IsPlayerReady);
-                bool[] readyStates = await Task.WhenAll<bool>(readyTasks);
-                if (readyStates.All(x => x) && await _entitlementChecker.GetEntitlementStatus(startedBeatmapId.levelID) == EntitlementsStatus.Ok)
-				{
-                    Plugin.Log.Debug("All players ready, starting game.");
-                    base.HandleMultiplayerLevelLoaderCountdownFinished(_previewBeatmapLevel, _beatmapDifficulty, _beatmapCharacteristic, _difficultyBeatmap, _gameplayModifiers);
-                }
-			}
+            Plugin.Log?.Debug("All players ready, starting game.");
+            base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
         }
     }
 }

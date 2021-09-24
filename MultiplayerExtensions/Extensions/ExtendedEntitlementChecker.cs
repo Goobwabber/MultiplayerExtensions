@@ -1,6 +1,7 @@
 ﻿using BeatSaverSharp.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Zenject;
 
@@ -111,6 +112,23 @@ namespace MultiplayerExtensions.Extensions
 					return entitlement;
 
 			return EntitlementsStatus.Unknown;
+		}
+
+		public async Task WaitForOkEntitlement(string userId, string levelId, CancellationToken cancellationToken)
+        {
+			if (!_tcsDictionary.ContainsKey(userId))
+				_tcsDictionary[userId] = new Dictionary<string, TaskCompletionSource<EntitlementsStatus>>();
+			if (!_tcsDictionary[userId].ContainsKey(levelId))
+				_tcsDictionary[userId][levelId] = new TaskCompletionSource<EntitlementsStatus>();
+
+			cancellationToken.Register(() => _tcsDictionary[userId][levelId].TrySetCanceled());
+
+			EntitlementsStatus result = EntitlementsStatus.Unknown;
+			while (result != EntitlementsStatus.Ok && !cancellationToken.IsCancellationRequested)
+			{
+				result = await _tcsDictionary[userId][levelId].Task.ContinueWith(t => t.IsCompleted ? t.Result : EntitlementsStatus.Unknown);
+				_tcsDictionary[userId][levelId] = new TaskCompletionSource<EntitlementsStatus>();
+			}
 		}
 	}
 }

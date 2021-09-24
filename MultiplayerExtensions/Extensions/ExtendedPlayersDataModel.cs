@@ -74,7 +74,7 @@ namespace MultiplayerExtensions.Extensions
                 Plugin.Log?.Debug($"'{player.userId}' selected song '{hash}'.");
                 BeatmapCharacteristicSO characteristic = _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(packet.characteristic);
                 PreviewBeatmapStub preview = new PreviewBeatmapStub(packet);
-                HMMainThreadDispatcher.instance.Enqueue(() => base.SetPlayerBeatmapLevel(player.userId, preview, packet.difficulty, characteristic));
+                base.SetPlayerBeatmapLevel(player.userId, preview, packet.difficulty, characteristic);
             }
         }
 
