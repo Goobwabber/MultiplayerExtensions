@@ -93,9 +93,9 @@ namespace MultiplayerExtensions
             MPEvents.BeatmapSelected += (s, e) =>
             {
                 if (!string.IsNullOrEmpty(e.LevelId))
-                    Log?.Warn($"BeatmapSelected by '{e.UserId}|{e.UserType.ToString()}': {e.LevelId}|{e.BeatmapDifficulty}|{e.BeatmapCharacteristic?.name ?? "<NULL>"}");
+                    Log?.Warn($"Beatmap Selected by '{e.UserId}|{e.UserType.ToString()}': {e.LevelId}|{e.BeatmapDifficulty}|{e.BeatmapCharacteristic?.name ?? "<NULL>"}");
                 else
-                    Log?.Warn($"Beatmap Cleared by '{e.UserId}|{e.UserType.ToString()}'");
+                    Log?.Warn($"Beatmap Selection Cleared by '{e.UserId}|{e.UserType.ToString()}'");
             };
         }
         [Conditional("DEBUG")]

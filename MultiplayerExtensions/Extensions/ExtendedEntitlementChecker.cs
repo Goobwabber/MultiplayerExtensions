@@ -116,6 +116,10 @@ namespace MultiplayerExtensions.Extensions
 
 		public async Task WaitForOkEntitlement(string userId, string levelId, CancellationToken cancellationToken)
         {
+			if (_entitlementsDictionary.TryGetValue(userId, out Dictionary<string, EntitlementsStatus> userDictionary))
+				if (userDictionary.TryGetValue(levelId, out EntitlementsStatus entitlement) && entitlement == EntitlementsStatus.Ok)
+					return;
+
 			if (!_tcsDictionary.ContainsKey(userId))
 				_tcsDictionary[userId] = new Dictionary<string, TaskCompletionSource<EntitlementsStatus>>();
 			if (!_tcsDictionary[userId].ContainsKey(levelId))
