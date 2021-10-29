@@ -10,7 +10,6 @@ namespace MultiplayerExtensions.UI
 {
     class CenterScreenLoadingPanel : MonoBehaviour, IProgress<double>
     {
-        //public override string ResourceName => "MultiplayerExtensions.UI.CenterScreenLoading.bsml";
         private IMultiplayerSessionManager sessionManager;
         private ILobbyGameStateController gameStateController;
         private CenterStageScreenController screenController;
