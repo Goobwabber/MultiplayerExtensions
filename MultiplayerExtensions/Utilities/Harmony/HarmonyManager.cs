@@ -49,6 +49,7 @@ namespace MultiplayerExtensions.Utilities
             AddDefaultPatch<PacketErrorLoggingPatch>();
             //AddDefaultPatch<YeetPredictionsPatch>();
             AddDefaultPatch<DisableAvatarRestrictions>();
+            AddDefaultPatch<MultiplayerModeSelectionFlowCoordinatorPatch>();
         }
 
         private static void AddDefaultPatch<T>() where T : class
