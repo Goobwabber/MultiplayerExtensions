@@ -115,6 +115,13 @@ namespace MultiplayerExtensions.Extensions
             _levelLoadSyncCts = null;
 
             Plugin.Log?.Debug("All players ready, starting game.");
+
+            Plugin.Log?.Debug($"Null Checking previewBeatmapLevel: '{(previewBeatmapLevel == null ? "null" : "not null")}'");
+            Plugin.Log?.Debug($"Null Checking beatmapDifficulty: '{beatmapDifficulty}'");
+            Plugin.Log?.Debug($"Null Checking beatmapCharacteristic: '{(beatmapCharacteristic == null ? "null" : "not null")}'");
+            Plugin.Log?.Debug($"Null Checking difficultyBeatmap: '{(difficultyBeatmap == null ? "null" : "not null")}'");
+            Plugin.Log?.Debug($"Null Checking gameplayModifiers: '{(gameplayModifiers == null ? "null" : "not null")}'");
+
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
         }
     }
