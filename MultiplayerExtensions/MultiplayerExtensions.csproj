@@ -35,7 +35,6 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="UI\CenterScreenLoading.bsml.dis" />
     <None Remove="UI\LobbySetupPanel.bsml" />
     <None Remove="UI\settings.bsml" />
   </ItemGroup>
@@ -204,7 +203,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="UI\CenterScreenLoading.bsml.dis" />
     <EmbeddedResource Include="UI\LobbySetupPanel.bsml" />
     <EmbeddedResource Include="UI\settings.bsml" />
     <None Remove="Assets\IconSteam64.png" />

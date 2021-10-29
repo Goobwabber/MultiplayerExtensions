@@ -36,17 +36,7 @@ namespace MultiplayerExtensions.UI
             GameObject loadingControlGameObject = GameObject.Instantiate(existingLoadingControl, vertical.transform);
             loadingControl = loadingControlGameObject.GetComponent<LoadingControl>();
             loadingControl.Hide();
-
-            //base.DidActivate(true, false, true);
-
-            //loadIndicator.color = Color.white;
         }
-
-        //[UIComponent("LoadingDisplay")]
-        //public RectTransform loadingDisplay;
-
-        //[UIComponent("LoadIndicator")]
-        //public Image loadIndicator;
 
         public void Update()
         {
@@ -58,13 +48,11 @@ namespace MultiplayerExtensions.UI
             {
                 if (loadingControl != null)
                     loadingControl.ShowLoading("Loading...");
-                    //loadingDisplay.gameObject.SetActive(true);
             }
             else
             {
                 if (loadingControl != null)
                     loadingControl.Hide();
-                    //loadingDisplay.gameObject.SetActive(false);
             }
         }
 
