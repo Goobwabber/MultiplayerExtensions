@@ -23,7 +23,6 @@ namespace MultiplayerExtensions.Utilities
         {
             AddDefaultPatch<EnableCustomLevelsPatch>();
             AddDefaultPatch<CreatePartyPatch>();
-            AddDefaultPatch<ConnectToMatchmakingPatch>();
             AddDefaultPatch<MultiplayerBigAvatarAnimator_Init>();
             AddDefaultPatch<GetMasterServerEndPointPatch>();
             AddDefaultPatch<SetLobbyCodePatch>();

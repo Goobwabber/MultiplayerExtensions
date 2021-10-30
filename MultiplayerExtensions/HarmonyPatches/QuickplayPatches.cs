@@ -12,11 +12,12 @@ namespace MultiplayerExtensions.HarmonyPatches
     [HarmonyPatch(typeof(MultiplayerModeSelectionFlowCoordinator), nameof(MultiplayerModeSelectionFlowCoordinator.HandleJoinQuickPlayViewControllerDidFinish), MethodType.Normal)]
     internal class MultiplayerModeSelectionFlowCoordinatorPatch
     {
+        internal static bool skipCheck = false;
         static bool Prefix(MultiplayerModeSelectionFlowCoordinator __instance, bool success, JoinQuickPlayViewController ____joinQuickPlayViewController, SimpleDialogPromptViewController ____simpleDialogPromptViewController, SongPackMaskModelSO ____songPackMaskModel)
         {
             string levelPackName = ____joinQuickPlayViewController.multiplayerModeSettings.quickPlaySongPackMaskSerializedName;
             Plugin.Log?.Debug(levelPackName);
-            if (success && ____songPackMaskModel.ToSongPackMask(levelPackName).Contains("custom_levelpack_CustomLevels"))
+            if (success && ____songPackMaskModel.ToSongPackMask(levelPackName).Contains("custom_levelpack_CustomLevels") && !skipCheck)
             {
                 ____simpleDialogPromptViewController.Init(
                     "Custom Song Quickplay",
@@ -29,6 +30,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                         {
                             default:
                             case 0: // Continue
+                                skipCheck = true;
                                 __instance.HandleJoinQuickPlayViewControllerDidFinish(true);
                                 break;
                             case 1: // Cancel
@@ -44,6 +46,7 @@ namespace MultiplayerExtensions.HarmonyPatches
                                 });
                 return false;
             }
+            skipCheck = false;
             return true;
         }
     }
