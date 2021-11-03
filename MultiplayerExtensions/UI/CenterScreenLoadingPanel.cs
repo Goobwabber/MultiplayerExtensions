@@ -15,20 +15,23 @@ namespace MultiplayerExtensions.UI
         private CenterStageScreenController screenController;
         private LoadingControl? loadingControl;
         private bool isDownloading;
-        public static CenterScreenLoadingPanel? self { get; private set; }
+        public int playersReady;
+        public static CenterScreenLoadingPanel? Instance { get; private set; }
 
         [Inject]
         internal void Inject(IMultiplayerSessionManager sessionManager, ILobbyGameStateController gameStateController, CenterStageScreenController screenController)
         {
-            self = this;
+            Instance = this;
             this.sessionManager = sessionManager;
             this.gameStateController = gameStateController;
             this.screenController = screenController;
 
             BeatSaberMarkupLanguage.Tags.VerticalLayoutTag verticalTag = new BeatSaberMarkupLanguage.Tags.VerticalLayoutTag();
             GameObject vertical = verticalTag.CreateObject(transform);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             (vertical.transform as RectTransform).sizeDelta = new Vector2(60, 60);
             (vertical.transform as RectTransform).anchoredPosition = new Vector2(0.0f, -30.0f);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             var layout = vertical.AddComponent<LayoutElement>().minWidth = 60;
 
             GameObject existingLoadingControl = Resources.FindObjectsOfTypeAll<LoadingControl>().First().gameObject;
@@ -37,7 +40,7 @@ namespace MultiplayerExtensions.UI
             loadingControl.Hide();
         }
 
-        public void Update()
+        public void FixedUpdate()
         {
             if (isDownloading)
             {
@@ -46,12 +49,13 @@ namespace MultiplayerExtensions.UI
             else if (screenController.countdownShown && sessionManager.syncTime >= gameStateController.startTime && gameStateController.levelStartInitiated)
             {
                 if (loadingControl != null)
-                    loadingControl.ShowLoading("Loading...");
+                    loadingControl.ShowLoading($"{playersReady + 1} of {(sessionManager.connectedPlayerCount + 1)} players ready...");
             }
             else
             {
                 if (loadingControl != null)
                     loadingControl.Hide();
+                playersReady = 0;
             }
         }
 
@@ -59,6 +63,7 @@ namespace MultiplayerExtensions.UI
         {
             if (loadingControl != null)
                 loadingControl.Hide();
+            playersReady = 0;
         }
 
         public void Report(double value)

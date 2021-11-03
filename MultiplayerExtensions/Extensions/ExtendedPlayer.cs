@@ -22,7 +22,7 @@ namespace MultiplayerExtensions.Extensions
         /// <summary>
         /// MultiplayerExtensions version reported by BSIPA.
         /// </summary>
-        public SemVer.Version mpexVersion;
+        public Hive.Versioning.Version mpexVersion;
 
         /// <summary>
         /// Player's color set in the plugin config.
@@ -37,7 +37,7 @@ namespace MultiplayerExtensions.Extensions
         public ExtendedPlayer(IConnectedPlayer player)
 		{
             _connectedPlayer = player;
-            this.mpexVersion = Plugin.PluginMetadata.Version;
+            this.mpexVersion = Plugin.ProtocolVersion;
         }
 
         public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, Color playerColor)
@@ -45,11 +45,11 @@ namespace MultiplayerExtensions.Extensions
             _connectedPlayer = player;
             this.platformID = platformID;
             this.platform = platform;
-            this.mpexVersion = Plugin.PluginMetadata.Version;
+            this.mpexVersion = Plugin.ProtocolVersion;
             this.playerColor = playerColor;
         }
 
-        public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, SemVer.Version mpexVersion, Color playerColor)
+        public ExtendedPlayer(IConnectedPlayer player, string platformID, Platform platform, Hive.Versioning.Version mpexVersion, Color playerColor)
         {
             _connectedPlayer = player;
             this.platformID = platformID;
@@ -102,7 +102,7 @@ namespace MultiplayerExtensions.Extensions
         public ExtendedPlayerPacket Init(string platformID, Platform platform, Color playerColor)
         {
             this.platformID = platformID;
-            this.mpexVersion = Plugin.PluginMetadata.Version.ToString();
+            this.mpexVersion = Plugin.ProtocolVersion.ToString();
             this.playerColor = playerColor;
             this.platform = platform;
             return this;

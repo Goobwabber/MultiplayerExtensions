@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IPA.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -91,7 +92,14 @@ namespace MultiplayerExtensions.Extensions
 
         public async override void HandleMultiplayerLevelLoaderCountdownFinished(IPreviewBeatmapLevel previewBeatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristicSO beatmapCharacteristic, IDifficultyBeatmap difficultyBeatmap, GameplayModifiers gameplayModifiers)
 		{
+            if (_multiplayerLevelLoader.GetField<MultiplayerLevelLoader.MultiplayerBeatmapLoaderState, MultiplayerLevelLoader>("_loaderState") == MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.NotLoading)
+            {
+                Plugin.Log?.Info("HandleMultiplayerLevelLoaderCountdownFinished already running, returning");
+                return;
+            }
+            _multiplayerLevelLoader.SetField("_loaderState", MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.NotLoading);
             Plugin.Log?.Debug("Map finished loading, waiting for other players...");
+            UI.CenterScreenLoadingPanel.Instance.playersReady = 0;
             _menuRpcManager.SetIsEntitledToLevel(previewBeatmapLevel.levelID, EntitlementsStatus.Ok);
 
             if (_levelStartedOnTime == false)
@@ -116,11 +124,6 @@ namespace MultiplayerExtensions.Extensions
 
             Plugin.Log?.Debug("All players ready, starting game.");
 
-            Plugin.Log?.Debug($"Null Checking previewBeatmapLevel: '{(previewBeatmapLevel == null ? "null" : "not null")}'");
-            Plugin.Log?.Debug($"Null Checking beatmapDifficulty: '{beatmapDifficulty}'");
-            Plugin.Log?.Debug($"Null Checking beatmapCharacteristic: '{(beatmapCharacteristic == null ? "null" : "not null")}'");
-            Plugin.Log?.Debug($"Null Checking difficultyBeatmap: '{(difficultyBeatmap == null ? "null" : "not null")}'");
-            Plugin.Log?.Debug($"Null Checking gameplayModifiers: '{(gameplayModifiers == null ? "null" : "not null")}'");
 
             base.HandleMultiplayerLevelLoaderCountdownFinished(previewBeatmapLevel, beatmapDifficulty, beatmapCharacteristic, difficultyBeatmap, gameplayModifiers);
         }

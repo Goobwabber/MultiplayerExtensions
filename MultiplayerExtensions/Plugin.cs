@@ -27,6 +27,8 @@ namespace MultiplayerExtensions
 
         internal static Plugin Instance { get; private set; } = null!;
         internal static PluginMetadata PluginMetadata = null!;
+
+        internal static Hive.Versioning.Version ProtocolVersion { get; } = new Hive.Versioning.Version("1.0.0");
         internal static IPALogger Log { get; private set; } = null!;
         internal static PluginConfig Config = null!;
 

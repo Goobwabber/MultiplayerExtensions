@@ -118,7 +118,10 @@ namespace MultiplayerExtensions.Extensions
         {
 			if (_entitlementsDictionary.TryGetValue(userId, out Dictionary<string, EntitlementsStatus> userDictionary))
 				if (userDictionary.TryGetValue(levelId, out EntitlementsStatus entitlement) && entitlement == EntitlementsStatus.Ok)
+                {
+                    UI.CenterScreenLoadingPanel.Instance.playersReady++;
 					return;
+				}
 
 			if (!_tcsDictionary.ContainsKey(userId))
 				_tcsDictionary[userId] = new Dictionary<string, TaskCompletionSource<EntitlementsStatus>>();
@@ -132,6 +135,7 @@ namespace MultiplayerExtensions.Extensions
 			{
 				result = await _tcsDictionary[userId][levelId].Task.ContinueWith(t => t.IsCompleted ? t.Result : EntitlementsStatus.Unknown);
 				_tcsDictionary[userId][levelId] = new TaskCompletionSource<EntitlementsStatus>();
+				if (result == EntitlementsStatus.Ok) UI.CenterScreenLoadingPanel.Instance.playersReady++;
 			}
 		}
 	}
