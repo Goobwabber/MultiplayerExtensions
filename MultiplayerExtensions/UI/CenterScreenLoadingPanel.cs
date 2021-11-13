@@ -71,7 +71,7 @@ namespace MultiplayerExtensions.UI
             isDownloading = (value < 1.0);
             if (loadingControl != null)
             {
-                loadingControl.ShowDownloadingProgress("Downloading...", (float)value);
+                loadingControl.ShowDownloadingProgress($"Downloading ({value * 100:F2}%)...", (float)value);
             }
         }
     }

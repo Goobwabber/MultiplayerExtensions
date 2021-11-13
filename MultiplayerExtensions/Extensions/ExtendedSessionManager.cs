@@ -37,6 +37,10 @@ namespace MultiplayerExtensions.Extensions
 
 			SetLocalPlayerState("modded", true);
 
+			SetLocalPlayerState("ME_Installed", Plugin.IsMappingInstalled);
+			SetLocalPlayerState("NE_Installed", Plugin.IsNoodleInstalled);
+			SetLocalPlayerState("Chroma_Installed", Plugin.IsChromaInstalled);
+
 			connectedEvent += HandleConnected;
 
 			playerConnectedEvent += HandlePlayerConnected;

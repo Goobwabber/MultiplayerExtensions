@@ -28,7 +28,11 @@ namespace MultiplayerExtensions
         internal static Plugin Instance { get; private set; } = null!;
         internal static PluginMetadata PluginMetadata = null!;
 
-        internal static Hive.Versioning.Version ProtocolVersion { get; } = new Hive.Versioning.Version("1.0.0");
+        internal static bool IsNoodleInstalled { get; private set; }
+        internal static bool IsMappingInstalled { get; private set; }
+        internal static bool IsChromaInstalled { get; private set; }
+
+        internal static Hive.Versioning.Version ProtocolVersion { get; } = new Hive.Versioning.Version("0.7.1");
         internal static IPALogger Log { get; private set; } = null!;
         internal static PluginConfig Config = null!;
 
@@ -84,6 +88,11 @@ namespace MultiplayerExtensions
 
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
+
+            IsNoodleInstalled = IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginManager.GetPluginFromId("NoodleExtensions"));
+            IsMappingInstalled = IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginManager.GetPluginFromId("MappingExtensions"));
+            IsChromaInstalled = IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginManager.GetPluginFromId("Chroma"));
+
             MPEvents_Test();
             
             Sprites.PreloadSprites();
