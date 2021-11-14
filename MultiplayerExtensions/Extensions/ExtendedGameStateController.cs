@@ -94,7 +94,6 @@ namespace MultiplayerExtensions.Extensions
 		{
             if (_multiplayerLevelLoader.GetField<MultiplayerLevelLoader.MultiplayerBeatmapLoaderState, MultiplayerLevelLoader>("_loaderState") == MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.NotLoading)
             {
-                Plugin.Log?.Info("HandleMultiplayerLevelLoaderCountdownFinished already running, returning");
                 return;
             }
             _multiplayerLevelLoader.SetField("_loaderState", MultiplayerLevelLoader.MultiplayerBeatmapLoaderState.NotLoading);

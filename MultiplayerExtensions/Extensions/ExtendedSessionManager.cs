@@ -97,6 +97,7 @@ namespace MultiplayerExtensions.Extensions
 				extendedPlayer.platform = packet.platform;
 				extendedPlayer.playerColor = packet.playerColor;
 				extendedPlayer.mpexVersion = new Hive.Versioning.Version(packet.mpexVersion);
+				extendedPlayerConnectedEvent?.Invoke(extendedPlayer);
 			}
 			else
 			{
@@ -106,9 +107,9 @@ namespace MultiplayerExtensions.Extensions
 				if (Plugin.ProtocolVersion != extendedPlayer.mpexVersion)
 				{
 					Plugin.Log?.Warn("###################################################################");
-					Plugin.Log?.Warn("Different MultiplayerExtensions version detected!");
-					Plugin.Log?.Warn($"The player '{player.userName}' is using MultiplayerExtensions {extendedPlayer.mpexVersion} while you are using MultiplayerExtensions {Plugin.ProtocolVersion}");
-					Plugin.Log?.Warn("For best compatibility all players should use the same version of MultiplayerExtensions.");
+					Plugin.Log?.Warn("Different MultiplayerExtensions protocol detected!");
+					Plugin.Log?.Warn($"The player '{player.userName}' is using MpEx protocol version {extendedPlayer.mpexVersion} while you are using MpEx protocol {Plugin.ProtocolVersion}");
+					Plugin.Log?.Warn("For best compatibility all players should use a compatible version of MultiplayerExtensions/MultiQuestensions.");
 					Plugin.Log?.Warn("###################################################################");
 				}
 
