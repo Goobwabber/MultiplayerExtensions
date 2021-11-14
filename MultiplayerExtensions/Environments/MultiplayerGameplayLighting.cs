@@ -1,5 +1,5 @@
 ﻿using IPA.Utilities;
-using MultiplayerExtensions.Sessions;
+using MultiplayerExtensions.Extensions;
 using UnityEngine;
 
 namespace MultiplayerExtensions.Environments
@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Environments
         protected IScoreSyncStateManager _scoreProvider = null!;
         protected MultiplayerLeadPlayerProvider _leadPlayerProvider = null!;
         protected MultiplayerGameplayAnimator _gameplayAnimator = null!;
-        protected ExtendedPlayerManager _extendedPlayerManager = null!;
+        protected ExtendedSessionManager _sessionManager = null!;
 
         protected LightsAnimator[] _allLights = null!;
         protected LightsAnimator[] _gameplayLights = null!;
@@ -26,14 +26,14 @@ namespace MultiplayerExtensions.Environments
 
         protected MultiplayerSyncState<StandardScoreSyncState, StandardScoreSyncState.Score, int> _syncState = null!;
 
-        internal void Construct(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider, MultiplayerGameplayAnimator gameplayAnimator, ExtendedPlayerManager extendedPlayerManager)
+        internal void Construct(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider, MultiplayerGameplayAnimator gameplayAnimator, ExtendedSessionManager sessionManager)
         {
             _connectedPlayer = connectedPlayer;
             _multiplayerController = multiplayerController;
             _scoreProvider = scoreProvider;
             _leadPlayerProvider = leadPlayerProvider;
             _gameplayAnimator = gameplayAnimator;
-            _extendedPlayerManager = extendedPlayerManager;
+            _sessionManager = sessionManager;
 
             _allLights = gameplayAnimator.GetField<LightsAnimator[], MultiplayerGameplayAnimator>("_allLightsAnimators");
             _gameplayLights = gameplayAnimator.GetField<LightsAnimator[], MultiplayerGameplayAnimator>("_gameplayLightsAnimators");

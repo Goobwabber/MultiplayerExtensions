@@ -46,7 +46,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 	internal class UpdateReliableFrequencyPatch
     {
 		private static float nextTime = 0f;
-		private static float frequency = 0.1f;
+		private static float frequency = 0.02f;
 
 		internal static bool Prefix()
 		{

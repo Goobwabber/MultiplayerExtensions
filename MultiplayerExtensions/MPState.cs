@@ -50,19 +50,19 @@
             }
         }
 
-        private static MultiplayerGameType? _currentGameType = MultiplayerGameType.None;
+        private static MultiplayerLobbyState? _currentLobbyState = MultiplayerLobbyState.None;
         /// <summary>
-        /// The current multiplayer game type.
+        /// The current multiplayer game state.
         /// </summary>
-        public static MultiplayerGameType? CurrentGameType
+        public static MultiplayerLobbyState? CurrentLobbyState
         {
-            get => _currentGameType;
+            get => _currentLobbyState;
             internal set
             {
-                if (_currentGameType == value)
+                if (_currentLobbyState == value)
                     return;
-                _currentGameType = value;
-                Plugin.Log?.Debug($"Updated game type to '{value}'");
+                _currentLobbyState = value;
+                Plugin.Log?.Debug($"Updated game state to '{value}'");
             }
         }
 
@@ -79,38 +79,6 @@
                     return;
                 _customSongsEnabled = value;
                 Plugin.Log?.Debug($"Updated custom songs to '{value}'");
-            }
-        }
-
-        private static bool _freeModEnabled;
-        /// <summary>
-        /// Whether free mod is enabled in the current lobby.
-        /// </summary>
-        public static bool FreeModEnabled
-        {
-            get => _freeModEnabled;
-            internal set
-            {
-                if (_freeModEnabled == value)
-                    return;
-                _freeModEnabled = value;
-                Plugin.Log?.Debug($"Updated free mod to '{value}'");
-            }
-        }
-
-        private static bool _hostPickEnabled;
-        /// <summary>
-        /// Whether host pick is enabled in the current lobby.
-        /// </summary>
-        public static bool HostPickEnabled
-        {
-            get => _hostPickEnabled;
-            internal set
-            {
-                if (_hostPickEnabled == value)
-                    return;
-                _hostPickEnabled = value;
-                Plugin.Log?.Debug($"Updated host pick to '{value}'");
             }
         }
 

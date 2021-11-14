@@ -1,6 +1,6 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Environments;
-using MultiplayerExtensions.OverrideClasses;
+using MultiplayerExtensions.Extensions;
 using MultiplayerExtensions.UI;
 using UnityEngine;
 using Zenject;
@@ -19,21 +19,18 @@ namespace MultiplayerExtensions.Installers
         {
             Plugin.Log?.Info("Installing Interface");
 
-            HostLobbySetupViewController hostViewController = Container.Resolve<HostLobbySetupViewController>();
-            Container.InstantiateComponent<HostLobbySetupPanel>(hostViewController.gameObject);
-
-            ClientLobbySetupViewController clientViewController = Container.Resolve<ClientLobbySetupViewController>();
-            Container.InstantiateComponent<ClientLobbySetupPanel>(clientViewController.gameObject);
+            LobbySetupViewController lobbySetupViewController = Container.Resolve<LobbySetupViewController>();
+            Container.InstantiateComponent<LobbySetupPanel>(lobbySetupViewController.gameObject);
 
             CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
             Container.InstantiateComponent<CenterScreenLoadingPanel>(centerScreenController.gameObject);
 
-            ServerPlayerListController playerListController = Container.Resolve<ServerPlayerListController>();
-            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListController>("_gameServerPlayersTableView");
+            ServerPlayerListViewController playerListController = Container.Resolve<ServerPlayerListViewController>();
+            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListViewController>("_gameServerPlayersTableView");
             GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
             GameServerPlayerTableCell newPlayerTableCell = GameObject.Instantiate(playerTableCell);
             newPlayerTableCell.gameObject.SetActive(false);
-            PlayerTableCellStub playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<PlayerTableCellStub>();
+            ExtendedPlayerTableCell playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<ExtendedPlayerTableCell>();
             playerTableCellStub.Construct(newPlayerTableCell);
             Destroy(newPlayerTableCell.GetComponent<GameServerPlayerTableCell>());
             playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);

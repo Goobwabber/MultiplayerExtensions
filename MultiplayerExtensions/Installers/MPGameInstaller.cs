@@ -1,11 +1,10 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Environments;
-using UnityEngine.Playables;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
 {
-    class MPGameInstaller : MonoInstaller
+    class MPGameInstaller : Installer
     {
         public override void InstallBindings()
         {

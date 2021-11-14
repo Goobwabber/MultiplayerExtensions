@@ -1,4 +1,4 @@
-﻿using BeatSaverSharp;
+﻿using BeatSaverSharp.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace MultiplayerExtensions.Beatmaps
 
                 if (_downloadableTask == null)
 				{
-                    _downloadableTask = Plugin.BeatSaver.Hash(levelHash).ContinueWith<bool>(r => r.Exception == null && r.Result is Beatmap);
+                    _downloadableTask = Plugin.BeatSaver.BeatmapByHash(levelHash).ContinueWith<bool>(r => r.Exception == null && r.Result is Beatmap);
                     _downloadableTask.ContinueWith(r => _downloadable = r.Result ? DownloadableState.True : DownloadableState.False);
 				}
 
@@ -85,14 +85,14 @@ namespace MultiplayerExtensions.Beatmaps
             this.songDuration = packet.songDuration;
         }
 
-        public PreviewBeatmapStub(string levelID, Beatmap bm)
+        public PreviewBeatmapStub(string levelID, string hash, Beatmap bm)
         {
             this._beatmap = bm;
             this._downloadable = DownloadableState.True;
             this.isDownloaded = false;
 
             this.levelID = levelID;
-            this.levelHash = bm.Hash;
+            this.levelHash = hash;
 
             this.songName = bm.Metadata.SongName;
             this.songSubName = bm.Metadata.SongSubName;
@@ -113,7 +113,7 @@ namespace MultiplayerExtensions.Beatmaps
 			{
                 try
                 {
-                    Sprite? cover = Utilities.Sprites.GetSprite(await _beatmap.CoverImageBytes());
+                    Sprite? cover = Utilities.Sprites.GetSprite(await _beatmap.Versions[0].DownloadCoverImage());
                     if (cover != null)
                         return cover;
 				}
@@ -121,9 +121,8 @@ namespace MultiplayerExtensions.Beatmaps
 				{
                     Plugin.Log?.Warn($"Failed to fetch beatmap cover: {ex.Message}");
 				}
-
 			}
-            
+
             return Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
         }
 

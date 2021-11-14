@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>MultiplayerExtensions</AssemblyName>
-    <AssemblyVersion>0.5.5</AssemblyVersion>
+    <AssemblyVersion>0.6.2</AssemblyVersion>
     <TargetFramework>net472</TargetFramework>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -35,9 +35,7 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="UI\CenterScreenLoading.bsml" />
-    <None Remove="UI\ClientLobbySetupPanel.bsml" />
-    <None Remove="UI\HostLobbySetupPanel.bsml" />
+    <None Remove="UI\LobbySetupPanel.bsml" />
     <None Remove="UI\settings.bsml" />
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +57,10 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Hive.Versioning">
+      <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="HMRendering">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
@@ -201,8 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <EmbeddedResource Include="UI\CenterScreenLoading.bsml" />
-    <EmbeddedResource Include="UI\HostLobbySetupPanel.bsml" />
+    <EmbeddedResource Include="UI\LobbySetupPanel.bsml" />
     <EmbeddedResource Include="UI\settings.bsml" />
     <None Remove="Assets\IconSteam64.png" />
     <EmbeddedResource Include="Assets\IconSteam64.png" />
@@ -221,9 +222,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="UI\ClientLobbySetupPanel.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets" />

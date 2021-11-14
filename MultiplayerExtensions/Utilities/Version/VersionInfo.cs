@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-namespace MultiplayerExtensions
+namespace MultiplayerExtensions.Utilities
 {
     internal static class VersionInfo
     {

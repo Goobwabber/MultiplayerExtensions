@@ -13,7 +13,7 @@ namespace MultiplayerExtensions.Utilities
         /// <param name="pixelsPerUnit"></param>
         /// <param name="returnDefaultOnFail"></param>
         /// <returns></returns>
-        public static Sprite? GetSprite(byte[] data, float pixelsPerUnit = 100.0f, bool returnDefaultOnFail = true)
+        public static Sprite? GetSprite(byte[]? data, float pixelsPerUnit = 100.0f, bool returnDefaultOnFail = true)
         {
             Sprite? ReturnDefault(bool useDefault)
             {

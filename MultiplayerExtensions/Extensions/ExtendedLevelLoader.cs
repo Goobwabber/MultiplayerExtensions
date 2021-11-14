@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Zenject;
 
-namespace MultiplayerExtensions.OverrideClasses
+namespace MultiplayerExtensions.Extensions
 {
-    class LevelLoaderStub : MultiplayerLevelLoader, IProgress<double>
+    class ExtendedLevelLoader : MultiplayerLevelLoader, IProgress<double>
     {
         public event Action<double> progressUpdated = null!;
 

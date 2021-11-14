@@ -12,7 +12,7 @@ namespace MultiplayerExtensions.HarmonyPatches
 {
     [HarmonyPatch(typeof(ConnectedPlayerManager), "OnNetworkReceive",
     new Type[] { typeof(IConnection), typeof(NetDataReader), typeof(DeliveryMethod) })]
-    class LoggingPatch
+    class PacketErrorLoggingPatch
     {
         private static readonly MethodInfo _exceptionLogger = SymbolExtensions.GetMethodInfo(() => ExceptionLogger((IConnectedPlayer)null!, (Exception)null!));
         private static ConcurrentDictionary<string, PlayerExceptionTracker> PlayerExceptions = new ConcurrentDictionary<string, PlayerExceptionTracker>();
@@ -20,8 +20,6 @@ namespace MultiplayerExtensions.HarmonyPatches
         {
             if (_exceptionLogger == null)
                 Plugin.Log?.Error($"Couldn't find _exceptionLogger");
-            else
-                Plugin.Log?.Warn($"Applying transpiler.");
             LocalBuilder? localException = gen.DeclareLocal(typeof(Exception));
             localException.SetLocalSymInfo("ex");
             foreach (CodeInstruction? code in instructions)
