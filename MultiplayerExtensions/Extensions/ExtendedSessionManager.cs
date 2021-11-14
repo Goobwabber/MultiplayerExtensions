@@ -37,6 +37,10 @@ namespace MultiplayerExtensions.Extensions
 
 			SetLocalPlayerState("modded", true);
 
+			SetLocalPlayerState("ME_Installed", Plugin.IsMappingInstalled);
+			SetLocalPlayerState("NE_Installed", Plugin.IsNoodleInstalled);
+			SetLocalPlayerState("Chroma_Installed", Plugin.IsChromaInstalled);
+
 			connectedEvent += HandleConnected;
 
 			playerConnectedEvent += HandlePlayerConnected;
@@ -92,19 +96,20 @@ namespace MultiplayerExtensions.Extensions
 				extendedPlayer.platformID = packet.platformID;
 				extendedPlayer.platform = packet.platform;
 				extendedPlayer.playerColor = packet.playerColor;
-				extendedPlayer.mpexVersion = new SemVer.Version(packet.mpexVersion);
+				extendedPlayer.mpexVersion = new Hive.Versioning.Version(packet.mpexVersion);
+				extendedPlayerConnectedEvent?.Invoke(extendedPlayer);
 			}
 			else
 			{
 				Plugin.Log?.Info($"Received 'ExtendedPlayerPacket' from '{player.userId}' with platformID: '{packet.platformID}'  mpexVersion: '{packet.mpexVersion}'");
-				ExtendedPlayer extendedPlayer = new ExtendedPlayer(player, packet.platformID, packet.platform, new SemVer.Version(packet.mpexVersion), packet.playerColor);
+				ExtendedPlayer extendedPlayer = new ExtendedPlayer(player, packet.platformID, packet.platform, new Hive.Versioning.Version(packet.mpexVersion), packet.playerColor);
 
-				if (Plugin.PluginMetadata.Version != extendedPlayer.mpexVersion)
+				if (Plugin.ProtocolVersion != extendedPlayer.mpexVersion)
 				{
 					Plugin.Log?.Warn("###################################################################");
-					Plugin.Log?.Warn("Different MultiplayerExtensions version detected!");
-					Plugin.Log?.Warn($"The player '{player.userName}' is using MultiplayerExtensions {extendedPlayer.mpexVersion} while you are using MultiplayerExtensions {Plugin.PluginMetadata.Version}");
-					Plugin.Log?.Warn("For best compatibility all players should use the same version of MultiplayerExtensions.");
+					Plugin.Log?.Warn("Different MultiplayerExtensions protocol detected!");
+					Plugin.Log?.Warn($"The player '{player.userName}' is using MpEx protocol version {extendedPlayer.mpexVersion} while you are using MpEx protocol {Plugin.ProtocolVersion}");
+					Plugin.Log?.Warn("For best compatibility all players should use a compatible version of MultiplayerExtensions/MultiQuestensions.");
 					Plugin.Log?.Warn("###################################################################");
 				}
 

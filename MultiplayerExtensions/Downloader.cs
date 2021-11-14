@@ -49,7 +49,7 @@ namespace MultiplayerExtensions
             byte[]? beatmapBytes = await bm.Versions.ToList().Find(version => {
                 Plugin.Log?.Info($"Version: '{version.Key}' '{version.Hash}'");
                 return version.Hash.ToUpper() == hash;
-            }).DownloadZIP(progress: UI.CenterScreenLoadingPanel.self);
+            }).DownloadZIP(progress: UI.CenterScreenLoadingPanel.Instance);
 #if DEBUG
             TimeSpan delay = TimeSpan.FromSeconds(Plugin.Config.DebugConfig?.MinDownloadTime ?? 0) - TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
             if (delay > TimeSpan.Zero)

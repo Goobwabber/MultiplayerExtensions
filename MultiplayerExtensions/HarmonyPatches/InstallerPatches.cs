@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using IPA.Utilities;
 using MultiplayerExtensions.Extensions;
 using System;
 using System.Collections.Generic;
@@ -145,7 +146,7 @@ namespace MultiplayerExtensions.HarmonyPatches
             ____sceneSetupData = new GameplayCoreSceneSetupData(
                 ____sceneSetupData.difficultyBeatmap,
                 ____sceneSetupData.previewBeatmapLevel,
-                ____sceneSetupData.gameplayModifiers.CopyWith(zenMode: Plugin.Config.LagReducer),
+                ____sceneSetupData.gameplayModifiers.CopyWith(zenMode: (____sceneSetupData.gameplayModifiers.zenMode || Plugin.Config.LagReducer)),
                 ____sceneSetupData.playerSpecificSettings,
                 ____sceneSetupData.practiceSettings,
                 ____sceneSetupData.useTestNoteCutSoundEffects,

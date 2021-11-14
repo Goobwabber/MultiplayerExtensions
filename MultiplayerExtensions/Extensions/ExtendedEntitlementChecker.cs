@@ -1,6 +1,7 @@
 ﻿using BeatSaverSharp.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Zenject;
@@ -75,12 +76,40 @@ namespace MultiplayerExtensions.Extensions
 				return base.GetEntitlementStatus(levelId);
 
 			if (SongCore.Collections.songWithHashPresent(hash))
+            {
+				// The input parameter for RetrieveExtraSongData is called levelId but it only takes the level hash
+				var extraSongData = SongCore.Collections.RetrieveExtraSongData(hash);
+				if (extraSongData != null)
+				{
+					foreach (var difficultyData in extraSongData._difficulties)
+					{
+						if (difficultyData.additionalDifficultyData != null &&
+							((difficultyData.additionalDifficultyData._requirements.Contains("Noodle Extensions") && !Plugin.IsNoodleInstalled) ||
+							(difficultyData.additionalDifficultyData._requirements.Contains("Mapping Extensions") && !Plugin.IsMappingInstalled)))
+							return Task.FromResult(EntitlementsStatus.NotOwned);
+						else if (difficultyData.additionalDifficultyData != null)
+						{
+							foreach (string requirement in difficultyData.additionalDifficultyData._requirements) Plugin.Log?.Info($"Requirement found: {requirement}");
+						}
+						else Plugin.Log?.Debug("difficultyData.additionalDifficultyData is null");
+
+					}
+				}
+				else Plugin.Log?.Debug("extraSongData is null");
 				return Task.FromResult(EntitlementsStatus.Ok);
+			}
 			return Plugin.BeatSaver.BeatmapByHash(hash).ContinueWith<EntitlementsStatus>(r =>
 			{
 				Beatmap? beatmap = r.Result;
 				if (beatmap == null)
 					return EntitlementsStatus.NotOwned;
+				else
+                {
+					foreach (var difficulty in beatmap.Versions[0].Difficulties)
+                    {
+						if ((difficulty.NoodleExtensions && !Plugin.IsNoodleInstalled) || (difficulty.MappingExtensions && !Plugin.IsMappingInstalled)) return EntitlementsStatus.NotOwned;
+					}
+				}
 				return EntitlementsStatus.NotDownloaded;
 			});
 		}
@@ -118,7 +147,11 @@ namespace MultiplayerExtensions.Extensions
         {
 			if (_entitlementsDictionary.TryGetValue(userId, out Dictionary<string, EntitlementsStatus> userDictionary))
 				if (userDictionary.TryGetValue(levelId, out EntitlementsStatus entitlement) && entitlement == EntitlementsStatus.Ok)
+                {
+                    UI.CenterScreenLoadingPanel.Instance.playersReady++;
+					Plugin.Log?.Info($"User '{userId}' for level '{levelId}' is '{entitlement}'");
 					return;
+				}
 
 			if (!_tcsDictionary.ContainsKey(userId))
 				_tcsDictionary[userId] = new Dictionary<string, TaskCompletionSource<EntitlementsStatus>>();
@@ -133,6 +166,8 @@ namespace MultiplayerExtensions.Extensions
 				result = await _tcsDictionary[userId][levelId].Task.ContinueWith(t => t.IsCompleted ? t.Result : EntitlementsStatus.Unknown);
 				_tcsDictionary[userId][levelId] = new TaskCompletionSource<EntitlementsStatus>();
 			}
+			if (!cancellationToken.IsCancellationRequested) UI.CenterScreenLoadingPanel.Instance.playersReady++;
+			Plugin.Log?.Info($"User '{userId}' for level '{levelId}' is '{result}' was task cancelled {(cancellationToken.IsCancellationRequested ? "true" : "false")}");
 		}
 	}
 }

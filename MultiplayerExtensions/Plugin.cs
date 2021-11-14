@@ -3,20 +3,16 @@ using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
-using MultiplayerExtensions.HarmonyPatches;
 using MultiplayerExtensions.Installers;
 using SiraUtil.Zenject;
 using MultiplayerExtensions.Utilities;
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using IPALogger = IPA.Logging.Logger;
 using BeatSaverSharp;
 using System.Diagnostics;
-using Zenject;
 using MultiplayerExtensions.UI;
 using BeatSaberMarkupLanguage.Settings;
-using System.Net.Http;
 
 namespace MultiplayerExtensions
 {
@@ -27,10 +23,15 @@ namespace MultiplayerExtensions
 
         internal static Plugin Instance { get; private set; } = null!;
         internal static PluginMetadata PluginMetadata = null!;
+
+        internal static bool IsNoodleInstalled { get; private set; }
+        internal static bool IsMappingInstalled { get; private set; }
+        internal static bool IsChromaInstalled { get; private set; }
+
+        internal static Hive.Versioning.Version ProtocolVersion { get; } = new Hive.Versioning.Version("0.7.1");
         internal static IPALogger Log { get; private set; } = null!;
         internal static PluginConfig Config = null!;
 
-        internal static HttpClient HttpClient { get; private set; } = null!;
         internal static BeatSaver BeatSaver = null!;
         internal static Harmony? _harmony;
         internal static Harmony Harmony
@@ -41,15 +42,6 @@ namespace MultiplayerExtensions
             }
         }
 
-        public static string UserAgent
-        {
-            get
-            {
-                var modVersion = PluginMetadata.Version.ToString();
-                var bsVersion = IPA.Utilities.UnityGame.GameVersion.ToString();
-                return $"MultiplayerExtensions/{modVersion} (BeatSaber/{bsVersion})";
-            }
-        }
 
         private const int MaxPlayers = 100;
         private const int MinPlayers = 10;
@@ -67,9 +59,8 @@ namespace MultiplayerExtensions
             zenjector.OnGame<MPGameInstaller>().OnlyForMultiplayer();
 
             BeatSaverOptions options = new BeatSaverOptions("MultiplayerExtensions", new Version(pluginMetadata.Version.ToString()));
+            options.Timeout = TimeSpan.FromMinutes(1);
             BeatSaver = new BeatSaver(options);
-            HttpClient = new HttpClient();
-            HttpClient.DefaultRequestHeaders.Add("User-Agent", Plugin.UserAgent);
         }
 
         [OnStart]
@@ -82,6 +73,11 @@ namespace MultiplayerExtensions
 
             HarmonyManager.ApplyDefaultPatches();
             Task versionTask = CheckVersion();
+
+            IsNoodleInstalled = IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginManager.GetPluginFromId("NoodleExtensions"));
+            IsMappingInstalled = IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginManager.GetPluginFromId("MappingExtensions"));
+            IsChromaInstalled = IPA.Loader.PluginManager.IsEnabled(IPA.Loader.PluginManager.GetPluginFromId("Chroma"));
+
             MPEvents_Test();
             
             Sprites.PreloadSprites();
