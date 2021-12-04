@@ -16,7 +16,6 @@ namespace MultiplayerExtensions.Installers
             Plugin.Log?.Info("Injecting Dependencies");
 
             Container.BindInterfacesAndSelfTo<PacketManager>().AsSingle();
-			var _ = Container.Resolve<NetworkConfigSO>().masterServerEndPoint;
 
 			Container.Inject(Container.Resolve<IMultiplayerSessionManager>() as ExtendedSessionManager);
 		}
