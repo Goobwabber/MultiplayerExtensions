@@ -126,7 +126,8 @@ namespace MultiplayerExtensions.Beatmaps
             return Sprite.Create(Texture2D.blackTexture, new Rect(0, 0, 2, 2), new Vector2(0, 0), 100.0f);
         }
 
-        public Task<AudioClip>? GetPreviewAudioClipAsync(CancellationToken cancellationToken) => _preview?.GetPreviewAudioClipAsync(cancellationToken);
+        // public Task<AudioClip>? GetPreviewAudioClipAsync(CancellationToken cancellationToken) => _preview?.GetPreviewAudioClipAsync(cancellationToken);
+        // public Task<AudioClip>? GetPreviewAudioClipAsync(CancellationToken cancellationToken) => null;
 
         private enum DownloadableState
         {

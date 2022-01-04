@@ -11,7 +11,7 @@
     "SongCore": "^3.2.0",
     "BeatSaverSharp": "^3.0.1",
     "BeatSaberMarkupLanguage": "^1.5.1",
-    "SiraUtil": "^2.5.2"
+    "SiraUtil": "^3.0.3"
   },
   "links": {
     "project-home": "https://github.com/Goobwabber/MultiplayerExtensions",
