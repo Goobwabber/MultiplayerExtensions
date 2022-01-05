@@ -55,6 +55,8 @@ namespace MultiplayerExtensions.Extensions
             _useBeatmapButton = playerTableCell.GetField<Button, GameServerPlayerTableCell>("_useBeatmapButton");
             _useModifiersButton = playerTableCell.GetField<Button, GameServerPlayerTableCell>("_useModifiersButton");
             _useBeatmapButtonHoverHint = playerTableCell.GetField<HoverHint, GameServerPlayerTableCell>("_useBeatmapButtonHoverHint");
+            _muteToggle = playerTableCell.GetField<ButtonSpriteSwapToggle, GameServerPlayerTableCell>("_muteToggle");
+            _mutePlayerButton = playerTableCell.GetField<Button, GameServerPlayerTableCell>("_mutePlayerButton");
             // Status Icons
             _statusImageView = playerTableCell.GetField<ImageView, GameServerPlayerTableCell>("_statusImageView");
             _readyIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_readyIcon");
@@ -62,11 +64,13 @@ namespace MultiplayerExtensions.Extensions
             _hostIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_hostIcon");
             // Helpers
             _gameplayModifiers = playerTableCell.GetField<GameplayModifiersModelSO, GameServerPlayerTableCell>("_gameplayModifiers");
+            _getLevelEntitlementCancellationTokenSource = playerTableCell.GetField<CancellationTokenSource, GameServerPlayerTableCell>("_getLevelEntitlementCancellationTokenSource");
             // TableCellWithSeparator
             _separator = playerTableCell.GetField<GameObject, TableCellWithSeparator>("_separator");
         }
 
-        public override void Awake() {
+        public override void Awake()
+        {
             _menuRpcManager.setIsEntitledToLevelEvent += HandleSetIsEntitledToLevel;
             __buttonBinder.AddBinding(_kickPlayerButton, new Action(base.HandleKickPlayerButtonPressed));
             __buttonBinder.AddBinding(_useBeatmapButton, new Action(base.HandleUseBeatmapButtonPressed));
