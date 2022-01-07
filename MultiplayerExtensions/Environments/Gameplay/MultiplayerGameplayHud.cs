@@ -2,7 +2,7 @@
 using IPA.Utilities;
 using UnityEngine;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Gameplay
 {
 	class MultiplayerGameplayHud : MonoBehaviour
 	{

@@ -5,7 +5,7 @@ using MultiplayerExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Lobby
 {
     public class LobbyAvatarNameTag : MonoBehaviour
     {
@@ -66,13 +66,13 @@ namespace MultiplayerExtensions.Environments
         #region Set Player Info
         public void SetPlayerInfo(IConnectedPlayer player)
         {
-            if (player is ExtendedPlayer extendedPlayer)
+            if (player is MpexPlayer extendedPlayer)
                 SetExtendedPlayerInfo(extendedPlayer);
             else
                 SetSimplePlayerInfo(player);
         }
         
-        private void SetExtendedPlayerInfo(ExtendedPlayer extendedPlayer)
+        private void SetExtendedPlayerInfo(MpexPlayer extendedPlayer)
         {
             _playerInfo = extendedPlayer;
 

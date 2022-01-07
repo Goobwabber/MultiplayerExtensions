@@ -7,7 +7,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Installers
 {
-    class MPMenuInstaller : MonoInstaller
+    class MpexMenuInstaller : MonoInstaller
     {
         public override void InstallBindings()
         {
@@ -30,7 +30,7 @@ namespace MultiplayerExtensions.Installers
             GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
             GameServerPlayerTableCell newPlayerTableCell = GameObject.Instantiate(playerTableCell);
             newPlayerTableCell.gameObject.SetActive(false);
-            ExtendedPlayerTableCell playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<ExtendedPlayerTableCell>();
+            MpexPlayerTableCell playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<MpexPlayerTableCell>();
             playerTableCellStub.Construct(newPlayerTableCell);
             Destroy(newPlayerTableCell.GetComponent<GameServerPlayerTableCell>());
             playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);

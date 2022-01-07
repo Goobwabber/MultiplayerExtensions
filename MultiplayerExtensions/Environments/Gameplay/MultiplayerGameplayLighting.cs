@@ -2,7 +2,7 @@
 using MultiplayerExtensions.Extensions;
 using UnityEngine;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Gameplay
 {
     class MultiplayerGameplayLighting : MonoBehaviour
     {
@@ -11,7 +11,7 @@ namespace MultiplayerExtensions.Environments
         protected IScoreSyncStateManager _scoreProvider = null!;
         protected MultiplayerLeadPlayerProvider _leadPlayerProvider = null!;
         protected MultiplayerGameplayAnimator _gameplayAnimator = null!;
-        protected ExtendedSessionManager _sessionManager = null!;
+        protected MpexPlayerManager _sessionManager = null!;
 
         protected LightsAnimator[] _allLights = null!;
         protected LightsAnimator[] _gameplayLights = null!;
@@ -26,7 +26,7 @@ namespace MultiplayerExtensions.Environments
 
         protected MultiplayerSyncState<StandardScoreSyncState, StandardScoreSyncState.Score, int> _syncState = null!;
 
-        internal void Construct(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider, MultiplayerGameplayAnimator gameplayAnimator, ExtendedSessionManager sessionManager)
+        internal void Construct(IConnectedPlayer connectedPlayer, MultiplayerController multiplayerController, IScoreSyncStateManager scoreProvider, MultiplayerLeadPlayerProvider leadPlayerProvider, MultiplayerGameplayAnimator gameplayAnimator, MpexPlayerManager sessionManager)
         {
             _connectedPlayer = connectedPlayer;
             _multiplayerController = multiplayerController;

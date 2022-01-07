@@ -1,46 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using IPA.Utilities;
-using MultiplayerExtensions.Extensions;
+using MultiplayerCore.Players;
+using MultiplayerExtensions.Players;
+using SiraUtil.Affinity;
 using UnityEngine;
 using Zenject;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Lobby
 {
-    public class LobbyAvatarManager : IInitializable, IDisposable
+    public class LobbyAvatarManager : IInitializable, IDisposable, IAffinity
     {
-        protected readonly ExtendedSessionManager _sessionManager;
+        private readonly MpPlayerManager _mpPlayers;
+        protected readonly MpexPlayerManager _mpexPlayers;
         protected readonly MultiplayerLobbyAvatarManager _avatarManager;
         
         protected Dictionary<string, MultiplayerLobbyAvatarController>? _refPlayerIdToAvatarMap;
 
-        private Dictionary<string, ExtendedPlayer> _extendedPlayers;
+        private Dictionary<string, MpexPlayer> _extendedPlayers;
         
         internal LobbyAvatarManager(IMultiplayerSessionManager sessionManager, MultiplayerLobbyAvatarManager avatarManager)
         {
-            _sessionManager = (sessionManager as ExtendedSessionManager)!;
+            _sessionManager = (sessionManager as MpexPlayerManager)!;
             _avatarManager = avatarManager;
             
             _refPlayerIdToAvatarMap = null;
 
-            _extendedPlayers = new Dictionary<string, ExtendedPlayer>();
+            _extendedPlayers = new Dictionary<string, MpexPlayer>();
         }
         
         public void Initialize()
         {
-            MPEvents.LobbyAvatarCreated += HandleLobbyAvatarCreated;
-            _sessionManager.playerDisconnectedEvent += HandlePlayerDisconnected;
-            _sessionManager.extendedPlayerConnectedEvent += HandleExtendedPlayerConnected;
+            
         }
 
         public void Dispose()
         {
-            MPEvents.LobbyAvatarCreated -= HandleLobbyAvatarCreated;
-            _sessionManager.playerDisconnectedEvent -= HandlePlayerDisconnected;
-            _sessionManager.extendedPlayerConnectedEvent -= HandleExtendedPlayerConnected;
+            
         }
 
         #region Events
+
+        [AffinityPatch(typeof(MultiplayerLobbyAvatarManager), nameof(MultiplayerLobbyAvatarManager.AddPlayer))]
         private void HandleLobbyAvatarCreated(object sender, IConnectedPlayer player)
         {
             if (_extendedPlayers.ContainsKey(player.userId))
@@ -48,7 +49,7 @@ namespace MultiplayerExtensions.Environments
             CreateOrUpdateNameTag(player);
         }
 
-        private void HandleExtendedPlayerConnected(ExtendedPlayer player)
+        private void HandleExtendedPlayerConnected(MpexPlayer player)
         {
             // This packet is usually received before the avatar is actually created
             _extendedPlayers[player.userId] = player;

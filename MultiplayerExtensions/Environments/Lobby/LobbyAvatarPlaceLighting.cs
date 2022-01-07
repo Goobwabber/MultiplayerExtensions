@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Lobby
 {
     public class LobbyAvatarPlaceLighting : MonoBehaviour
     {

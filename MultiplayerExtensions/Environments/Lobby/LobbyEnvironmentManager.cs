@@ -4,11 +4,11 @@ using MultiplayerExtensions.Extensions;
 using UnityEngine;
 using Zenject;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Lobby
 {
     public class LobbyEnvironmentManager : IInitializable, IDisposable
     {
-		protected readonly ExtendedSessionManager _sessionManager;
+		protected readonly MpexPlayerManager _sessionManager;
 		protected readonly ILobbyStateDataModel _lobbyStateDataModel;
 		protected readonly MenuEnvironmentManager _menuEnvironmentManager;
 		protected readonly MultiplayerLobbyAvatarPlaceManager _placeManager;
@@ -22,7 +22,7 @@ namespace MultiplayerExtensions.Environments
 
 		internal LobbyEnvironmentManager(IMultiplayerSessionManager sessionManager, ILobbyStateDataModel lobbyStateDataModel, MenuEnvironmentManager menuEnvironmentManager, MultiplayerLobbyAvatarPlaceManager placeManager, MultiplayerLobbyCenterStageManager stageManager)
         {
-			_sessionManager = (sessionManager as ExtendedSessionManager)!;
+			_sessionManager = (sessionManager as MpexPlayerManager)!;
 			_lobbyStateDataModel = lobbyStateDataModel;
 			_menuEnvironmentManager = menuEnvironmentManager;
 			_placeManager = placeManager;
@@ -78,20 +78,20 @@ namespace MultiplayerExtensions.Environments
 		public void SetDefaultPlayerPlaceColors()
 		{
 			SetAllPlayerPlaceColors(Color.black, true);
-			SetPlayerPlaceColor(_sessionManager.localPlayer, ExtendedSessionManager.localExtendedPlayer.playerColor, true);
+			SetPlayerPlaceColor(_sessionManager.localPlayer, MpexPlayerManager.localExtendedPlayer.playerColor, true);
 			
 			foreach (var player in _sessionManager.connectedPlayers)
-				SetPlayerPlaceColor(player, ExtendedPlayer.DefaultColor, false);
+				SetPlayerPlaceColor(player, MpexPlayer.DefaultColor, false);
 			
 			foreach (var extendedPlayer in _sessionManager.extendedPlayers.Values)
 				SetPlayerPlaceColor(extendedPlayer, extendedPlayer.playerColor, true);
 		}
 
-		private void HandleExtendedPlayerConnected(ExtendedPlayer player)
+		private void HandleExtendedPlayerConnected(MpexPlayer player)
 			=> SetPlayerPlaceColor(player, player.playerColor, true);
 
 		private void HandlePlayerConnected(IConnectedPlayer player)
-			=> SetPlayerPlaceColor(player, ExtendedPlayer.DefaultColor, false);
+			=> SetPlayerPlaceColor(player, MpexPlayer.DefaultColor, false);
  
 		private void HandlePlayerDisconnected(IConnectedPlayer player)
 			=> SetPlayerPlaceColor(player, Color.black, true);
@@ -111,7 +111,7 @@ namespace MultiplayerExtensions.Environments
 			if (place == null)
 				return;
 
-			if (!priority && place.TargetColor != Color.black && place.TargetColor != ExtendedPlayer.DefaultColor)
+			if (!priority && place.TargetColor != Color.black && place.TargetColor != MpexPlayer.DefaultColor)
 				// Priority colors are always set; non-priority colors can only override default black/blue
 				return;
 			

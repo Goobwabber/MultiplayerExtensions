@@ -1,14 +1,14 @@
-﻿using MultiplayerExtensions.Extensions;
+﻿using MultiplayerExtensions.Players;
 using UnityEngine;
 using Zenject;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Gameplay
 {
     public class MultiplayerActivePlayer : MonoBehaviour
     {
         protected IConnectedPlayer _connectedPlayer = null!;
         protected MultiplayerController _multiplayerController = null!;
-        protected ExtendedSessionManager _sessionManager = null!;
+        protected MpexPlayerManager _sessionManager = null!;
         protected IScoreSyncStateManager _scoreProvider = null!;
         protected MultiplayerLeadPlayerProvider _leadPlayerProvider = null!;
 
@@ -17,7 +17,7 @@ namespace MultiplayerExtensions.Environments
 		{
             _connectedPlayer = connectedPlayer;
             _multiplayerController = multiplayerController;
-            _sessionManager = (sessionManager as ExtendedSessionManager)!;
+            _sessionManager = (sessionManager as MpexPlayerManager)!;
             _scoreProvider = scoreProvider;
             _leadPlayerProvider = leadPlayerProvider;
 		}
