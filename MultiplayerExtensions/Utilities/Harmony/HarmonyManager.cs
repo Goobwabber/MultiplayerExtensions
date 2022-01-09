@@ -113,7 +113,7 @@ namespace MultiplayerExtensions.Utilities
             {
                 patch.RemovePatch();
             }
-            Harmony.UnpatchAll(HarmonyId);
+            Harmony.UnpatchID(HarmonyId);
         }
 
 
