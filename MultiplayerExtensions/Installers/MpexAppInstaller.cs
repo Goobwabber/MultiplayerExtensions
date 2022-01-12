@@ -1,4 +1,6 @@
-﻿using MultiplayerExtensions.Players;
+﻿using MultiplayerExtensions.Patchers;
+using MultiplayerExtensions.Players;
+using MultiplayerExtensions.Utilities;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -16,7 +18,9 @@ namespace MultiplayerExtensions.Installers
         public override void InstallBindings()
         {
 			Container.BindInstance(_config).AsSingle();
+			Container.BindInterfacesAndSelfTo<SpriteManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<MpexPlayerManager>().AsSingle();
+			Container.BindInterfacesAndSelfTo<LobbyInstallerPatcher>().AsSingle();
 		}
 	}
 }

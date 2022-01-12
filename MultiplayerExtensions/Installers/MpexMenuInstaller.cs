@@ -1,7 +1,5 @@
 ﻿using IPA.Utilities;
-using MultiplayerExtensions.Environments;
-using MultiplayerExtensions.Extensions;
-using MultiplayerExtensions.UI;
+using MultiplayerExtensions.Objects;
 using UnityEngine;
 using Zenject;
 
@@ -9,31 +7,41 @@ namespace MultiplayerExtensions.Installers
 {
     class MpexMenuInstaller : MonoInstaller
     {
+        private readonly FieldAccessor<ServerPlayerListViewController, GameServerPlayersTableView>.Accessor _gameServerPlayersTableView
+            = FieldAccessor<ServerPlayerListViewController, GameServerPlayersTableView>
+                .GetAccessor(nameof(_gameServerPlayersTableView));
+
+        private readonly FieldAccessor<GameServerPlayersTableView, GameServerPlayerTableCell>.Accessor _gameServerPlayerCellPrefab
+            = FieldAccessor<GameServerPlayersTableView, GameServerPlayerTableCell>
+                .GetAccessor(nameof(_gameServerPlayerCellPrefab));
+
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<LobbyEnvironmentManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<LobbyAvatarManager>().AsSingle();
+            
         }
 
         public override void Start()
         {
-            Plugin.Log?.Info("Installing Interface");
+            var playerListController = Container.Resolve<ServerPlayerListViewController>();
+            var playersTableView = _gameServerPlayersTableView(ref playerListController);
+            RedecoratePlayerTableCell(ref _gameServerPlayerCellPrefab(ref playersTableView));
+        }
 
-            LobbySetupViewController lobbySetupViewController = Container.Resolve<LobbySetupViewController>();
-            Container.InstantiateComponent<LobbySetupPanel>(lobbySetupViewController.gameObject);
+        private void RedecoratePlayerTableCell(ref GameServerPlayerTableCell originalPrefab)
+        {
+            if (originalPrefab.transform.parent != null && originalPrefab.transform.parent.name == "MultiplayerDecorator")
+                return;
 
-            CenterStageScreenController centerScreenController = Container.Resolve<CenterStageScreenController>();
-            Container.InstantiateComponent<CenterScreenLoadingPanel>(centerScreenController.gameObject);
+            GameObject mdgo = new("MultiplayerDecorator");
+            mdgo.SetActive(false);
+            var prefab = Object.Instantiate(originalPrefab, mdgo.transform);
 
-            ServerPlayerListViewController playerListController = Container.Resolve<ServerPlayerListViewController>();
-            GameServerPlayersTableView playersTableView = playerListController.GetField<GameServerPlayersTableView, ServerPlayerListViewController>("_gameServerPlayersTableView");
-            GameServerPlayerTableCell playerTableCell = playersTableView.GetField<GameServerPlayerTableCell, GameServerPlayersTableView>("_gameServerPlayerCellPrefab");
-            GameServerPlayerTableCell newPlayerTableCell = GameObject.Instantiate(playerTableCell);
-            newPlayerTableCell.gameObject.SetActive(false);
-            MpexPlayerTableCell playerTableCellStub = newPlayerTableCell.gameObject.AddComponent<MpexPlayerTableCell>();
-            playerTableCellStub.Construct(newPlayerTableCell);
-            Destroy(newPlayerTableCell.GetComponent<GameServerPlayerTableCell>());
-            playersTableView.SetField<GameServerPlayersTableView, GameServerPlayerTableCell>("_gameServerPlayerCellPrefab", playerTableCellStub);
+            prefab.gameObject.SetActive(false);
+            var playerTableCell = prefab.gameObject.AddComponent<MpexPlayerTableCell>();
+            playerTableCell.Construct(originalPrefab);
+            GameObject.Destroy(prefab.GetComponent<GameServerPlayerTableCell>());
+
+            originalPrefab = prefab;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MultiplayerCore.Networking;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,9 +9,11 @@ namespace MultiplayerExtensions.Players
 {
 	public class MpexPlayerManager : IInitializable
 	{
-		public IReadOnlyDictionary<string, MpexPlayer> Players => _playerData;
+		public event Action<IConnectedPlayer, MpexPlayerData> PlayerConnectedEvent = null!;
 
-		private ConcurrentDictionary<string, MpexPlayer> _playerData = new();
+		public IReadOnlyDictionary<string, MpexPlayerData> Players => _playerData;
+
+		private ConcurrentDictionary<string, MpexPlayerData> _playerData = new();
 
 		private readonly MpPacketSerializer _packetSerializer;
 		private readonly IMultiplayerSessionManager _sessionManager;
@@ -29,30 +32,33 @@ namespace MultiplayerExtensions.Players
 		public void Initialize()
 		{
 			_sessionManager.SetLocalPlayerState("modded", true);
-			_packetSerializer.RegisterCallback<MpexPlayer>(HandlePlayerData);
+			_packetSerializer.RegisterCallback<MpexPlayerData>(HandlePlayerData);
 			_sessionManager.playerConnectedEvent += HandlePlayerConnected;
 		}
 
 		public void Dispose()
 		{
-			_packetSerializer.UnregisterCallback<MpexPlayer>();
+			_packetSerializer.UnregisterCallback<MpexPlayerData>();
 		}
 
 		private void HandlePlayerConnected(IConnectedPlayer player)
 		{
-			if (ColorUtility.TryParseHtmlString(_config.Color, out Color color))
-				_sessionManager.Send(new MpexPlayer
-				{
-					Color = color
-				});
+			_sessionManager.Send(new MpexPlayerData
+			{
+				Color = _config.PlayerColor
+			});
 		}
 
-		private void HandlePlayerData(MpexPlayer packet, IConnectedPlayer player)
+		private void HandlePlayerData(MpexPlayerData packet, IConnectedPlayer player)
 		{
 			_playerData[player.userId] = packet;
+			PlayerConnectedEvent(player, packet);
 		}
 
-		public bool TryGetPlayer(string userId, out MpexPlayer player)
+		public bool TryGetPlayer(string userId, out MpexPlayerData player)
 			=> _playerData.TryGetValue(userId, out player);
+
+		public MpexPlayerData? GetPlayer(string userId)
+			=> _playerData.ContainsKey(userId) ? _playerData[userId] : null;
     }
 }

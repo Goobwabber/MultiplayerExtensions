@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace MultiplayerExtensions.Players
 {
-    public class MpexPlayer : INetSerializable
+    public class MpexPlayerData : INetSerializable
     {
-
         /// <summary>
         /// Player's color set in the plugin config.
         /// </summary>
@@ -20,7 +19,7 @@ namespace MultiplayerExtensions.Players
         {
             Color color;
             if (!ColorUtility.TryParseHtmlString(reader.GetString(), out color))
-                color = new Color(0.031f, 0.752f, 1f); // Default color from game
+                color = Config.DefaultPlayerColor;
             Color = color;
         }
     }
