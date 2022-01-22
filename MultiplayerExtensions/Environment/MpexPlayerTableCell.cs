@@ -1,20 +1,19 @@
 ﻿using HMUI;
 using IPA.Utilities;
+using MultiplayerCore.Objects;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
-namespace MultiplayerExtensions.Extensions
+namespace MultiplayerExtensions.Objects
 {
-    class ExtendedPlayerTableCell : GameServerPlayerTableCell
+    public class MpexPlayerTableCell : GameServerPlayerTableCell
     {
-        protected ExtendedEntitlementChecker _entitlementChecker = null!;
-        protected ILobbyPlayersDataModel _playersDataModel = null!;
-        protected IMenuRpcManager _menuRpcManager = null!;
+        private readonly MpEntitlementChecker _entitlementChecker;
+        private readonly ILobbyPlayersDataModel _playersDataModel;
+        private readonly IMenuRpcManager _menuRpcManager;
 
         private ButtonBinder __buttonBinder = new ButtonBinder();
 
@@ -29,10 +28,12 @@ namespace MultiplayerExtensions.Extensions
         private string lastLevelId = "";
         private IConnectedPlayer lastPlayer = null!;
 
-        [Inject]
-        internal void Inject(NetworkPlayerEntitlementChecker entitlementChecker, ILobbyPlayersDataModel playersDataModel, IMenuRpcManager menuRpcManager)
+        internal MpexPlayerTableCell(
+            NetworkPlayerEntitlementChecker entitlementChecker,
+            ILobbyPlayersDataModel playersDataModel,
+            IMenuRpcManager menuRpcManager)
         {
-            _entitlementChecker = (entitlementChecker as ExtendedEntitlementChecker)!;
+            _entitlementChecker = (entitlementChecker as MpEntitlementChecker)!;
             _playersDataModel = playersDataModel;
             _menuRpcManager = menuRpcManager;
         }

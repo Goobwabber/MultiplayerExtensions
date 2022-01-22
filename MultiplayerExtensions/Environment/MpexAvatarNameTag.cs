@@ -1,34 +1,45 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HMUI;
-using MultiplayerExtensions.Extensions;
+using MultiplayerCore.Players;
+using MultiplayerExtensions.Players;
 using MultiplayerExtensions.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
-namespace MultiplayerExtensions.Environments
+namespace MultiplayerExtensions.Environments.Lobby
 {
-    public class LobbyAvatarNameTag : MonoBehaviour
+    public class MpexAvatarNameTag : MonoBehaviour
     {
         enum PlayerIconSlot
         {
             Platform = 0
         }
         
-        private bool _enabled;
-        private IConnectedPlayer? _playerInfo;
-        private Dictionary<PlayerIconSlot, ImageView> _playerIcons;
+        private readonly Dictionary<PlayerIconSlot, ImageView> _playerIcons = new();
 
+        private IConnectedPlayer _player = null!;
+        private MpPlayerManager _playerManager = null!;
+        private MpexPlayerManager _mpexPlayerManager = null!;
+        private SpriteManager _spriteManager = null!;
         private ImageView _bg = null!;
         private CurvedTextMeshPro _nameText = null!;
 
-        public LobbyAvatarNameTag()
+        [Inject]
+        internal void Construct(
+            IConnectedPlayer player,
+            MpPlayerManager playerManager,
+            MpexPlayerManager mpexPlayerManager,
+            SpriteManager spriteManager)
         {
-            _enabled = false;
-            _playerInfo = null;
-            _playerIcons = new Dictionary<PlayerIconSlot, ImageView>();
+            _player = player;
+            _playerManager = playerManager;
+            _mpexPlayerManager = mpexPlayerManager;
+            _spriteManager = spriteManager;
         }
 
-        public void Awake()
+        private void Awake()
         {
             // Get references
             _bg = transform.Find("BG").GetComponent<ImageView>();
@@ -53,74 +64,59 @@ namespace MultiplayerExtensions.Environments
             if (_nameText.TryGetComponent<ConnectedPlayerName>(out var nativeNameScript))
                 Destroy(nativeNameScript);
             _nameText.text = "Player";
+
+            // Set player data
+            _nameText.text = _player.userName;
+            _nameText.color = Color.white;
+            if (_mpexPlayerManager.TryGetPlayer(_player.userId, out var mpexData))
+                _nameText.color = mpexData.Color;
+            if (_playerManager.TryGetPlayer(_player.userId, out var data))
+                SetPlatformData(data);
         }
 
-        public void OnEnable()
+        private void OnEnable()
         {
-            _enabled = true;
-            
-            if (_playerInfo != null) 
-                SetPlayerInfo(_playerInfo);
+            _playerManager.PlayerConnectedEvent += HandlePlatformData;
+            _mpexPlayerManager.PlayerConnectedEvent += HandleMpexData;
         }
 
-        #region Set Player Info
-        public void SetPlayerInfo(IConnectedPlayer player)
+        private void OnDisable()
         {
-            if (player is ExtendedPlayer extendedPlayer)
-                SetExtendedPlayerInfo(extendedPlayer);
-            else
-                SetSimplePlayerInfo(player);
+            _playerManager.PlayerConnectedEvent -= HandlePlatformData;
+            _mpexPlayerManager.PlayerConnectedEvent -= HandleMpexData;
         }
-        
-        private void SetExtendedPlayerInfo(ExtendedPlayer extendedPlayer)
+
+        private void HandlePlatformData(IConnectedPlayer player, MpPlayerData data)
         {
-            _playerInfo = extendedPlayer;
+            if (player == _player)
+                SetPlatformData(data);
+        }
 
-            if (!_enabled)
-                return;
+        private void HandleMpexData(IConnectedPlayer player, MpexPlayerData data)
+        {
+            if (player == _player)
+                _nameText.color = data.Color;
+        }
 
-            _nameText.text = extendedPlayer.userName;
-            _nameText.color = extendedPlayer.playerColor;
-
-            switch (extendedPlayer.platform)
+        private void SetPlatformData(MpPlayerData data)
+        {
+            switch (data.Platform)
             {
                 case Platform.Steam:
-                    SetIcon(PlayerIconSlot.Platform, Sprites.IconSteam64);
+                    SetIcon(PlayerIconSlot.Platform, _spriteManager.IconSteam64);
                     break;
                 case Platform.OculusQuest:
                 case Platform.OculusPC:
-                    SetIcon(PlayerIconSlot.Platform, Sprites.IconOculus64);
-                    break;
-                default:
-                    RemoveIcon(PlayerIconSlot.Platform);
+                    SetIcon(PlayerIconSlot.Platform, _spriteManager.IconOculus64);
                     break;
             }
         }
 
-        private void SetSimplePlayerInfo(IConnectedPlayer simplePlayer)
-        {
-            _playerInfo = simplePlayer;
-
-            if (!_enabled)
-                return;
-            
-            _nameText.text = simplePlayer.userName;
-            _nameText.color = Color.white;
-            
-            RemoveIcon(PlayerIconSlot.Platform);
-        }
-        #endregion
-
-        #region Set Icons
-
         private void SetIcon(PlayerIconSlot slot, Sprite sprite)
         {
-            if (!_enabled)
-                return;
-            
             if (!_playerIcons.TryGetValue(slot, out ImageView imageView))
             {
-                var iconObj = new GameObject($"MpExPlayerIcon({slot})");
+                var iconObj = new GameObject($"MpexPlayerIcon({slot})");
                 iconObj.transform.SetParent(_bg.transform, false);
                 iconObj.transform.SetSiblingIndex((int)slot);
                 iconObj.layer = 5;
@@ -142,18 +138,5 @@ namespace MultiplayerExtensions.Environments
             
             _nameText.transform.SetSiblingIndex(999);
         }
-
-        private void RemoveIcon(PlayerIconSlot slot)
-        {
-            if (!_enabled)
-                return;
-            
-            if (_playerIcons.TryGetValue(slot, out var imageView))
-            {
-                Destroy(imageView.gameObject);
-                _playerIcons.Remove(slot);
-            }
-        }
-        #endregion
     }
 }
