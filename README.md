@@ -1,14 +1,12 @@
-# MultiplayerExtensions ![Steam/PC-Only](https://goobi.moe/badges/api/v2/text?text=Steam/PC-Only&widthPadding=-80) [![Build](https://github.com/Zingabopp/MultiplayerExtensions/workflows/Build/badge.svg?event=push)](https://github.com/Zingabopp/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)
-A Beat Saber mod that expands Beat Saber's multiplayer functionality. **This is a work in progress which has bugs.**
+# MultiplayerExtensions (Steam/PC-Only) [![Build](https://github.com/Goobwabber/MultiplayerExtensions/workflows/Build/badge.svg?event=push)](https://github.com/Goobwabber/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)
+A Beat Saber mod which aims to improve the multiplyaer experience.
+
+**THIS MOD DOES NOT ENABLE CUSTOM SONGS.** That functionality has been moved to [MultiplayerCore](https://github.com/Goobwabber/MultiplayerCore).
 
 ## Features
-* Allows custom levels to be selected in private lobbies.
-* Attempts to download missing songs from Beat Saver.
-* Warns the user when a song is not on Beat Saver.
-* Adds HUD configuration options.
-* Kicks unmodded players when custom levels are enabled.
-* 10 player lobbies __(BeatTogether Exclusive feature)__
-* [Cool stats page](https://mpex.goobwabber.com)
+* Fancy platform lighting
+* Fancy in-game lighting
+**Looking for more features, feel free to contribute your own.**
 
 ## Installation
 1. Ensure you have the [required mods](https://github.com/Goobwabber/MultiplayerExtensions#requirements).
@@ -23,36 +21,9 @@ Lastly, check out [other mods](https://github.com/Goobwabber/MultiplayerExtensio
 
 ## Requirements
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant. **Do NOT use any of the DLLs in the `Refs` folder, they have been stripped of code and will not work.**
-* SongCore v3.0.3+
-* BeatSaverSharp v2.0.1+
-* BeatSaberMarkupLanguage v1.4.5+
-* SiraUtil 2.4.0+
-* BeatTogether 1.1.0+ (Only required for 10 player lobbies)
-
-## Troubleshooting
-#### Custom Songs button not appearing
-* Most of the time this is because you didn't install MultiplayerExtensions correctly, or are missing a required dependency (most likely SiraUtil or BeatSaverSharp).
-  * Open `Beat Saber\Logs\_latest.log` and search the text for `MultiplayerExtensions`
-  * If you see a line like `[WARNING @ 19:20:44 | IPA/Loader] MultiplayerExtensions is missing dependency BeatSaverSharp@^1.6.0`, that's what you need to fix.
-  * In your log, there's a section where IPA lists loaded plugins. Check and make sure MultiplayerExtensions is listed there.
-  ```
-  [INFO @ 12:41:52 | IPA] Beat Saber
-  [INFO @ 12:41:52 | IPA] Running on Unity 2019.3.15f1
-  [INFO @ 12:41:52 | IPA] Game version 1.13.0
-  [INFO @ 12:41:52 | IPA] -----------------------------
-  [INFO @ 12:41:52 | IPA] Loading plugins from Plugins and found 25
-  [INFO @ 12:41:52 | IPA] -----------------------------
-  [INFO @ 12:41:52 | IPA] Beat Saber IPA (BSIPA): 4.1.3
-  [INFO @ 12:41:52 | IPA] SiraUtil (SiraUtil): 2.1.0
-  [INFO @ 12:41:52 | IPA] INI Parser (Ini Parser): 2.5.7
-  [INFO @ 12:41:52 | IPA] BS_Utils (BS Utils): 1.6.3
-  [INFO @ 12:41:52 | IPA] BeatSaberMarkupLanguage (BeatSaberMarkupLanguage): 1.4.1
-  [INFO @ 12:41:52 | IPA] SongCore (SongCore): 3.0.2
-  [INFO @ 12:41:52 | IPA] BeatSaverSharp (BeatSaverSharp): 1.6.0
-  [INFO @ 12:41:52 | IPA] MultiplayerExtensions (MultiplayerExtensions): 0.2.0
-  [INFO @ 12:41:52 | IPA] -----------------------------
-  [INFO @ 12:41:52 | IPA] -----------------------------```
-* If MultiplayerExtensions is loading and the Custom Songs button isn't showing up, you may need to do a fresh install of Beat Saber.
+* MultiplayerCore v1.0.0+
+* BeatSaberMarkupLanguage v1.5.1+
+* SiraUtil 3.0.0+
 
 ## Reporting Issues
 * The best way to report issues is to click on the `Issues` tab at the top of the GitHub page. This allows any contributor to see the problem and attempt to fix it, and others with the same issue can contribute more information. **Please try the troubleshooting steps before reporting the issues listed there. Please only report issues after using the latest build, your problem may have already been fixed.**
@@ -63,7 +34,7 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 * If you ask for help on Discord, at least include your `_latest.log` file in your help request.
 
 ## Contributing
-Anyone can feel free to contribute bug fixes or enhancements to MultiplayerExtensions. Please keep in mind that this mod's purpose is to expand the functionality of official multiplayer, so we will likely not be accepting enhancements that require 3rd party servers. GitHub Actions for Pull Requests made from GitHub accounts that don't have direct access to the repository will fail. This is normal because the Action requires a `Secret` to download dependencies.
+Anyone can feel free to contribute bug fixes or enhancements to MultiplayerExtensions. GitHub Actions for Pull Requests made from GitHub accounts that don't have direct access to the repository will fail. This is normal because the Action requires a `Secret` to download dependencies.
 ### Building
 Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp/BeatSaberModdingTools) extension is the recommended development environment.
 1. Check out the repository
@@ -72,6 +43,8 @@ Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp
    * This assumes you have already set the directory for your Beat Saber game folder in `Extensions` -> `Beat Saber Modding Tools` -> `Settings...`
    * If you do not have the BeatSaberModdingTools extension, you will need to manually create a `MultiplayerExtensions.csproj.user` file to set the location of your game install. An example is showing below.
 4. The project should now build.
+### Testing
+MultiplayerExtensions and other multiplayer mods may not work without a compatible private server to play on. The only one at this point in time is BeatTogether, which comes in the form of it's [Master](https://github.com/pythonology/BeatTogether.MasterServer) and [Dedicated](https://github.com/pythonology/BeatTogether.DedicatedServer) servers. If you are looking to update this mod to a newer version, these servers will also need to be up to date and working for that version. You can gain access to their private beta by donating on their [patreon](https://www.patreon.com/BeatTogether). Alternatively, you can set up your own cluster.
 
 **Example csproj.user File:**
 ```xml
@@ -89,8 +62,6 @@ You can support development of MultiplayerExtensions by donating at the followin
 * https://ko-fi.com/zingabopp
 
 ## Related Mods
-* [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
-* [MultiplayerAvatars](https://github.com/Goobwabber/MultiplayerAvatars)
+* [MultiplayerCore](https://github.com/Goobwabber/MultiplayerCore)
 * BeatTogether for [PC](https://github.com/pythonology/BeatTogether) or [Quest](https://github.com/pythonology/BeatTogether.Quest)
----
-[![donate](https://goobi.moe/badges/api/v2/donate?text=Donate!&scale=1.5&fontsize=32&radius=8&textXOffset=5&height=12.9666&widthOffset=3.5666)](https://github.com/Goobwabber/MultiplayerExtensions#donate) [![mpex stats](https://goobi.moe/badges/api/v2/mpexusercount?scale=1.5&radius=8&textXOffset=-95&height=35&textanchor=begin&widthOffset=-20.3466&textYOffset=-4&innerSpacing=5)](https://mpex.goobwabber.com)
+* [BeatSaberServerBrowser](https://github.com/roydejong/BeatSaberServerBrowser)
