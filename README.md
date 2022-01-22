@@ -1,7 +1,7 @@
 # MultiplayerExtensions (Steam/PC-Only) [![Build](https://github.com/Goobwabber/MultiplayerExtensions/workflows/Build/badge.svg?event=push)](https://github.com/Goobwabber/MultiplayerExtensions/actions?query=workflow%3ABuild+branch%3Amaster)
 A Beat Saber mod which aims to improve the multiplayer experience.
 
-**THIS MOD DOES NOT ENABLE CUSTOM SONGS.** That functionality has been moved to [MultiplayerCore](https://github.com/Goobwabber/MultiplayerCore).
+**THIS MOD DOES NOT ENABLE CUSTOM SONGS.** 
 
 ## Features
 * Fancy platform lighting
