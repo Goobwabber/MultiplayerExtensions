@@ -44,7 +44,7 @@ Visual Studio 2019 with the [BeatSaberModdingTools](https://github.com/Zingabopp
    * If you do not have the BeatSaberModdingTools extension, you will need to manually create a `MultiplayerExtensions.csproj.user` file to set the location of your game install. An example is showing below.
 4. The project should now build.
 ### Testing
-MultiplayerExtensions and other multiplayer mods may not work without a compatible private server to play on. The only one at this point in time is BeatTogether, which comes in the form of it's [Master](https://github.com/pythonology/BeatTogether.MasterServer) and [Dedicated](https://github.com/pythonology/BeatTogether.DedicatedServer) servers. If you are looking to update this mod to a newer version, these servers will also need to be up to date and working for that version. You can gain access to their private beta by donating on their [patreon](https://www.patreon.com/BeatTogether). Alternatively, you can set up your own cluster.
+MultiplayerExtensions and other multiplayer mods may not work without a compatible private server to play on. The only one at this point in time is [BeatTogether](https://github.com/pythonology/BeatTogether), which comes in the form of it's [Master](https://github.com/pythonology/BeatTogether.MasterServer) and [Dedicated](https://github.com/pythonology/BeatTogether.DedicatedServer) servers. If you are looking to update this mod to a newer version, these servers will also need to be up to date and working for that version. You can gain access to their private beta by donating on their [patreon](https://www.patreon.com/BeatTogether). Alternatively, you can set up your own cluster.
 
 **Example csproj.user File:**
 ```xml
