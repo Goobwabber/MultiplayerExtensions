@@ -67,7 +67,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="MultiplayerCore">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Plugins\MultiplayerCore.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Plugins\MultiplayerCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="netstandard">

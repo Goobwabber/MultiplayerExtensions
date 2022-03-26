@@ -1,47 +1,20 @@
-﻿using IPA.Utilities;
+﻿using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.Objects;
+using MultiplayerExtensions.Patchers;
 using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
 {
-    class MpexMenuInstaller : MonoInstaller
+    class MpexMenuInstaller : Installer
     {
-        private readonly FieldAccessor<ServerPlayerListViewController, GameServerPlayersTableView>.Accessor _gameServerPlayersTableView
-            = FieldAccessor<ServerPlayerListViewController, GameServerPlayersTableView>
-                .GetAccessor(nameof(_gameServerPlayersTableView));
-
-        private readonly FieldAccessor<GameServerPlayersTableView, GameServerPlayerTableCell>.Accessor _gameServerPlayerCellPrefab
-            = FieldAccessor<GameServerPlayersTableView, GameServerPlayerTableCell>
-                .GetAccessor(nameof(_gameServerPlayerCellPrefab));
-
         public override void InstallBindings()
         {
-            
-        }
-
-        public override void Start()
-        {
-            var playerListController = Container.Resolve<ServerPlayerListViewController>();
-            var playersTableView = _gameServerPlayersTableView(ref playerListController);
-            RedecoratePlayerTableCell(ref _gameServerPlayerCellPrefab(ref playersTableView));
-        }
-
-        private void RedecoratePlayerTableCell(ref GameServerPlayerTableCell originalPrefab)
-        {
-            if (originalPrefab.transform.parent != null && originalPrefab.transform.parent.name == "MultiplayerDecorator")
-                return;
-
-            GameObject mdgo = new("MultiplayerDecorator");
-            mdgo.SetActive(false);
-            var prefab = Object.Instantiate(originalPrefab, mdgo.transform);
-
-            prefab.gameObject.SetActive(false);
-            var playerTableCell = prefab.gameObject.AddComponent<MpexPlayerTableCell>();
-            playerTableCell.Construct(originalPrefab);
-            GameObject.Destroy(prefab.GetComponent<GameServerPlayerTableCell>());
-
-            originalPrefab = prefab;
+            Container.BindInterfacesAndSelfTo<MpexPlayerTableCell>().AsSingle();
+            Container.BindInterfacesAndSelfTo<AvatarPlacePatcher>().AsSingle();
+            var avatarPlace = Container.Resolve<MenuEnvironmentManager>().transform.Find("MultiplayerLobbyEnvironment").Find("LobbyAvatarPlace").gameObject;
+            GameObject.Destroy(avatarPlace.GetComponent<MpexAvatarPlaceLighting>());
+            Container.Inject(avatarPlace.AddComponent<MpexAvatarPlaceLighting>());
         }
     }
 }

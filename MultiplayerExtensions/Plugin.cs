@@ -29,6 +29,7 @@ namespace MultiplayerExtensions
             zenjector.UseSiraSync(SiraUtil.Web.SiraSync.SiraSyncServiceType.GitHub, "Goobwabber", "MultiplayerExtensions");
             zenjector.Install<MpexAppInstaller>(Location.App, config);
             zenjector.Install<MpexMenuInstaller>(Location.Menu);
+            zenjector.Install<MpexLobbyInstaller, MultiplayerLobbyInstaller>();
             zenjector.Install<MpexGameInstaller>(Location.MultiplayerCore);
         }
 

@@ -20,7 +20,6 @@ namespace MultiplayerExtensions.Installers
 			Container.BindInstance(_config).AsSingle();
 			Container.BindInterfacesAndSelfTo<SpriteManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<MpexPlayerManager>().AsSingle();
-			Container.BindInterfacesAndSelfTo<LobbyInstallerPatcher>().AsSingle();
 		}
 	}
 }

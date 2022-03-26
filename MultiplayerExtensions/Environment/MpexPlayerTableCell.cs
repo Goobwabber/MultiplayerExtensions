@@ -1,21 +1,19 @@
-﻿using HMUI;
-using IPA.Utilities;
-using MultiplayerCore.Objects;
+﻿using MultiplayerCore.Objects;
+using SiraUtil.Affinity;
 using System;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace MultiplayerExtensions.Objects
 {
-    public class MpexPlayerTableCell : GameServerPlayerTableCell
+    public class MpexPlayerTableCell : IInitializable, IDisposable, IAffinity
     {
+        private readonly ServerPlayerListViewController _playerListView;
         private readonly MpEntitlementChecker _entitlementChecker;
         private readonly ILobbyPlayersDataModel _playersDataModel;
         private readonly IMenuRpcManager _menuRpcManager;
-
-        private ButtonBinder __buttonBinder = new ButtonBinder();
 
         private static float alphaIsMe = 0.4f;
         private static float alphaIsNotMe = 0.2f;
@@ -25,90 +23,63 @@ namespace MultiplayerExtensions.Objects
         private static Color red = new Color(1f, 0f, 0f, 1f);
         private static Color normal = new Color(0.125f, 0.75f, 1f, 0.1f);
 
-        private string lastLevelId = "";
-        private IConnectedPlayer lastPlayer = null!;
-
         internal MpexPlayerTableCell(
+            ServerPlayerListViewController playerListView,
             NetworkPlayerEntitlementChecker entitlementChecker,
             ILobbyPlayersDataModel playersDataModel,
             IMenuRpcManager menuRpcManager)
         {
+            _playerListView = playerListView;
             _entitlementChecker = (entitlementChecker as MpEntitlementChecker)!;
             _playersDataModel = playersDataModel;
             _menuRpcManager = menuRpcManager;
         }
 
-        internal void Construct(GameServerPlayerTableCell playerTableCell)
+        public void Initialize() 
         {
-            // Player
-            _playerNameText = playerTableCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_playerNameText");
-            _localPlayerBackgroundImage = playerTableCell.GetField<Image, GameServerPlayerTableCell>("_localPlayerBackgroundImage");
-            // Suggested Level
-            _suggestedLevelText = playerTableCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_suggestedLevelText");
-            _suggestedCharacteristicIcon = playerTableCell.GetField<ImageView, GameServerPlayerTableCell>("_suggestedCharacteristicIcon");
-            _suggestedDifficultyText = playerTableCell.GetField<TextMeshProUGUI, GameServerPlayerTableCell>("_suggestedDifficultyText");
-            _emptySuggestedLevelText = playerTableCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedLevelText");
-            // Suggested Modifiers
-            _suggestedModifiersList = playerTableCell.GetField<GameplayModifierInfoListItemsList, GameServerPlayerTableCell>("_suggestedModifiersList");
-            _emptySuggestedModifiersText = playerTableCell.GetField<CurvedTextMeshPro, GameServerPlayerTableCell>("_emptySuggestedModifiersText");
-            // Buttons
-            _kickPlayerButton = playerTableCell.GetField<Button, GameServerPlayerTableCell>("_kickPlayerButton");
-            _useBeatmapButton = playerTableCell.GetField<Button, GameServerPlayerTableCell>("_useBeatmapButton");
-            _useModifiersButton = playerTableCell.GetField<Button, GameServerPlayerTableCell>("_useModifiersButton");
-            _useBeatmapButtonHoverHint = playerTableCell.GetField<HoverHint, GameServerPlayerTableCell>("_useBeatmapButtonHoverHint");
-            // Status Icons
-            _statusImageView = playerTableCell.GetField<ImageView, GameServerPlayerTableCell>("_statusImageView");
-            _readyIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_readyIcon");
-            _spectatingIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_spectatingIcon");
-            _hostIcon = playerTableCell.GetField<Sprite, GameServerPlayerTableCell>("_hostIcon");
-            // Helpers
-            _gameplayModifiers = playerTableCell.GetField<GameplayModifiersModelSO, GameServerPlayerTableCell>("_gameplayModifiers");
-            // TableCellWithSeparator
-            _separator = playerTableCell.GetField<GameObject, TableCellWithSeparator>("_separator");
-        }
-
-        public override void Awake() {
             _menuRpcManager.setIsEntitledToLevelEvent += HandleSetIsEntitledToLevel;
-            __buttonBinder.AddBinding(_kickPlayerButton, new Action(base.HandleKickPlayerButtonPressed));
-            __buttonBinder.AddBinding(_useBeatmapButton, new Action(base.HandleUseBeatmapButtonPressed));
-            __buttonBinder.AddBinding(_useModifiersButton, new Action(base.HandleUseModifiersButtonPressed));
         }
 
-        public override void SetData(IConnectedPlayer connectedPlayer, ILobbyPlayerData playerData, bool hasKickPermissions, bool allowSelection, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask)
+        public void Dispose()
+        {
+            _menuRpcManager.setIsEntitledToLevelEvent -= HandleSetIsEntitledToLevel;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(GameServerPlayerTableCell), nameof(GameServerPlayerTableCell.SetData))]
+        public void SetDataPrefix(IConnectedPlayer connectedPlayer, ILobbyPlayerData playerData, bool hasKickPermissions, bool allowSelection, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask, Image ____localPlayerBackgroundImage)
         {
             if (getLevelEntitlementTask != null)
-                getLevelEntitlementTask = getLevelEntitlementTask.ContinueWith<AdditionalContentModel.EntitlementStatus>(r => AdditionalContentModel.EntitlementStatus.Owned);
-            base.SetData(connectedPlayer, playerData, hasKickPermissions, allowSelection, getLevelEntitlementTask);
-            _localPlayerBackgroundImage.enabled = true;
-            GetLevelEntitlement(connectedPlayer);
-            lastPlayer = connectedPlayer;
+                getLevelEntitlementTask = Task.FromResult(AdditionalContentModel.EntitlementStatus.Owned);
         }
 
-        private void GetLevelEntitlement(IConnectedPlayer player)
+        [AffinityPostfix]
+        [AffinityPatch(typeof(GameServerPlayerTableCell), nameof(GameServerPlayerTableCell.SetData))]
+        public void SetDataPostfix(IConnectedPlayer connectedPlayer, ILobbyPlayerData playerData, bool hasKickPermissions, bool allowSelection, Task<AdditionalContentModel.EntitlementStatus> getLevelEntitlementTask, Image ____localPlayerBackgroundImage)
         {
-            string? levelId = _playersDataModel.GetPlayerBeatmapLevel(_playersDataModel.partyOwnerId)?.levelID;
-            if (levelId == null)
+            ____localPlayerBackgroundImage.enabled = true;
+            string? hostSelectedLevel = _playersDataModel[_playersDataModel.partyOwnerId].beatmapLevel?.beatmapLevel?.levelID;
+            if (hostSelectedLevel == null)
             {
-                SetLevelEntitlement(player, EntitlementsStatus.Unknown);
+                SetLevelEntitlement(____localPlayerBackgroundImage, EntitlementsStatus.Unknown);
                 return;
             }
 
-            lastLevelId = levelId;
-
             EntitlementsStatus entitlement = EntitlementsStatus.Unknown;
-            if (!player.isMe)
-                entitlement = _entitlementChecker.GetUserEntitlementStatusWithoutRequest(player.userId, levelId);
+            if (!connectedPlayer.isMe)
+                entitlement = _entitlementChecker.GetUserEntitlementStatusWithoutRequest(connectedPlayer.userId, hostSelectedLevel);
+            // TODO: change color for local player
             if (entitlement != EntitlementsStatus.Unknown)
-                SetLevelEntitlement(player, entitlement);
-            else
+                SetLevelEntitlement(____localPlayerBackgroundImage, entitlement);
+            else if (!connectedPlayer.isMe)
             {
-                _entitlementChecker.GetUserEntitlementStatus(player.userId, levelId);
+                // This might be a bad idea, race condition can cause packets that scale with the amount of players
+                _entitlementChecker.GetUserEntitlementStatus(connectedPlayer.userId, hostSelectedLevel);
             }
         }
 
-        private void SetLevelEntitlement(IConnectedPlayer player, EntitlementsStatus status)
+        private void SetLevelEntitlement(Image backgroundImage, EntitlementsStatus status)
         {
-            //Plugin.Log?.Debug($"{player.userId} has entitlement {status.ToString()}");
             Color backgroundColor = status switch
             {
                 EntitlementsStatus.Ok => green,
@@ -116,16 +87,11 @@ namespace MultiplayerExtensions.Objects
                 _ => normal,
             };
 
-            backgroundColor.a = player.isMe ? alphaIsMe : alphaIsNotMe;
-            _localPlayerBackgroundImage.color = backgroundColor;
+            backgroundColor.a = alphaIsNotMe;
+            backgroundImage.color = backgroundColor;
         }
 
         private void HandleSetIsEntitledToLevel(string userId, string levelId, EntitlementsStatus status)
-        {
-            if (userId == lastPlayer?.userId && levelId == lastLevelId)
-            {
-                SetLevelEntitlement(lastPlayer, status);
-            }
-        }
+            => _playerListView.SetDataToTable();
     }
 }
