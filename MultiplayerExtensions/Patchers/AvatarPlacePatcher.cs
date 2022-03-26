@@ -1,12 +1,10 @@
 ﻿using HarmonyLib;
 using MultiplayerExtensions.Environments;
-using MultiplayerExtensions.Environments.Lobby;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
 
 namespace MultiplayerExtensions.Patchers
 {

@@ -59,7 +59,7 @@ namespace MultiplayerExtensions.Environment
 
         public void OnEnable()
         {
-            _gameplayAnimator = GetComponent<MultiplayerGameplayAnimator>();
+            _gameplayAnimator = GetComponentInChildren<MultiplayerGameplayAnimator>();
             _syncState = _scoreProvider.GetSyncStateForPlayer(_connectedPlayer);
             _leadPlayerProvider.newLeaderWasSelectedEvent += HandleNewLeaderWasSelected;
         }
