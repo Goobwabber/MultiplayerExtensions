@@ -158,8 +158,6 @@ namespace MultiplayerExtensions.Patchers
                 if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
                 {
                     _logger.Info($"Activating environment.");
-                    ____container.Inject(____container.Resolve<EnvironmentColorManager>());
-
                     foreach (GameObject gameObject in objectsToEnable)
                     {
                         gameObject.SetActive(true);
@@ -181,6 +179,17 @@ namespace MultiplayerExtensions.Patchers
         {
             DiContainer container = __instance.GetProperty<DiContainer, MonoInstallerBase>("Container");
             return !container.HasBinding<EnvironmentBrandingManager.InitData>();
+        }
+
+        [AffinityPostfix]
+        [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
+        private void SetEnvironmentColors(GameplayCoreInstaller __instance)
+        {
+            DiContainer container = __instance.GetProperty<DiContainer, MonoInstallerBase>("Container");
+            var colorManager = container.Resolve<EnvironmentColorManager>();
+            container.Inject(colorManager);
+            colorManager.Awake();
+            colorManager.Start();
         }
     }
 }
