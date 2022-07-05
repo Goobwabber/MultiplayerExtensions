@@ -1,6 +1,7 @@
 ﻿using MultiplayerExtensions.Environments;
 using MultiplayerExtensions.Objects;
 using MultiplayerExtensions.Patchers;
+using MultiplayerExtensions.UI;
 using UnityEngine;
 using Zenject;
 
@@ -13,6 +14,7 @@ namespace MultiplayerExtensions.Installers
             //Container.BindInterfacesAndSelfTo<MpexPlayerTableCell>().AsSingle();
             Container.BindInterfacesAndSelfTo<AvatarPlacePatcher>().AsSingle();
             Container.BindInterfacesAndSelfTo<EnvironmentPatcher>().AsSingle();
+            Container.BindInterfacesAndSelfTo<MpexGameplaySetup>().AsSingle();
 
             // needed for local player's player place
             var avatarPlace = Container.Resolve<MenuEnvironmentManager>().transform.Find("MultiplayerLobbyEnvironment").Find("LobbyAvatarPlace").gameObject;
