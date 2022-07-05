@@ -17,31 +17,28 @@ namespace MultiplayerExtensions.Patchers
     {
         private readonly GameplaySetupViewController _gameplaySetup;
         private readonly GameScenesManager _scenesManager;
+        private readonly Config _config;
         private readonly SiraLog _logger;
 
         internal EnvironmentPatcher(
             GameplaySetupViewController gameplaySetup,
             GameScenesManager scenesManager,
+            Config config,
             SiraLog logger)
         {
             _gameplaySetup = gameplaySetup;
             _scenesManager = scenesManager;
+            _config = config;
             _logger = logger;
         }
 
-        private static readonly MethodInfo _setupGameplaySetup = typeof(GameplaySetupViewController).GetMethod(nameof(GameplaySetupViewController.Setup));
-        private static readonly MethodInfo _setupGameplaySetupAttacher = SymbolExtensions.GetMethodInfo(() => SetupGameplaySetupAttacher(null!, false, false, false, false, 0));
-
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(GameServerLobbyFlowCoordinator), "DidActivate")]
-        private IEnumerable<CodeInstruction> EnableEnvironmentTab(IEnumerable<CodeInstruction> instructions) =>
-            new CodeMatcher(instructions)
-                .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _setupGameplaySetup))
-                .Set(OpCodes.Callvirt, _setupGameplaySetupAttacher)
-                .InstructionEnumeration();
-
-        private static void SetupGameplaySetupAttacher(GameplaySetupViewController gameplaySetup, bool showModifiers, bool showEnvironmentOverrideSettings, bool showColorSchemesSettings, bool showMultiplayer, PlayerSettingsPanelController.PlayerSettingsPanelLayout playerSettingsPanelLayout) =>
-            gameplaySetup.Setup(showModifiers, true, showColorSchemesSettings, showMultiplayer, playerSettingsPanelLayout);
+        [AffinityPrefix]
+        [AffinityPatch(typeof(GameplaySetupViewController), nameof(GameplaySetupViewController.Setup))]
+        private void EnableEnvironmentTab(bool showModifiers, ref bool showEnvironmentOverrideSettings, bool showColorSchemesSettings, bool showMultiplayer, PlayerSettingsPanelController.PlayerSettingsPanelLayout playerSettingsPanelLayout)
+        {
+            if (showMultiplayer)
+                showEnvironmentOverrideSettings = _config.SoloEnvironment;
+        }
 
         private EnvironmentInfoSO _originalEnvironmentInfo = null!;
 
@@ -49,10 +46,12 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
         private void SetEnvironmentScene(IDifficultyBeatmap difficultyBeatmap, ref EnvironmentInfoSO ____multiplayerEnvironmentInfo)
         {
-            if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+            if (_config.SoloEnvironment)
             {
                 _originalEnvironmentInfo = ____multiplayerEnvironmentInfo;
-                ____multiplayerEnvironmentInfo = _gameplaySetup.environmentOverrideSettings.GetOverrideEnvironmentInfoForType(difficultyBeatmap.GetEnvironmentInfo().environmentType);
+                ____multiplayerEnvironmentInfo = difficultyBeatmap.GetEnvironmentInfo();
+                if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+                    ____multiplayerEnvironmentInfo = _gameplaySetup.environmentOverrideSettings.GetOverrideEnvironmentInfoForType(____multiplayerEnvironmentInfo.environmentType);
             }
         }
 
@@ -60,17 +59,15 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
         private void ResetEnvironmentScene(IDifficultyBeatmap difficultyBeatmap, ref EnvironmentInfoSO ____multiplayerEnvironmentInfo)
         {
-            if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
-            {
+            if (_config.SoloEnvironment)
                 ____multiplayerEnvironmentInfo = _originalEnvironmentInfo;
-            }
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(ScenesTransitionSetupDataSO), "Init")]
         private void AddEnvironmentOverrides(ref SceneInfo[] scenes)
         {
-            if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments && scenes.Any(scene => scene.name.Contains("Multiplayer")))
+            if (_config.SoloEnvironment && scenes.Any(scene => scene.name.Contains("Multiplayer")))
             {
                 scenes = scenes.AddItem(_originalEnvironmentInfo.sceneInfo).ToArray();
             }
@@ -83,7 +80,7 @@ namespace MultiplayerExtensions.Patchers
         private void PreventEnvironmentInjection(SceneDecoratorContext __instance, List<MonoBehaviour> monoBehaviours, DiContainer ____container)
         {
             var scene = __instance.gameObject.scene;
-            if (_scenesManager.IsSceneInStack("MultiplayerEnvironment") && _gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+            if (_scenesManager.IsSceneInStack("MultiplayerEnvironment") && _config.SoloEnvironment)
             {
                 _logger.Info($"Fixing bind conflicts on scene '{scene.name}'.");
                 List<MonoBehaviour> removedBehaviours = new();
@@ -120,7 +117,7 @@ namespace MultiplayerExtensions.Patchers
         private void PreventEnvironmentInstall(SceneDecoratorContext __instance, List<InstallerBase> ____normalInstallers, List<Type> ____normalInstallerTypes, List<ScriptableObjectInstaller> ____scriptableObjectInstallers, List<MonoInstaller> ____monoInstallers, List<MonoInstaller> ____installerPrefabs)
         {
             var scene = __instance.gameObject.scene;
-            if (_scenesManager.IsSceneInStack("MultiplayerEnvironment") && _gameplaySetup.environmentOverrideSettings.overrideEnvironments && scene.name.Contains("Environment") && !scene.name.Contains("Multiplayer"))
+            if (_scenesManager.IsSceneInStack("MultiplayerEnvironment") && _config.SoloEnvironment && scene.name.Contains("Environment") && !scene.name.Contains("Multiplayer"))
             {
                 _logger.Info($"Preventing environment installation.");
 
@@ -171,7 +168,7 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(GameObjectContext), "GetInjectableMonoBehaviours")]
         private void InjectEnvironment(GameObjectContext __instance, List<MonoBehaviour> monoBehaviours)
         {
-            if (__instance.transform.name.Contains("LocalActivePlayer") && _gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+            if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
                 _logger.Info($"Injecting environment.");
                 monoBehaviours.AddRange(_behavioursToInject);
@@ -182,7 +179,7 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
         private void InstallEnvironment(GameObjectContext __instance, List<InstallerBase> ____normalInstallers, List<Type> ____normalInstallerTypes, List<ScriptableObjectInstaller> ____scriptableObjectInstallers, List<MonoInstaller> ____monoInstallers, List<MonoInstaller> ____installerPrefabs)
         {
-            if (__instance.transform.name.Contains("LocalActivePlayer") && _gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+            if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
                 _logger.Info($"Installing environment.");
                 ____normalInstallers.AddRange(_normalInstallers);
@@ -199,7 +196,7 @@ namespace MultiplayerExtensions.Patchers
         {
             if (__instance.transform.name.Contains("LocalActivePlayer"))
             {
-                if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+                if (_config.SoloEnvironment)
                 {
                     _logger.Info($"Activating environment.");
                     foreach (GameObject gameObject in objectsToEnable)
