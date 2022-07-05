@@ -1,0 +1,16 @@
+﻿using MultiplayerExtensions.Environment;
+using Tweening;
+using Zenject;
+
+namespace MultiplayerExtensions.Installers
+{
+    public class MpexLocalActivePlayerInstaller : MonoInstaller
+    {
+        public override void InstallBindings()
+        {
+            // stuff needed for solo environments to work
+            Container.BindInterfacesAndSelfTo<MpexLevelEndActions>().AsSingle();
+            Container.Bind<EnvironmentContext>().FromInstance(EnvironmentContext.Gameplay).AsSingle();
+        }
+    }
+}

@@ -109,6 +109,35 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
+        private List<InstallerBase> _normalInstallers = new();
+        private List<Type> _normalInstallerTypes = new();
+        private List<ScriptableObjectInstaller> _scriptableObjectInstallers = new();
+        private List<MonoInstaller> _monoInstallers = new();
+        private List<MonoInstaller> _installerPrefabs = new();
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(SceneDecoratorContext), "InstallDecoratorInstallers")]
+        private void PreventEnvironmentInstall(SceneDecoratorContext __instance, List<InstallerBase> ____normalInstallers, List<Type> ____normalInstallerTypes, List<ScriptableObjectInstaller> ____scriptableObjectInstallers, List<MonoInstaller> ____monoInstallers, List<MonoInstaller> ____installerPrefabs)
+        {
+            var scene = __instance.gameObject.scene;
+            if (_scenesManager.IsSceneInStack("MultiplayerEnvironment") && _gameplaySetup.environmentOverrideSettings.overrideEnvironments && scene.name.Contains("Environment") && !scene.name.Contains("Multiplayer"))
+            {
+                _logger.Info($"Preventing environment installation.");
+
+                _normalInstallers = new(____normalInstallers);
+                _normalInstallerTypes = new(____normalInstallerTypes);
+                _scriptableObjectInstallers = new(____scriptableObjectInstallers);
+                _monoInstallers = new(____monoInstallers);
+                _installerPrefabs = new(____installerPrefabs);
+
+                ____normalInstallers.Clear();
+                ____normalInstallerTypes.Clear();
+                ____scriptableObjectInstallers.Clear();
+                ____monoInstallers.Clear();
+                ____installerPrefabs.Clear();
+            }
+        }
+
         private List<GameObject> objectsToEnable = new();
 
         [AffinityPrefix]
@@ -146,6 +175,21 @@ namespace MultiplayerExtensions.Patchers
             {
                 _logger.Info($"Injecting environment.");
                 monoBehaviours.AddRange(_behavioursToInject);
+            }
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
+        private void InstallEnvironment(GameObjectContext __instance, List<InstallerBase> ____normalInstallers, List<Type> ____normalInstallerTypes, List<ScriptableObjectInstaller> ____scriptableObjectInstallers, List<MonoInstaller> ____monoInstallers, List<MonoInstaller> ____installerPrefabs)
+        {
+            if (__instance.transform.name.Contains("LocalActivePlayer") && _gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+            {
+                _logger.Info($"Installing environment.");
+                ____normalInstallers.AddRange(_normalInstallers);
+                ____normalInstallerTypes.AddRange(_normalInstallerTypes);
+                ____scriptableObjectInstallers.AddRange(_scriptableObjectInstallers);
+                ____monoInstallers.AddRange(_monoInstallers);
+                ____installerPrefabs.AddRange(_installerPrefabs);
             }
         }
 

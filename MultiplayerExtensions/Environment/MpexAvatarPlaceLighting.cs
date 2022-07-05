@@ -34,7 +34,7 @@ namespace MultiplayerExtensions.Environments
             _config = config;
         }
 
-        private void Awake()
+        private void Start()
         {
             _lights = GetComponentsInChildren<TubeBloomPrePassLight>().ToList();
 
