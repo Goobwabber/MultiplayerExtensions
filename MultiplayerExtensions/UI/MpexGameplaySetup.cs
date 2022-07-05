@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
 using IPA.Utilities;
 using SiraUtil.Logging;
 using System;
@@ -9,7 +10,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.UI
 {
-    public class MpexGameplaySetup : IInitializable, IDisposable
+    public class MpexGameplaySetup : NotifiableBase, IInitializable, IDisposable
     {
         public const string ResourcePath = "MultiplayerExtensions.UI.MpexGameplaySetup.bsml";
 
@@ -67,6 +68,7 @@ namespace MultiplayerExtensions.UI
                     _showMultiplayer(ref _gameplaySetup),
                     PlayerSettingsPanelController.PlayerSettingsPanelLayout.Multiplayer
                 );
+                NotifyPropertyChanged();
             }
         }
 
@@ -74,14 +76,22 @@ namespace MultiplayerExtensions.UI
         private bool _lagReducer
         {
             get => _config.LagReducer;
-            set => _config.LagReducer = value;
+            set
+            {
+                _config.LagReducer = value;
+                NotifyPropertyChanged();
+            }
         }
 
         [UIValue("miss-lighting")]
         private bool _missLighting
         {
             get => _config.MissLighting;
-            set => _config.MissLighting = value;
+            set
+            {
+                _config.MissLighting = value;
+                NotifyPropertyChanged();
+            }
         }
     }
 }

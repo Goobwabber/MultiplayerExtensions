@@ -1,6 +1,6 @@
 ﻿<vertical id='vert'>
 	<text text='MultiplayerExtensions' pad-bottom='0' align='Bottom' size-delta-y='10'/>
-	<toggle-setting value='solo-environment' apply-on-change='true' text='Solo Environment' hover-hint='Uses the solo environment instead of the multiplayer environment. Chroma and Noodle compatible!'/>
-	<toggle-setting value='lag-reducer' apply-on-change='true' text='Lag Reducer' hover-hint='Disables notes and walls of other players.'/>
-	<toggle-setting value='miss-lighting' apply-on-change='true' text='Miss Lighting' hover-hint="Turns a player's platform red when they miss a note."/>
+	<toggle-setting value='solo-environment' apply-on-change='true' text='Solo Environment' hover-hint='Uses the solo environment instead of the multiplayer environment. Chroma and Noodle compatible!' bind-value='true'/>
+	<toggle-setting value='lag-reducer' apply-on-change='true' text='Lag Reducer' hover-hint='Disables notes and walls of other players.' bind-value='true'/>
+	<toggle-setting value='miss-lighting' apply-on-change='true' text='Miss Lighting' hover-hint="Turns a player's platform red when they miss a note." bind-value='true'/>
 </vertical>
