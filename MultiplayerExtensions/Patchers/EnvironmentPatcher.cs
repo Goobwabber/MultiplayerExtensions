@@ -46,13 +46,13 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
         private void SetEnvironmentScene(IDifficultyBeatmap difficultyBeatmap, ref EnvironmentInfoSO ____multiplayerEnvironmentInfo)
         {
-            if (_config.SoloEnvironment)
-            {
-                _originalEnvironmentInfo = ____multiplayerEnvironmentInfo;
-                ____multiplayerEnvironmentInfo = difficultyBeatmap.GetEnvironmentInfo();
-                if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
-                    ____multiplayerEnvironmentInfo = _gameplaySetup.environmentOverrideSettings.GetOverrideEnvironmentInfoForType(____multiplayerEnvironmentInfo.environmentType);
-            }
+            if (!_config.SoloEnvironment)
+                return;
+
+            _originalEnvironmentInfo = ____multiplayerEnvironmentInfo;
+            ____multiplayerEnvironmentInfo = difficultyBeatmap.GetEnvironmentInfo();
+            if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
+                ____multiplayerEnvironmentInfo = _gameplaySetup.environmentOverrideSettings.GetOverrideEnvironmentInfoForType(____multiplayerEnvironmentInfo.environmentType);
         }
 
         [AffinityPostfix]
@@ -88,8 +88,7 @@ namespace MultiplayerExtensions.Patchers
                 //if (scene.name == "MultiplayerEnvironment")
                 //    removedBehaviours = monoBehaviours.FindAll(behaviour => behaviour is ZenjectBinding binding && binding.Components.Any(c => c is LightWithIdManager));
                 if (scene.name.Contains("Environment") && !scene.name.Contains("Multiplayer"))
-                    removedBehaviours = monoBehaviours.FindAll(behaviour => (behaviour is ZenjectBinding binding && 
-                    binding.Components.Any(c => c is LightWithIdManager)));
+                    removedBehaviours = monoBehaviours.FindAll(behaviour => (behaviour is ZenjectBinding binding && binding.Components.Any(c => c is LightWithIdManager)));
 
                 if (removedBehaviours.Any())
                 {
@@ -191,26 +190,23 @@ namespace MultiplayerExtensions.Patchers
         }
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(GameObjectContext), "RunInternal")]
-        private void ActivateEnvironment(GameObjectContext __instance, DiContainer ____container)
+        [AffinityPatch(typeof(GameObjectContext), "InstallSceneBindings")]
+        private void ActivateEnvironment(GameObjectContext __instance)
         {
-            if (__instance.transform.name.Contains("LocalActivePlayer"))
+            if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
-                if (_config.SoloEnvironment)
+                _logger.Info($"Activating environment.");
+                foreach (GameObject gameObject in objectsToEnable)
                 {
-                    _logger.Info($"Activating environment.");
-                    foreach (GameObject gameObject in objectsToEnable)
-                    {
-                        gameObject.SetActive(true);
-                        var hud = gameObject.transform.GetComponentInChildren<CoreGameHUDController>();
-                        if (hud != null)
-                            hud.gameObject.SetActive(false);
-                    }
-
-                    var activeObjects = __instance.transform.Find("IsActiveObjects");
-                    activeObjects.Find("Lasers").gameObject.SetActive(false);
-                    activeObjects.Find("Construction").gameObject.SetActive(false);
+                    gameObject.SetActive(true);
+                    var hud = gameObject.transform.GetComponentInChildren<CoreGameHUDController>();
+                    if (hud != null)
+                        hud.gameObject.SetActive(false);
                 }
+
+                var activeObjects = __instance.transform.Find("IsActiveObjects");
+                activeObjects.Find("Lasers").gameObject.SetActive(false);
+                activeObjects.Find("Construction").gameObject.SetActive(false);
             }
         }
 
@@ -232,5 +228,39 @@ namespace MultiplayerExtensions.Patchers
             colorManager.Awake();
             colorManager.Start();
         }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
+        private void CustomSongColorsPatch(ref IDifficultyBeatmap difficultyBeatmap, ref ColorScheme? overrideColorScheme)
+        {
+            if (!_config.SoloEnvironment)
+                return;
+            var songData = SongCore.Collections.RetrieveDifficultyData(difficultyBeatmap);
+            if (songData == null)
+                return;
+            if (songData._colorLeft == null && songData._colorRight == null && songData._envColorLeft == null && songData._envColorRight == null && songData._obstacleColor == null && songData._envColorLeftBoost == null && songData._envColorRightBoost == null)
+                return;
+
+            var environmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
+            var fallbackScheme = overrideColorScheme ?? new ColorScheme(environmentInfoSO.colorScheme);
+
+            _logger.Info("Custom Song Colors On");
+            var saberLeft = songData._colorLeft == null ? fallbackScheme.saberAColor : ColorFromMapColor(songData._colorLeft);
+            var saberRight = songData._colorRight == null ? fallbackScheme.saberBColor : ColorFromMapColor(songData._colorRight);
+            var envLeft = songData._envColorLeft == null
+                ? songData._colorLeft == null ? fallbackScheme.environmentColor0 : ColorFromMapColor(songData._colorLeft)
+                : ColorFromMapColor(songData._envColorLeft);
+            var envRight = songData._envColorRight == null
+                ? songData._colorRight == null ? fallbackScheme.environmentColor1 : ColorFromMapColor(songData._colorRight)
+                : ColorFromMapColor(songData._envColorRight);
+            var envLeftBoost = songData._envColorLeftBoost == null ? envLeft : ColorFromMapColor(songData._envColorLeftBoost);
+            var envRightBoost = songData._envColorRightBoost == null ? envRight : ColorFromMapColor(songData._envColorRightBoost);
+            var obstacle = songData._obstacleColor == null ? fallbackScheme.obstaclesColor : ColorFromMapColor(songData._obstacleColor);
+            overrideColorScheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, saberLeft, saberRight, envLeft,
+                envRight, true, envLeftBoost, envRightBoost, obstacle);
+        }
+
+        private Color ColorFromMapColor(SongCore.Data.ExtraSongData.MapColor mapColor) =>
+            new Color(mapColor.r, mapColor.g, mapColor.b);
     }
 }
