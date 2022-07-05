@@ -207,6 +207,8 @@ namespace MultiplayerExtensions.Patchers
                 var activeObjects = __instance.transform.Find("IsActiveObjects");
                 activeObjects.Find("Lasers").gameObject.SetActive(false);
                 activeObjects.Find("Construction").gameObject.SetActive(false);
+                activeObjects.Find("BigSmokePS").gameObject.SetActive(false);
+                activeObjects.Find("DustPS").gameObject.SetActive(false);
             }
         }
 
