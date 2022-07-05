@@ -1,5 +1,5 @@
 ﻿using MultiplayerExtensions.Environment;
-using Tweening;
+using MultiplayerExtensions.Patchers;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -11,6 +11,9 @@ namespace MultiplayerExtensions.Installers
             // stuff needed for solo environments to work
             Container.BindInterfacesAndSelfTo<MpexLevelEndActions>().AsSingle();
             Container.Bind<EnvironmentContext>().FromInstance(EnvironmentContext.Gameplay).AsSingle();
+
+            // other stuff
+            Container.BindInterfacesAndSelfTo<LagReducerPatcher>().AsSingle();
         }
     }
 }

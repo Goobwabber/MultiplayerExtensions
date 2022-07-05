@@ -32,6 +32,7 @@ namespace MultiplayerExtensions
             zenjector.Install<MpexLobbyInstaller, MultiplayerLobbyInstaller>();
             zenjector.Install<MpexGameInstaller>(Location.MultiplayerCore);
             zenjector.Install<MpexLocalActivePlayerInstaller, MultiplayerLocalActivePlayerInstaller>();
+            zenjector.Install<MpexLocalInactivePlayerInstaller, MultiplayerLocalInactivePlayerInstaller>();
         }
 
         [OnEnable]
