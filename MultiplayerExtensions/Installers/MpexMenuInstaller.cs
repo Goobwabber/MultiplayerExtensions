@@ -13,7 +13,7 @@ namespace MultiplayerExtensions.Installers
         {
             //Container.BindInterfacesAndSelfTo<MpexPlayerTableCell>().AsSingle();
             Container.BindInterfacesAndSelfTo<AvatarPlacePatcher>().AsSingle();
-            Container.BindInterfacesAndSelfTo<EnvironmentPatcher>().AsSingle();
+            Container.BindInterfacesAndSelfTo<MenuEnvironmentPatcher>().AsSingle();
             Container.BindInterfacesAndSelfTo<MpexGameplaySetup>().AsSingle();
 
             // needed for local player's player place

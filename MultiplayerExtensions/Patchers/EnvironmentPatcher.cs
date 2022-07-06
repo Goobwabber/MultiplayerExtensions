@@ -15,62 +15,18 @@ namespace MultiplayerExtensions.Patchers
 {
     public class EnvironmentPatcher : IAffinity
     {
-        private readonly GameplaySetupViewController _gameplaySetup;
         private readonly GameScenesManager _scenesManager;
         private readonly Config _config;
         private readonly SiraLog _logger;
 
         internal EnvironmentPatcher(
-            GameplaySetupViewController gameplaySetup,
             GameScenesManager scenesManager,
             Config config,
             SiraLog logger)
         {
-            _gameplaySetup = gameplaySetup;
             _scenesManager = scenesManager;
             _config = config;
             _logger = logger;
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(GameplaySetupViewController), nameof(GameplaySetupViewController.Setup))]
-        private void EnableEnvironmentTab(bool showModifiers, ref bool showEnvironmentOverrideSettings, bool showColorSchemesSettings, bool showMultiplayer, PlayerSettingsPanelController.PlayerSettingsPanelLayout playerSettingsPanelLayout)
-        {
-            if (showMultiplayer)
-                showEnvironmentOverrideSettings = _config.SoloEnvironment;
-        }
-
-        private EnvironmentInfoSO _originalEnvironmentInfo = null!;
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
-        private void SetEnvironmentScene(IDifficultyBeatmap difficultyBeatmap, ref EnvironmentInfoSO ____multiplayerEnvironmentInfo)
-        {
-            if (!_config.SoloEnvironment)
-                return;
-
-            _originalEnvironmentInfo = ____multiplayerEnvironmentInfo;
-            ____multiplayerEnvironmentInfo = difficultyBeatmap.GetEnvironmentInfo();
-            if (_gameplaySetup.environmentOverrideSettings.overrideEnvironments)
-                ____multiplayerEnvironmentInfo = _gameplaySetup.environmentOverrideSettings.GetOverrideEnvironmentInfoForType(____multiplayerEnvironmentInfo.environmentType);
-        }
-
-        [AffinityPostfix]
-        [AffinityPatch(typeof(MultiplayerLevelScenesTransitionSetupDataSO), "Init")]
-        private void ResetEnvironmentScene(IDifficultyBeatmap difficultyBeatmap, ref EnvironmentInfoSO ____multiplayerEnvironmentInfo)
-        {
-            if (_config.SoloEnvironment)
-                ____multiplayerEnvironmentInfo = _originalEnvironmentInfo;
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(ScenesTransitionSetupDataSO), "Init")]
-        private void AddEnvironmentOverrides(ref SceneInfo[] scenes)
-        {
-            if (_config.SoloEnvironment && scenes.Any(scene => scene.name.Contains("Multiplayer")))
-            {
-                scenes = scenes.AddItem(_originalEnvironmentInfo.sceneInfo).ToArray();
-            }
         }
 
         private List<MonoBehaviour> _behavioursToInject = new();
@@ -148,6 +104,13 @@ namespace MultiplayerExtensions.Patchers
                     _logger.Info($"Preventing environment activation. ({defaultScene})");
                     objectsToEnable = SceneManager.GetSceneByName(defaultScene).GetRootGameObjects().ToList();
                     scenesToPresent.Remove(defaultScene);
+
+                    // fix ring lighting dogshit
+                    _allowRingCreation = true;
+                    var trackLaneRingManagers = objectsToEnable[0].transform.GetComponentsInChildren<TrackLaneRingsManager>();
+                    foreach (var trackLaneRingManager in trackLaneRingManagers)
+                        trackLaneRingManager.Awake();
+                    _allowRingCreation = false;
                 } 
                 else
                 {
@@ -189,6 +152,8 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
+        private Dictionary<Type, MethodInfo?> _methodInfoCache = new();
+
         [AffinityPostfix]
         [AffinityPatch(typeof(GameObjectContext), "InstallSceneBindings")]
         private void ActivateEnvironment(GameObjectContext __instance)
@@ -220,15 +185,38 @@ namespace MultiplayerExtensions.Patchers
             return !container.HasBinding<EnvironmentBrandingManager.InitData>();
         }
 
+        private bool _allowRingCreation = false;
+
         [AffinityPostfix]
         [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
         private void SetEnvironmentColors(GameplayCoreInstaller __instance)
         {
+            if (!_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
+                return;
+
             DiContainer container = __instance.GetProperty<DiContainer, MonoInstallerBase>("Container");
             var colorManager = container.Resolve<EnvironmentColorManager>();
             container.Inject(colorManager);
             colorManager.Awake();
             colorManager.Start();
+
+            foreach (var gameObject in objectsToEnable)
+            {
+                var lightSwitchEventEffects = gameObject.transform.GetComponentsInChildren<LightSwitchEventEffect>();
+                foreach (var component in lightSwitchEventEffects)
+                    component.Awake();
+            }
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(TrackLaneRingsManager), "Awake")]
+        private bool PreventRingCreation()
+        {
+            if (!_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
+                return false;
+
+            _logger.Info($"Allow ring creation: {_allowRingCreation}");
+            return _allowRingCreation;
         }
 
         [AffinityPrefix]

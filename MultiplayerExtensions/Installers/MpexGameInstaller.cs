@@ -1,5 +1,7 @@
 ﻿using IPA.Utilities;
 using MultiplayerExtensions.Environment;
+using MultiplayerExtensions.Patchers;
+using MultiplayerExtensions.Players;
 using SiraUtil.Extras;
 using SiraUtil.Objects.Multiplayer;
 using UnityEngine;
