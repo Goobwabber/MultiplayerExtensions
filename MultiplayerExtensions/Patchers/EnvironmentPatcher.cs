@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using IPA.Utilities;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
@@ -59,6 +59,10 @@ namespace MultiplayerExtensions.Patchers
                     monoBehaviours.Clear();
                 }
             }
+            else
+            {
+                _behavioursToInject.Clear();
+            }
         }
 
         private List<InstallerBase> _normalInstallers = new();
@@ -87,6 +91,14 @@ namespace MultiplayerExtensions.Patchers
                 ____scriptableObjectInstallers.Clear();
                 ____monoInstallers.Clear();
                 ____installerPrefabs.Clear();
+            }
+            else
+            {
+                _normalInstallers.Clear();
+                _normalInstallerTypes.Clear();
+                _scriptableObjectInstallers.Clear();
+                _monoInstallers.Clear();
+                _installerPrefabs.Clear();
             }
         }
 
@@ -152,6 +164,20 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
+        [AffinityPrefix]
+        [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
+        private void FuckYouSiraUtil(GameObjectContext __instance)
+        {
+            if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
+            {
+                DiContainer container = __instance.GetProperty<DiContainer, GameObjectContext>("Container");
+                var hud = (CoreGameHUDController)_behavioursToInject.Find(x => x is CoreGameHUDController);
+                container.Bind<CoreGameHUDController>().FromInstance(hud).AsSingle();
+                var multihud = __instance.transform.GetComponentInChildren<CoreGameHUDController>();
+                multihud.gameObject.SetActive(false);
+            }
+        }
+
         private Dictionary<Type, MethodInfo?> _methodInfoCache = new();
 
         [AffinityPostfix]
@@ -162,18 +188,14 @@ namespace MultiplayerExtensions.Patchers
             {
                 _logger.Info($"Activating environment.");
                 foreach (GameObject gameObject in objectsToEnable)
-                {
                     gameObject.SetActive(true);
-                    var hud = gameObject.transform.GetComponentInChildren<CoreGameHUDController>();
-                    if (hud != null)
-                        hud.gameObject.SetActive(false);
-                }
 
                 var activeObjects = __instance.transform.Find("IsActiveObjects");
                 activeObjects.Find("Lasers").gameObject.SetActive(false);
                 activeObjects.Find("Construction").gameObject.SetActive(false);
                 activeObjects.Find("BigSmokePS").gameObject.SetActive(false);
                 activeObjects.Find("DustPS").gameObject.SetActive(false);
+                activeObjects.Find("DirectionalLights").gameObject.SetActive(false);
             }
         }
 
