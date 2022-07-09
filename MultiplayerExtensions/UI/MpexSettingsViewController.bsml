@@ -1,0 +1,9 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
+		<text text='Preferences' align='Center' font-size='8' />
+	</horizontal>
+	<settings-container>
+    <toggle-setting value='lag-reducer' apply-on-change='true' text='Lag Reducer' hover-hint='Disables notes and walls of other players.' bind-value='true'/>
+    <toggle-setting value='miss-lighting' apply-on-change='true' text='Miss Lighting' hover-hint="Turns a player's platform red when they miss a note." bind-value='true'/>
+	</settings-container>
+</bg>

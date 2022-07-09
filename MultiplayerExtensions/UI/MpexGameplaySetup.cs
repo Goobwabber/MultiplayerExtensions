@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using HMUI;
 using IPA.Utilities;
 using SiraUtil.Logging;
 using System;
@@ -25,16 +26,22 @@ namespace MultiplayerExtensions.UI
 
         private GameplaySetupViewController _gameplaySetup;
         private MultiplayerSettingsPanelController _multiplayerSettingsPanel;
+        private MainFlowCoordinator _mainFlowCoordinator;
+        private MpexSetupFlowCoordinator _setupFlowCoordinator;
         private Config _config;
         private SiraLog _logger;
 
         internal MpexGameplaySetup(
             GameplaySetupViewController gameplaySetup,
+            MainFlowCoordinator mainFlowCoordinator,
+            MpexSetupFlowCoordinator setupFlowCoordinator,
             Config config,
             SiraLog logger)
         {
             _gameplaySetup = gameplaySetup;
             _multiplayerSettingsPanel = gameplaySetup.GetField<MultiplayerSettingsPanelController, GameplaySetupViewController>("_multiplayerSettingsPanelController");
+            _mainFlowCoordinator = mainFlowCoordinator;
+            _setupFlowCoordinator = setupFlowCoordinator;
             _config = config;
             _logger = logger;
         }
@@ -49,6 +56,25 @@ namespace MultiplayerExtensions.UI
         public void Dispose()
         {
             
+        }
+
+        [UIAction("preferences-click")]
+        private void PresentPreferences()
+        {
+            FlowCoordinator deepestChildFlowCoordinator = DeepestChildFlowCoordinator(_mainFlowCoordinator);
+            _setupFlowCoordinator.parentFlowCoordinator = deepestChildFlowCoordinator;
+            deepestChildFlowCoordinator.PresentFlowCoordinator(_setupFlowCoordinator);
+        }
+
+        private FlowCoordinator DeepestChildFlowCoordinator(FlowCoordinator root)
+        {
+            var flow = root.childFlowCoordinator;
+            if (flow == null) return root;
+            if (flow.childFlowCoordinator == null || flow.childFlowCoordinator == flow)
+            {
+                return flow;
+            }
+            return DeepestChildFlowCoordinator(flow);
         }
 
         [UIObject("vert")]
@@ -68,28 +94,6 @@ namespace MultiplayerExtensions.UI
                     _showMultiplayer(ref _gameplaySetup),
                     PlayerSettingsPanelController.PlayerSettingsPanelLayout.Multiplayer
                 );
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIValue("lag-reducer")]
-        private bool _lagReducer
-        {
-            get => _config.LagReducer;
-            set
-            {
-                _config.LagReducer = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIValue("miss-lighting")]
-        private bool _missLighting
-        {
-            get => _config.MissLighting;
-            set
-            {
-                _config.MissLighting = value;
                 NotifyPropertyChanged();
             }
         }

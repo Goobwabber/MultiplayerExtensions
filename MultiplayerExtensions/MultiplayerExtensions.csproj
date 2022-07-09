@@ -188,11 +188,15 @@
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
     <None Remove="Assets\IconSteam64.png" />
+    <None Remove="UI\EmptyViewController.bsml" />
     <None Remove="UI\MpexGameplaySetup.bsml" />
+    <None Remove="UI\MpexSettingsViewController.bsml" />
     <EmbeddedResource Include="Assets\IconSteam64.png" />
     <None Remove="Assets\IconOculus64.png" />
     <EmbeddedResource Include="Assets\IconOculus64.png" />
+    <EmbeddedResource Include="UI\EmptyViewController.bsml" />
     <EmbeddedResource Include="UI\MpexGameplaySetup.bsml" />
+    <EmbeddedResource Include="UI\MpexSettingsViewController.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />

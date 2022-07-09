@@ -14,6 +14,10 @@ namespace MultiplayerExtensions.Installers
             //Container.BindInterfacesAndSelfTo<MpexPlayerTableCell>().AsSingle();
             Container.BindInterfacesAndSelfTo<AvatarPlacePatcher>().AsSingle();
             Container.BindInterfacesAndSelfTo<MenuEnvironmentPatcher>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<MpexSetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesAndSelfTo<MpexSettingsViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<EmptyViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<MpexGameplaySetup>().AsSingle();
 
             // needed for local player's player place
