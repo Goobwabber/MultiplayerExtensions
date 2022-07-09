@@ -92,7 +92,7 @@ namespace MultiplayerExtensions.Patchers
                 ____monoInstallers.Clear();
                 ____installerPrefabs.Clear();
             }
-            else
+            else if (!_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
             {
                 _normalInstallers.Clear();
                 _normalInstallerTypes.Clear();
@@ -150,23 +150,23 @@ namespace MultiplayerExtensions.Patchers
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
-        private void InstallEnvironment(GameObjectContext __instance, List<InstallerBase> ____normalInstallers, List<Type> ____normalInstallerTypes, List<ScriptableObjectInstaller> ____scriptableObjectInstallers, List<MonoInstaller> ____monoInstallers, List<MonoInstaller> ____installerPrefabs)
+        [AffinityPatch(typeof(Context), "InstallInstallers", AffinityMethodType.Normal, null, typeof(List<InstallerBase>), typeof(List<Type>), typeof(List<ScriptableObjectInstaller>), typeof(List<MonoInstaller>), typeof(List<MonoInstaller>))]
+        private void InstallEnvironment(Context __instance, List<InstallerBase> normalInstallers, List<Type> normalInstallerTypes, List<ScriptableObjectInstaller> scriptableObjectInstallers, List<MonoInstaller> installers, List<MonoInstaller> installerPrefabs)
         {
-            if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
+            if (__instance is GameObjectContext instance && __instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
                 _logger.Info($"Installing environment.");
-                ____normalInstallers.AddRange(_normalInstallers);
-                ____normalInstallerTypes.AddRange(_normalInstallerTypes);
-                ____scriptableObjectInstallers.AddRange(_scriptableObjectInstallers);
-                ____monoInstallers.AddRange(_monoInstallers);
-                ____installerPrefabs.AddRange(_installerPrefabs);
+                normalInstallers.AddRange(_normalInstallers);
+                normalInstallerTypes.AddRange(_normalInstallerTypes);
+                scriptableObjectInstallers.AddRange(_scriptableObjectInstallers);
+                installers.AddRange(_monoInstallers);
+                installerPrefabs.AddRange(_installerPrefabs);
             }
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
-        private void FuckYouSiraUtil(GameObjectContext __instance)
+        private void FuckYouCountersPlus(GameObjectContext __instance)
         {
             if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
@@ -235,7 +235,7 @@ namespace MultiplayerExtensions.Patchers
         private bool PreventRingCreation()
         {
             if (!_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
-                return false;
+                return true;
 
             _logger.Info($"Allow ring creation: {_allowRingCreation}");
             return _allowRingCreation;
