@@ -39,5 +39,16 @@ namespace MultiplayerExtensions.UI
                 NotifyPropertyChanged();
             }
         }
+
+        [UIValue("disable-avatar-constraints")]
+        private bool _disableAvatarConstraints
+        {
+            get => _config.DisableAvatarConstraints;
+            set
+            {
+                _config.DisableAvatarConstraints = value;
+                NotifyPropertyChanged();
+            }
+        }
     }
 }

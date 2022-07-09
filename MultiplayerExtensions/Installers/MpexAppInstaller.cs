@@ -21,6 +21,7 @@ namespace MultiplayerExtensions.Installers
 			Container.BindInterfacesAndSelfTo<SpriteManager>().AsSingle();
 			Container.BindInterfacesAndSelfTo<MpexPlayerManager>().AsSingle();
 			Container.BindInterfacesAndSelfTo<EnvironmentPatcher>().AsSingle();
+			Container.BindInterfacesAndSelfTo<AvatarPoseRestrictionPatcher>().AsSingle();
 		}
 	}
 }
