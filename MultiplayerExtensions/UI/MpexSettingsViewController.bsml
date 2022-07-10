@@ -5,6 +5,7 @@
 	<settings-container>
     <toggle-setting value='lag-reducer' apply-on-change='true' text='Lag Reducer' hover-hint='Disables notes and walls of other players.' bind-value='true'/>
     <toggle-setting value='miss-lighting' apply-on-change='true' text='Miss Lighting' hover-hint="Turns a player's platform red when they miss a note." bind-value='true'/>
-    <toggle-setting value='disable-avatar-constraints' apply-on-change='true' text='Disable Avatar Position Restrictions' hover-hint="Allows players to move outside of their bounds." bind-value='true'/>
+    <toggle-setting value='disable-avatar-constraints' apply-on-change='true' text='Disable Avatar Position Restrictions' hover-hint='Allows players to move outside of their bounds.' bind-value='true'/>
+    <toggle-setting value='hide-player-platforms' apply-on-change='true' text='Hide Player Platforms' hover-hint="Hides other player's platforms in game." bind-value='true'/>
 	</settings-container>
 </bg>

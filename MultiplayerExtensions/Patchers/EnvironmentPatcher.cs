@@ -201,6 +201,20 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GameObjectContext), "InstallSceneBindings")]
+        private static void HideOtherPlayerPlatforms(GameObjectContext __instance)
+        {
+            if (__instance.transform.name.Contains("ConnectedPlayer") && Plugin.Config.DisableMultiplayerPlatforms)
+            {
+                Plugin.Logger.Info($"Hiding player platforms.");
+
+                var activeObjects = __instance.transform.Find("IsActiveObjects");
+                activeObjects.Find("Lasers").gameObject.SetActive(false);
+                activeObjects.Find("Construction").gameObject.SetActive(false);
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EnvironmentSceneSetup), nameof(EnvironmentSceneSetup.InstallBindings))]
         private static bool RemoveDuplicateInstalls(EnvironmentSceneSetup __instance)

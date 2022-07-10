@@ -10,6 +10,7 @@ namespace MultiplayerExtensions
 
         public virtual bool SoloEnvironment { get; set; } = false;
         public virtual bool DisableAvatarConstraints { get; set; } = false;
+        public virtual bool DisableMultiplayerPlatforms { get; set; } = false;
         public virtual bool LagReducer { get; set; } = false;
         public virtual bool MissLighting { get; set; } = true;
         [UseConverter(typeof(ColorConverter))]

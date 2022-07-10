@@ -50,5 +50,16 @@ namespace MultiplayerExtensions.UI
                 NotifyPropertyChanged();
             }
         }
+
+        [UIValue("hide-player-platforms")]
+        private bool _hidePlayerPlatforms
+        {
+            get => _config.DisableMultiplayerPlatforms;
+            set
+            {
+                _config.DisableMultiplayerPlatforms = value;
+                NotifyPropertyChanged();
+            }
+        }
     }
 }
