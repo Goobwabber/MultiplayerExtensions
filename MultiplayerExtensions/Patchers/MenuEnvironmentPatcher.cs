@@ -21,12 +21,12 @@ namespace MultiplayerExtensions.Patchers
             _logger = logger;
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(GameplaySetupViewController), nameof(GameplaySetupViewController.Setup))]
-        private void EnableEnvironmentTab(bool showModifiers, ref bool showEnvironmentOverrideSettings, bool showColorSchemesSettings, bool showMultiplayer, PlayerSettingsPanelController.PlayerSettingsPanelLayout playerSettingsPanelLayout)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameplaySetupViewController), nameof(GameplaySetupViewController.Setup))]
+        private static void EnableEnvironmentTab(bool showModifiers, ref bool showEnvironmentOverrideSettings, bool showColorSchemesSettings, bool showMultiplayer, PlayerSettingsPanelController.PlayerSettingsPanelLayout playerSettingsPanelLayout)
         {
             if (showMultiplayer)
-                showEnvironmentOverrideSettings = _config.SoloEnvironment;
+                showEnvironmentOverrideSettings = Plugin.Config.SoloEnvironment;
         }
 
         private EnvironmentInfoSO _originalEnvironmentInfo = null!;

@@ -9,20 +9,25 @@ using Conf = IPA.Config.Config;
 
 namespace MultiplayerExtensions
 {
-    [Plugin(RuntimeOptions.SingleStartInit)]
+    [Plugin(RuntimeOptions.DynamicInit)]
     public class Plugin
     {
+        public const string ID = "com.goobwabber.multiplayerextensions";
+
+        internal static IPALogger Logger = null!;
+        internal static Config Config = null!;
+
         private readonly Harmony _harmony;
         private readonly PluginMetadata _metadata;
-        public const string ID = "com.goobwabber.multiplayerextensions";
 
         [Init]
         public Plugin(IPALogger logger, Conf conf, Zenjector zenjector, PluginMetadata pluginMetadata)
         {
             Config config = conf.Generated<Config>();
-
             _harmony = new Harmony(ID);
             _metadata = pluginMetadata;
+            Logger = logger;
+            Config = config;
 
             zenjector.UseMetadataBinder<Plugin>();
             zenjector.UseLogger(logger);

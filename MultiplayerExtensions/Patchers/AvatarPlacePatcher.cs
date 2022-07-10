@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using MultiplayerExtensions.Environments;
 using SiraUtil.Affinity;
-using SiraUtil.Logging;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,22 +10,19 @@ namespace MultiplayerExtensions.Patchers
     public class AvatarPlacePatcher : IAffinity
     {
         private readonly MenuEnvironmentManager _environmentManager;
-        private readonly SiraLog _logger;
 
         internal AvatarPlacePatcher(
-            MenuEnvironmentManager environmentManager,
-            SiraLog logger)
+            MenuEnvironmentManager environmentManager)
         {
             _environmentManager = environmentManager;
-            _logger = logger;
         }
 
         private static readonly MethodInfo _addMethod = typeof(List<MultiplayerLobbyAvatarPlace>).GetMethod(nameof(List<MultiplayerLobbyAvatarPlace>.Add));
         private static readonly MethodInfo _setupAvatarPlaceMethod = SymbolExtensions.GetMethodInfo(() => SetupAvatarPlace(null!, 0));
 
-        [AffinityTranspiler]
-        [AffinityPatch(typeof(MultiplayerLobbyAvatarPlaceManager), nameof(MultiplayerLobbyAvatarPlaceManager.SpawnAllPlaces))]
-        private IEnumerable<CodeInstruction> SpawnAllPlaces(IEnumerable<CodeInstruction> instructions) =>
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(MultiplayerLobbyAvatarPlaceManager), nameof(MultiplayerLobbyAvatarPlaceManager.SpawnAllPlaces))]
+        private static IEnumerable<CodeInstruction> SpawnAllPlaces(IEnumerable<CodeInstruction> instructions) =>
             new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _addMethod))
                 .Insert(new CodeInstruction(OpCodes.Ldloc_3), new CodeInstruction(OpCodes.Callvirt, _setupAvatarPlaceMethod))

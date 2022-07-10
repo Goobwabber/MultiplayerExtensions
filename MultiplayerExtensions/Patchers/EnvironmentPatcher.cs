@@ -102,7 +102,7 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
-        private List<GameObject> objectsToEnable = new();
+        private List<GameObject> _objectsToEnable = new();
 
         [AffinityPrefix]
         [AffinityPatch(typeof(GameScenesManager), "ActivatePresentedSceneRootObjects")]
@@ -114,12 +114,12 @@ namespace MultiplayerExtensions.Patchers
                 if (scenesToPresent.Contains("MultiplayerEnvironment"))
                 {
                     _logger.Info($"Preventing environment activation. ({defaultScene})");
-                    objectsToEnable = SceneManager.GetSceneByName(defaultScene).GetRootGameObjects().ToList();
+                    _objectsToEnable = SceneManager.GetSceneByName(defaultScene).GetRootGameObjects().ToList();
                     scenesToPresent.Remove(defaultScene);
 
                     // fix ring lighting dogshit
                     _allowRingCreation = true;
-                    var trackLaneRingManagers = objectsToEnable[0].transform.GetComponentsInChildren<TrackLaneRingsManager>();
+                    var trackLaneRingManagers = _objectsToEnable[0].transform.GetComponentsInChildren<TrackLaneRingsManager>();
                     foreach (var trackLaneRingManager in trackLaneRingManagers)
                         trackLaneRingManager.Awake();
                     _allowRingCreation = false;
@@ -189,7 +189,7 @@ namespace MultiplayerExtensions.Patchers
             if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
                 _logger.Info($"Activating environment.");
-                foreach (GameObject gameObject in objectsToEnable)
+                foreach (GameObject gameObject in _objectsToEnable)
                     gameObject.SetActive(true);
 
                 var activeObjects = __instance.transform.Find("IsActiveObjects");
@@ -201,9 +201,9 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(EnvironmentSceneSetup), nameof(EnvironmentSceneSetup.InstallBindings))]
-        private bool RemoveDuplicateInstalls(EnvironmentSceneSetup __instance)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EnvironmentSceneSetup), nameof(EnvironmentSceneSetup.InstallBindings))]
+        private static bool RemoveDuplicateInstalls(EnvironmentSceneSetup __instance)
         {
             DiContainer container = __instance.GetProperty<DiContainer, MonoInstallerBase>("Container");
             return !container.HasBinding<EnvironmentBrandingManager.InitData>();
@@ -215,7 +215,7 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
         private void SetEnvironmentColors(GameplayCoreInstaller __instance)
         {
-            if (!_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
+            if (!_config.SoloEnvironment || !_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
                 return;
 
             DiContainer container = __instance.GetProperty<DiContainer, MonoInstallerBase>("Container");
@@ -224,7 +224,7 @@ namespace MultiplayerExtensions.Patchers
             colorManager.Awake();
             colorManager.Start();
 
-            foreach (var gameObject in objectsToEnable)
+            foreach (var gameObject in _objectsToEnable)
             {
                 var lightSwitchEventEffects = gameObject.transform.GetComponentsInChildren<LightSwitchEventEffect>();
                 foreach (var component in lightSwitchEventEffects)

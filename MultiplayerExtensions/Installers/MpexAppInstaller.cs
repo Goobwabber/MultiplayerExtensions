@@ -1,6 +1,8 @@
-﻿using MultiplayerExtensions.Patchers;
+﻿using IPA.Loader;
+using MultiplayerExtensions.Patchers;
 using MultiplayerExtensions.Players;
 using MultiplayerExtensions.Utilities;
+using SiraUtil.Zenject;
 using Zenject;
 
 namespace MultiplayerExtensions.Installers
@@ -21,7 +23,6 @@ namespace MultiplayerExtensions.Installers
 			Container.BindInterfacesAndSelfTo<SpriteManager>().AsSingle();
 			Container.BindInterfacesAndSelfTo<MpexPlayerManager>().AsSingle();
 			Container.BindInterfacesAndSelfTo<EnvironmentPatcher>().AsSingle();
-			Container.BindInterfacesAndSelfTo<AvatarPoseRestrictionPatcher>().AsSingle();
 		}
 	}
 }

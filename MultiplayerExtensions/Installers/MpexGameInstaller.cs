@@ -13,7 +13,6 @@ namespace MultiplayerExtensions.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<PlayerPositionPatcher>().AsSingle();
             Container.RegisterRedecorator(new LocalActivePlayerRegistration(DecorateLocalActivePlayerFacade));
             Container.RegisterRedecorator(new LocalActivePlayerDuelRegistration(DecorateLocalActivePlayerFacade));
             Container.RegisterRedecorator(new ConnectedPlayerRegistration(DecorateConnectedPlayerFacade));
