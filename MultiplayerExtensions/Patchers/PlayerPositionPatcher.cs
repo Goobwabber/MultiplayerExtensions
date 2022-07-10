@@ -29,6 +29,22 @@ namespace MultiplayerExtensions.Patchers
         }
 
         [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerConditionalActiveByLayout), nameof(MultiplayerConditionalActiveByLayout.Start))]
+        private void SoloEnvironmentLayoutConfirm(MultiplayerConditionalActiveByLayout __instance, MultiplayerLayoutProvider ____layoutProvider)
+        {
+            if (____layoutProvider.layout == MultiplayerPlayerLayout.NotDetermined)
+                __instance.HandlePlayersLayoutWasCalculated(MultiplayerPlayerLayout.Duel, 2);
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerConditionalActiveByLayout), nameof(MultiplayerConditionalActiveByLayout.HandlePlayersLayoutWasCalculated))]
+        private void SoloEnvironmentObjectDisable(ref MultiplayerPlayerLayout layout)
+        {
+            if (_config.SoloEnvironment)
+                layout = MultiplayerPlayerLayout.Duel;
+        }
+
+        [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer))]
         private bool SoloEnvironmentAngle(int playerIndex, int localPlayerIndex, ref float __result)
         {
