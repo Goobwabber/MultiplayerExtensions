@@ -175,6 +175,8 @@ namespace MultiplayerExtensions.Patchers
                 container.Bind<CoreGameHUDController>().FromInstance(hud).AsSingle();
                 var multihud = __instance.transform.GetComponentInChildren<CoreGameHUDController>();
                 multihud.gameObject.SetActive(false);
+                var multiPositionHud = __instance.transform.GetComponentInChildren<MultiplayerPositionHUDController>();
+                multiPositionHud.transform.position += new Vector3(0, 0.01f, 0);
             }
         }
 
