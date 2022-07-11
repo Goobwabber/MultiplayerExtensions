@@ -7,12 +7,20 @@ namespace MultiplayerExtensions.Patchers
     [HarmonyPatch]
     public class PlayerPositionPatcher : IAffinity
     {
+        private readonly Config _config;
+
+        internal PlayerPositionPatcher(
+            Config config)
+        {
+            _config = config;
+        }
+
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerLayoutProvider), nameof(MultiplayerLayoutProvider.CalculateLayout))]
-        private static bool SoloEnvironmentLayout(ref MultiplayerPlayerLayout __result)
+        private bool SoloEnvironmentLayout(ref MultiplayerPlayerLayout __result)
         {;
             __result = MultiplayerPlayerLayout.Duel;
-            return !Plugin.Config.SoloEnvironment;
+            return !_config.SoloEnvironment;
         }
 
         [HarmonyPrefix]
@@ -33,19 +41,19 @@ namespace MultiplayerExtensions.Patchers
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer))]
-        private static bool SoloEnvironmentAngle(int playerIndex, int localPlayerIndex, ref float __result)
+        private bool SoloEnvironmentAngle(int playerIndex, int localPlayerIndex, ref float __result)
         {
             __result = playerIndex - localPlayerIndex;
-            return !Plugin.Config.SoloEnvironment;
+            return !_config.SoloEnvironment;
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetPlayerWorldPosition))]
-        private static bool SoloEnvironmentPosition(float outerCirclePositionAngle, ref Vector3 __result)
+        private bool SoloEnvironmentPosition(float outerCirclePositionAngle, ref Vector3 __result)
         {
             var sortIndex = (int)outerCirclePositionAngle ;
             __result = new Vector3(sortIndex * 4f, 0, 0);
-            return !Plugin.Config.SoloEnvironment;
+            return !_config.SoloEnvironment;
         }
     }
 }
