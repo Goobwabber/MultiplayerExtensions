@@ -212,6 +212,7 @@ namespace MultiplayerExtensions.Patchers
 
                 __instance.transform.Find("Lasers").gameObject.SetActive(false);
                 __instance.transform.Find("Construction").gameObject.SetActive(false);
+                __instance.transform.Find("MultiplayerConnectedPlayerScoreDiff").gameObject.SetActive(false);
             }
         }
 
