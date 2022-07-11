@@ -10,7 +10,6 @@ namespace MultiplayerExtensions.Patches
         [HarmonyPatch(typeof(AvatarPoseRestrictions), nameof(AvatarPoseRestrictions.HandleAvatarPoseControllerPositionsWillBeSet))]
         private static bool DisableAvatarRestrictions(AvatarPoseRestrictions __instance, Vector3 headPosition, Vector3 leftHandPosition, Vector3 rightHandPosition, out Vector3 newHeadPosition, out Vector3 newLeftHandPosition, out Vector3 newRightHandPosition)
         {
-            Plugin.Logger.Notice($"DisableAvatarRestrictions");
             newHeadPosition = headPosition;
             newLeftHandPosition = leftHandPosition;
             newRightHandPosition = rightHandPosition;
