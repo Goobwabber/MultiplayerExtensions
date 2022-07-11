@@ -203,7 +203,7 @@ namespace MultiplayerExtensions.Patchers
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameObjectContext), "InstallSceneBindings")]
+        [HarmonyPatch(typeof(Context), "InstallSceneBindings")]
         private static void HideOtherPlayerPlatforms(GameObjectContext __instance)
         {
             if (__instance.transform.name.Contains("ConnectedPlayer") && Plugin.Config.DisableMultiplayerPlatforms)
