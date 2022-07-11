@@ -39,7 +39,7 @@ namespace MultiplayerExtensions.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetPlayerWorldPosition))]
-        private bool SoloEnvironmentPosition(float outerCirclePositionAngle, ref Vector3 __result)
+        private static bool SoloEnvironmentPosition(float outerCirclePositionAngle, ref Vector3 __result)
         {
             var sortIndex = (int)outerCirclePositionAngle ;
             __result = new Vector3(sortIndex * 4f, 0, 0);
