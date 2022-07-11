@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace MultiplayerExtensions.Patchers
 {
+    [HarmonyPatch]
     public class MenuEnvironmentPatcher : IAffinity
     {
         private readonly GameplaySetupViewController _gameplaySetup;

@@ -1,14 +1,16 @@
 ﻿using HarmonyLib;
+using SiraUtil.Affinity;
 using UnityEngine;
 
-namespace MultiplayerExtensions.Patches
+namespace MultiplayerExtensions.Patchers
 {
-    public class PlayerPositionPatches
+    [HarmonyPatch]
+    public class PlayerPositionPatcher : IAffinity
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MultiplayerLayoutProvider), nameof(MultiplayerLayoutProvider.CalculateLayout))]
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerLayoutProvider), nameof(MultiplayerLayoutProvider.CalculateLayout))]
         private static bool SoloEnvironmentLayout(ref MultiplayerPlayerLayout __result)
-        {
+        {;
             __result = MultiplayerPlayerLayout.Duel;
             return !Plugin.Config.SoloEnvironment;
         }
@@ -29,16 +31,16 @@ namespace MultiplayerExtensions.Patches
                 layout = MultiplayerPlayerLayout.Duel;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer))]
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer))]
         private static bool SoloEnvironmentAngle(int playerIndex, int localPlayerIndex, ref float __result)
         {
             __result = playerIndex - localPlayerIndex;
             return !Plugin.Config.SoloEnvironment;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetPlayerWorldPosition))]
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetPlayerWorldPosition))]
         private static bool SoloEnvironmentPosition(float outerCirclePositionAngle, ref Vector3 __result)
         {
             var sortIndex = (int)outerCirclePositionAngle ;

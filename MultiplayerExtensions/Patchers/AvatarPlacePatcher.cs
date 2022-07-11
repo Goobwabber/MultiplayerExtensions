@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 
 namespace MultiplayerExtensions.Patchers
 {
+    [HarmonyPatch]
     public class AvatarPlacePatcher : IAffinity
     {
         private readonly MenuEnvironmentManager _environmentManager;

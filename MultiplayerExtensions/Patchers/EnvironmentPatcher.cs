@@ -13,6 +13,7 @@ using Zenject;
 
 namespace MultiplayerExtensions.Patchers
 {
+    [HarmonyPatch]
     public class EnvironmentPatcher : IAffinity
     {
         private readonly GameScenesManager _scenesManager;
