@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using SiraUtil.Affinity;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MultiplayerExtensions.Patchers
@@ -15,6 +16,7 @@ namespace MultiplayerExtensions.Patchers
             _config = config;
         }
 
+        // these are affinity patches because they only apply to one container
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerLayoutProvider), nameof(MultiplayerLayoutProvider.CalculateLayout))]
         private bool SoloEnvironmentLayout(ref MultiplayerPlayerLayout __result)
@@ -43,7 +45,7 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetOuterCirclePositionAngleForPlayer))]
         private bool SoloEnvironmentAngle(int playerIndex, int localPlayerIndex, ref float __result)
         {
-            __result = playerIndex - localPlayerIndex;
+            __result = (playerIndex - localPlayerIndex) * 0.01f;
             return !_config.SoloEnvironment;
         }
 
@@ -51,8 +53,8 @@ namespace MultiplayerExtensions.Patchers
         [AffinityPatch(typeof(MultiplayerPlayerPlacement), nameof(MultiplayerPlayerPlacement.GetPlayerWorldPosition))]
         private bool SoloEnvironmentPosition(float outerCirclePositionAngle, ref Vector3 __result)
         {
-            var sortIndex = (int)outerCirclePositionAngle ;
-            __result = new Vector3(sortIndex * 4f, 0, 0);
+            var sortIndex = outerCirclePositionAngle ;
+            __result = new Vector3(sortIndex * 400f, 0, 0);
             return !_config.SoloEnvironment;
         }
     }

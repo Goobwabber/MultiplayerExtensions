@@ -119,11 +119,7 @@ namespace MultiplayerExtensions.Patchers
                     scenesToPresent.Remove(defaultScene);
 
                     // fix ring lighting dogshit
-                    _allowRingCreation = true;
                     var trackLaneRingManagers = _objectsToEnable[0].transform.GetComponentsInChildren<TrackLaneRingsManager>();
-                    foreach (var trackLaneRingManager in trackLaneRingManagers)
-                        trackLaneRingManager.Awake();
-                    _allowRingCreation = false;
                 } 
                 else
                 {
@@ -167,7 +163,7 @@ namespace MultiplayerExtensions.Patchers
 
         [AffinityPrefix]
         [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
-        private void FuckYouCountersPlus(GameObjectContext __instance)
+        private void LoveYouCountersPlus(GameObjectContext __instance)
         {
             if (__instance.transform.name.Contains("LocalActivePlayer") && _config.SoloEnvironment)
             {
@@ -180,8 +176,6 @@ namespace MultiplayerExtensions.Patchers
                 multiPositionHud.transform.position += new Vector3(0, 0.01f, 0);
             }
         }
-
-        private Dictionary<Type, MethodInfo?> _methodInfoCache = new();
 
         [AffinityPostfix]
         [AffinityPatch(typeof(GameObjectContext), "InstallSceneBindings")]
@@ -224,8 +218,6 @@ namespace MultiplayerExtensions.Patchers
             return !container.HasBinding<EnvironmentBrandingManager.InitData>();
         }
 
-        private bool _allowRingCreation = false;
-
         [AffinityPostfix]
         [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
         private void SetEnvironmentColors(GameplayCoreInstaller __instance)
@@ -245,17 +237,6 @@ namespace MultiplayerExtensions.Patchers
                 foreach (var component in lightSwitchEventEffects)
                     component.Awake();
             }
-        }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(TrackLaneRingsManager), "Awake")]
-        private bool PreventRingCreation()
-        {
-            if (!_scenesManager.IsSceneInStack("MultiplayerEnvironment"))
-                return true;
-
-            _logger.Info($"Allow ring creation: {_allowRingCreation}");
-            return _allowRingCreation;
         }
     }
 }

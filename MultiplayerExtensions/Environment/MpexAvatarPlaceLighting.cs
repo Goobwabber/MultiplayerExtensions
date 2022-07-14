@@ -71,7 +71,11 @@ namespace MultiplayerExtensions.Environments
 
         private void HandlePlayerConnected(IConnectedPlayer player)
         {
-            if (player.sortIndex == SortIndex)
+            if (player.sortIndex != SortIndex)
+                return;
+            if (_mpexPlayerManager.TryGetPlayer(player.userId, out MpexPlayerData data))
+                SetColor(data.Color, false);
+            else
                 SetColor(Config.DefaultPlayerColor, false);
         }
 
