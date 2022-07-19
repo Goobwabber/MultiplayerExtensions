@@ -1,6 +1,7 @@
 ﻿using HMUI;
 using Zenject;
 using BeatSaberMarkupLanguage;
+using SiraUtil.Affinity;
 
 namespace MultiplayerExtensions.UI
 {
@@ -30,7 +31,7 @@ namespace MultiplayerExtensions.UI
             }
             if (addedToHierarchy)
             {
-                ProvideInitialViewControllers(_emptyViewController, _settingsViewController);
+                ProvideInitialViewControllers(_settingsViewController);
             }
         }
 
