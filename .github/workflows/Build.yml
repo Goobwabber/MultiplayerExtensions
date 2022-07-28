@@ -6,9 +6,7 @@ on:
     paths:
       - 'MultiplayerExtensions.sln'
       - 'MultiplayerExtensions/**'
-      - 'MultiplayerExtensionsTests/**'
       - '.github/workflows/Build.yml'
-      - 'Refs/**'
 
 jobs:
   Build:
@@ -18,7 +16,7 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: 5.0.x
     - name: Fetch SIRA References
       uses: ProjectSIRA/download-sira-stripped@1.0.0
       with:
@@ -43,5 +41,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
-        name: MultiplayerExtensions
+        name: ${{ steps.Build.outputs.filename }}
         path: ${{ steps.Build.outputs.artifactpath }}
