@@ -83,10 +83,6 @@
       <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="SongCore">
-      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.IO.Compression">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.dll</HintPath>
       <Private>False</Private>
