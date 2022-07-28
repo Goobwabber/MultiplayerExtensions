@@ -26,5 +26,16 @@ namespace MultiplayerExtensions.UI
                 NotifyPropertyChanged();
             }
         }
+
+        [UIValue("disable-player-colors")]
+        private bool _disablePlayerColors
+        {
+            get => _config.DisableMultiplayerColors;
+            set
+            {
+                _config.DisableMultiplayerColors = value;
+                NotifyPropertyChanged();
+            }
+        }
     }
 }

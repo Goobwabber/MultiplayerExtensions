@@ -4,5 +4,6 @@
 	</horizontal>
 	<settings-container>
     <toggle-setting value='disable-avatar-constraints' apply-on-change='true' text='Disable Avatar Position Restrictions' hover-hint='Allows players to move outside of their bounds.' bind-value='true'/>
+    <toggle-setting value='disable-player-colors' apply-on-change='true' text='Disable Player Colors' hover-hint="Sets other player's colors to yours." bind-value='true'/>
 	</settings-container>
 </bg>
