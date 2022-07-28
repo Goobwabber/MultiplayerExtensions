@@ -2,10 +2,11 @@ name: Pull Request Build
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
+      - 'MultiplayerExtensions.sln'
       - 'MultiplayerExtensions/**'
-      - 'MultiplayerExtensionsTests/**'
+      - '.github/workflows/PR_Build.yml'
 
 jobs:
   Build:
@@ -15,7 +16,7 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: 5.0.x
     - name: Fetch SIRA References
       uses: ProjectSIRA/download-sira-stripped@1.0.0
       with:
