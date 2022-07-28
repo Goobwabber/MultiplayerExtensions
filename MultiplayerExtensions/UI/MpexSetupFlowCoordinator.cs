@@ -9,17 +9,20 @@ namespace MultiplayerExtensions.UI
     {
         internal FlowCoordinator parentFlowCoordinator = null!;
         private MpexSettingsViewController _settingsViewController = null!;
-        private EmptyViewController _emptyViewController = null!;
+        private MpexEnvironmentViewController _environmentViewController = null!;
+        private MpexMiscViewController _miscViewController = null!;
 
         [Inject]
         public void Construct(
             MainFlowCoordinator mainFlowCoordinator, 
             MpexSettingsViewController settingsViewController,
-            EmptyViewController emptyViewController)
+            MpexEnvironmentViewController environmentViewController,
+            MpexMiscViewController miscViewController)
         {
             parentFlowCoordinator = mainFlowCoordinator;
             _settingsViewController = settingsViewController;
-            _emptyViewController = emptyViewController;
+            _environmentViewController = environmentViewController;
+            _miscViewController = miscViewController;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -31,7 +34,7 @@ namespace MultiplayerExtensions.UI
             }
             if (addedToHierarchy)
             {
-                ProvideInitialViewControllers(_settingsViewController);
+                ProvideInitialViewControllers(_settingsViewController, _environmentViewController, _miscViewController);
             }
         }
 

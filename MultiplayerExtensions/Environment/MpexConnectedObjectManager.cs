@@ -26,7 +26,7 @@ namespace MultiplayerExtensions.Environment
         private void Start()
         {
             _playerSpectatingSpot.isObservedChangedEvent += HandleIsObservedChangedEvent;
-            if (_config.LagReducer)
+            if (_config.DisableMultiplayerObjects)
                 _beatmapObjectEventManager.Pause();
         }
 
@@ -39,11 +39,10 @@ namespace MultiplayerExtensions.Environment
         private void HandleIsObservedChangedEvent(bool isObserved)
         {
             if (_config.DisableMultiplayerPlatforms)
-            {
-                transform.Find("Lasers").gameObject.SetActive(isObserved);
                 transform.Find("Construction").gameObject.SetActive(isObserved);
-            }
-            if (!_config.LagReducer)
+            if (_config.DisableMultiplayerLights)
+                transform.Find("Lasers").gameObject.SetActive(isObserved);
+            if (!_config.DisableMultiplayerObjects)
                 return;
             if (isObserved)
             {

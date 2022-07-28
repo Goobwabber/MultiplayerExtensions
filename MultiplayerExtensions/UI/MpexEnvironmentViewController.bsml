@@ -1,0 +1,10 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
+    <text text='Environment' align='Center' font-size='8' />
+	</horizontal>
+	<settings-container>
+    <toggle-setting value='solo-environment' apply-on-change='true' text='Solo Environment' hover-hint='Uses the solo environment instead of the multiplayer environment. Chroma and Noodle compatible!' bind-value='true'/>
+    <toggle-setting value='side-by-side' apply-on-change='true' text='Side By Side' hover-hint="Places players side by side in gameplay, similar to old multiplayer!" bind-value='true'/>
+    <increment-setting id='side-by-side-distance-increment' value='side-by-side-distance' apply-on-change='true' text='Side By Side Distance' hover-hint="Distance between players in gameplay when using side by side" increment='0.1' bind-value='true'/>
+	</settings-container>
+</bg>

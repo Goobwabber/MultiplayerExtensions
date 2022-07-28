@@ -9,10 +9,15 @@ namespace MultiplayerExtensions
         public static readonly Color DefaultPlayerColor = new Color(0.031f, 0.752f, 1f);
 
         public virtual bool SoloEnvironment { get; set; } = false;
+        public virtual bool SideBySide { get; set; } = false;
+        public virtual float SideBySideDistance { get; set; } = 4f;
         public virtual bool DisableAvatarConstraints { get; set; } = false;
         public virtual bool DisableMultiplayerPlatforms { get; set; } = false;
-        public virtual bool LagReducer { get; set; } = false;
-        public virtual bool MissLighting { get; set; } = true;
+        public virtual bool DisableMultiplayerLights { get; set; } = false;
+        public virtual bool DisableMultiplayerObjects { get; set; } = false;
+        public virtual bool DisableMultiplayerColors { get; set; } = false;
+        public virtual bool MissLighting { get; set; } = false;
+        public virtual bool PersonalMissLightingOnly { get; set; } = false;
         [UseConverter(typeof(ColorConverter))]
         public virtual Color PlayerColor { get; set; } = DefaultPlayerColor;
         [UseConverter(typeof(ColorConverter))]

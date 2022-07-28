@@ -1,11 +1,11 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
 	<horizontal anchor-min-y='1'  bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize'>
-		<text text='Preferences' align='Center' font-size='8' />
 	</horizontal>
 	<settings-container>
-    <toggle-setting value='lag-reducer' apply-on-change='true' text='Lag Reducer' hover-hint='Disables notes and walls of other players.' bind-value='true'/>
-    <toggle-setting value='miss-lighting' apply-on-change='true' text='Miss Lighting' hover-hint="Turns a player's platform red when they miss a note." bind-value='true'/>
-    <toggle-setting value='disable-avatar-constraints' apply-on-change='true' text='Disable Avatar Position Restrictions' hover-hint='Allows players to move outside of their bounds.' bind-value='true'/>
     <toggle-setting value='hide-player-platforms' apply-on-change='true' text='Hide Player Platforms' hover-hint="Hides other player's platforms in game." bind-value='true'/>
+    <toggle-setting value='hide-player-lights' apply-on-change='true' text='Hide Player Lights' hover-hint="Hides other player's platform lights in game." bind-value='true'/>
+    <toggle-setting value='hide-player-objects' apply-on-change='true' text='Hide Player Objects' hover-hint="Hides other player's notes and walls in game." bind-value='true'/>
+    <toggle-setting value='miss-lighting' apply-on-change='true' text='Miss Lighting' hover-hint="Turns a player's platform red when they miss a note." bind-value='true'/>
+    <toggle-setting id='personal-miss-lighting-toggle' value='personal-miss-lighting-only' apply-on-change='true' text='Personal Only Miss Lighting' hover-hint="Makes miss lighting only apply to your platform." bind-value='true'/>
 	</settings-container>
 </bg>

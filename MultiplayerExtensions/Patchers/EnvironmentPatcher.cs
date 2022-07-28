@@ -203,12 +203,12 @@ namespace MultiplayerExtensions.Patchers
         [HarmonyPatch(typeof(Context), "InstallSceneBindings")]
         private static void HideOtherPlayerPlatforms(Context __instance)
         {
-            if (__instance.transform.name.Contains("ConnectedPlayer") && Plugin.Config.DisableMultiplayerPlatforms)
+            if (__instance.transform.name.Contains("ConnectedPlayer"))
             {
-                Plugin.Logger.Info($"Hiding player platforms.");
-
-                __instance.transform.Find("Lasers").gameObject.SetActive(false);
-                __instance.transform.Find("Construction").gameObject.SetActive(false);
+                if (Plugin.Config.DisableMultiplayerPlatforms)
+                    __instance.transform.Find("Construction").gameObject.SetActive(false);
+                if (Plugin.Config.DisableMultiplayerLights)
+                    __instance.transform.Find("Lasers").gameObject.SetActive(false);
             }
         }
 

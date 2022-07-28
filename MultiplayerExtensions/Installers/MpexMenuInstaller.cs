@@ -17,7 +17,8 @@ namespace MultiplayerExtensions.Installers
 
             Container.BindInterfacesAndSelfTo<MpexSetupFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesAndSelfTo<MpexSettingsViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<EmptyViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<MpexEnvironmentViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<MpexMiscViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<MpexGameplaySetup>().AsSingle();
 
             // needed for local player's player place

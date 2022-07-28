@@ -28,7 +28,8 @@ namespace MultiplayerExtensions.Installers
 
         private MultiplayerConnectedPlayerFacade DecorateConnectedPlayerFacade(MultiplayerConnectedPlayerFacade original)
         {
-            original.gameObject.AddComponent<MpexPlayerFacadeLighting>();
+            if (!Plugin.Config.PersonalMissLightingOnly)
+                original.gameObject.AddComponent<MpexPlayerFacadeLighting>();
             original.gameObject.AddComponent<MpexConnectedObjectManager>();
             return original;
         }

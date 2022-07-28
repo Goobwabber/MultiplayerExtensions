@@ -1,6 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
-using System;
 using Zenject;
 
 namespace MultiplayerExtensions.UI
@@ -17,14 +17,44 @@ namespace MultiplayerExtensions.UI
             _config = config;
         }
 
-
-        [UIValue("lag-reducer")]
-        private bool _lagReducer
+        [UIAction("#post-parse")]
+        private void PostParse()
         {
-            get => _config.LagReducer;
+            _personalMissLightingToggle.interactable = _missLighting;
+        }
+
+        [UIComponent("personal-miss-lighting-toggle")]
+        private GenericInteractableSetting _personalMissLightingToggle = null!;
+
+        [UIValue("hide-player-platforms")]
+        private bool _hidePlayerPlatforms
+        {
+            get => _config.DisableMultiplayerPlatforms;
             set
             {
-                _config.LagReducer = value;
+                _config.DisableMultiplayerPlatforms = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("hide-player-lights")]
+        private bool _hidePlayerLights
+        {
+            get => _config.DisableMultiplayerLights;
+            set
+            {
+                _config.DisableMultiplayerLights = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("hide-player-objects")]
+        private bool _hidePlayerObjects
+        {
+            get => _config.DisableMultiplayerObjects;
+            set
+            {
+                _config.DisableMultiplayerObjects = value;
                 NotifyPropertyChanged();
             }
         }
@@ -36,28 +66,19 @@ namespace MultiplayerExtensions.UI
             set
             {
                 _config.MissLighting = value;
+                if (_personalMissLightingToggle != null)
+                    _personalMissLightingToggle.interactable = value;
                 NotifyPropertyChanged();
             }
         }
 
-        [UIValue("disable-avatar-constraints")]
-        private bool _disableAvatarConstraints
+        [UIValue("personal-miss-lighting-only")]
+        private bool _personalMissLightingOnly
         {
-            get => _config.DisableAvatarConstraints;
+            get => _config.PersonalMissLightingOnly;
             set
             {
-                _config.DisableAvatarConstraints = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIValue("hide-player-platforms")]
-        private bool _hidePlayerPlatforms
-        {
-            get => _config.DisableMultiplayerPlatforms;
-            set
-            {
-                _config.DisableMultiplayerPlatforms = value;
+                _config.PersonalMissLightingOnly = value;
                 NotifyPropertyChanged();
             }
         }
