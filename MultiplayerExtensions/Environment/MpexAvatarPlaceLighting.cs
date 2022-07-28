@@ -42,11 +42,19 @@ namespace MultiplayerExtensions.Environments
                 return;
 
             if (_sessionManager.localPlayer.sortIndex == SortIndex)
+            {
                 SetColor(_config.PlayerColor, true);
+                return;
+            }
 
             foreach (var player in _sessionManager.connectedPlayers)
                 if (player.sortIndex == SortIndex)
+                {
                     SetColor(_mpexPlayerManager.GetPlayer(player.userId)?.Color ?? Config.DefaultPlayerColor, true);
+                    return;
+                }
+
+            SetColor(Color.black);
         }
 
         private void OnEnable()

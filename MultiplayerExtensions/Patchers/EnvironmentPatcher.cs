@@ -5,8 +5,6 @@ using SiraUtil.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -193,6 +191,11 @@ namespace MultiplayerExtensions.Patchers
                 activeObjects.Find("BigSmokePS").gameObject.SetActive(false);
                 activeObjects.Find("DustPS").gameObject.SetActive(false);
                 activeObjects.Find("DirectionalLights").gameObject.SetActive(false);
+
+                var localActivePlayer = __instance.transform.GetComponent<MultiplayerLocalActivePlayerFacade>();
+                var activeOnlyGameObjects = localActivePlayer.GetField<GameObject[], MultiplayerLocalActivePlayerFacade>("_activeOnlyGameObjects");
+                var newActiveOnlyGameObjects = activeOnlyGameObjects.Concat(_objectsToEnable);
+                localActivePlayer.SetField("_activeOnlyGameObjects", newActiveOnlyGameObjects.ToArray());
             }
         }
 
@@ -206,7 +209,6 @@ namespace MultiplayerExtensions.Patchers
 
                 __instance.transform.Find("Lasers").gameObject.SetActive(false);
                 __instance.transform.Find("Construction").gameObject.SetActive(false);
-                __instance.transform.Find("MultiplayerConnectedPlayerScoreDiff").gameObject.SetActive(false);
             }
         }
 
