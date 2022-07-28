@@ -5,7 +5,7 @@
   "author": "Goobwabber",
   "version": "1.0.2",
   "description": "Expands the functionality of Beat Saber Multiplayer.",
-  "gameVersion": "1.19.0",
+  "gameVersion": "1.24.0",
   "dependsOn": {
     "BSIPA": "^4.1.4",
     "BeatSaberMarkupLanguage": "^1.5.1",
