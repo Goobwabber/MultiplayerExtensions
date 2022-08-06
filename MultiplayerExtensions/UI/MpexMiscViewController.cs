@@ -37,5 +37,16 @@ namespace MultiplayerExtensions.UI
                 NotifyPropertyChanged();
             }
         }
+
+        [UIValue("disable-platform-movement")]
+        private bool _disablePlatformMovement
+        {
+            get => _config.DisablePlatformMovement;
+            set
+            {
+                _config.DisablePlatformMovement = value;
+                NotifyPropertyChanged();
+            }
+        }
     }
 }

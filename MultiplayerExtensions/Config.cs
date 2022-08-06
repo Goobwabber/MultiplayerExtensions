@@ -16,6 +16,7 @@ namespace MultiplayerExtensions
         public virtual bool DisableMultiplayerLights { get; set; } = false;
         public virtual bool DisableMultiplayerObjects { get; set; } = false;
         public virtual bool DisableMultiplayerColors { get; set; } = false;
+        public virtual bool DisablePlatformMovement { get; set; } = false;
         public virtual bool MissLighting { get; set; } = false;
         public virtual bool PersonalMissLightingOnly { get; set; } = false;
         [UseConverter(typeof(ColorConverter))]
