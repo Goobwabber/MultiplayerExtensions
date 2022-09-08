@@ -3,7 +3,7 @@
   "id": "MultiplayerExtensions",
   "name": "MultiplayerExtensions",
   "author": "Goobwabber",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Expands the functionality of Beat Saber Multiplayer.",
   "gameVersion": "1.24.0",
   "dependsOn": {
