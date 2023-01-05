@@ -23,13 +23,14 @@ namespace MultiplayerExtensions.Installers
 
         private MultiplayerLocalActivePlayerFacade DecorateLocalActivePlayerFacade(MultiplayerLocalActivePlayerFacade original)
         {
+            if (Plugin.Config.MissLighting)
             original.gameObject.AddComponent<MpexPlayerFacadeLighting>();
             return original;
         }
 
         private MultiplayerConnectedPlayerFacade DecorateConnectedPlayerFacade(MultiplayerConnectedPlayerFacade original)
         {
-            if (!Plugin.Config.PersonalMissLightingOnly)
+            if (Plugin.Config.MissLighting && !Plugin.Config.PersonalMissLightingOnly)
                 original.gameObject.AddComponent<MpexPlayerFacadeLighting>();
             original.gameObject.AddComponent<MpexConnectedObjectManager>();
             return original;
