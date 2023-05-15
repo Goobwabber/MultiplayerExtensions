@@ -182,8 +182,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\IconMeta64.png" />
+    <EmbeddedResource Include="Assets\IconToaster64.png" />
     <EmbeddedResource Include="manifest.json" />
+    <None Remove="Assets\IconMeta64.png" />
     <None Remove="Assets\IconSteam64.png" />
+    <None Remove="Assets\IconToaster64.png" />
     <None Remove="UI\MpexEnvironmentViewController.bsml" />
     <None Remove="UI\MpexGameplaySetup.bsml" />
     <None Remove="UI\MpexMiscViewController.bsml" />
@@ -208,9 +212,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(NCRUNCH)' != '1'">
     <Error Text="The BeatSaberModdingTools.Tasks nuget package doesn't seem to be installed." Condition="'$(BSMTTaskAssembly)' == ''" />
