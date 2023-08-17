@@ -1,15 +1,18 @@
 ﻿using SiraUtil.Logging;
 using System;
 using System.Reflection;
+using System.Security.Policy;
 using UnityEngine;
 using Zenject;
 
 namespace MultiplayerExtensions.Utilities
 {
-    public class SpriteManager : IInitializable
+    public class SpriteManager : IInitializable, IDisposable
     {
         public Sprite IconOculus64 { get; private set; } = null!;
         public Sprite IconSteam64 { get; private set; } = null!;
+        public Sprite IconMeta64 { get; private set; } = null!;
+        public Sprite IconToaster64 { get; private set; } = null!;
 
         private readonly SiraLog _logger;
 
@@ -23,6 +26,20 @@ namespace MultiplayerExtensions.Utilities
         {
             IconOculus64 = GetSpriteFromResources("MultiplayerExtensions.Assets.IconOculus64.png");
             IconSteam64 = GetSpriteFromResources("MultiplayerExtensions.Assets.IconSteam64.png");
+            IconMeta64 = GetSpriteFromResources("MultiplayerExtensions.Assets.IconMeta64.png");
+            IconToaster64 = GetSpriteFromResources("MultiplayerExtensions.Assets.IconToaster64.png");
+        }
+
+        public void Dispose()
+        {
+            if (IconOculus64 != null) Sprite.Destroy(IconOculus64);
+            IconOculus64 = null;
+            if (IconSteam64 != null) Sprite.Destroy(IconSteam64);
+            IconSteam64 = null;
+            if (IconMeta64 != null) Sprite.Destroy(IconMeta64);
+            IconMeta64 = null;
+            if (IconToaster64 != null) Sprite.Destroy(IconToaster64);
+            IconToaster64 = null;
         }
 
         private Sprite GetSpriteFromResources(string resourcePath, float pixelsPerUnit = 10.0f)

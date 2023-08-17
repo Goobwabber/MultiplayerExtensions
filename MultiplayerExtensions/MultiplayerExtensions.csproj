@@ -178,8 +178,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\IconMeta64.png" />
+    <EmbeddedResource Include="Assets\IconToaster64.png" />
     <EmbeddedResource Include="manifest.json" />
+    <None Remove="Assets\IconMeta64.png" />
     <None Remove="Assets\IconSteam64.png" />
+    <None Remove="Assets\IconToaster64.png" />
     <None Remove="UI\MpexEnvironmentViewController.bsml" />
     <None Remove="UI\MpexGameplaySetup.bsml" />
     <None Remove="UI\MpexMiscViewController.bsml" />
@@ -205,7 +209,7 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
     <!-- Publicize directly when referencing -->
     <Reference Include="$(BeatSaberDir)\Plugins\MultiplayerCore.dll" Publicize="true" />
