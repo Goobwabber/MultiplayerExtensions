@@ -100,16 +100,23 @@ namespace MultiplayerExtensions.Environments.Lobby
 
         private void SetPlatformData(MpPlayerData data)
         {
+            Sprite icon = null;
             switch (data.Platform)
             {
                 case Platform.Steam:
-                    SetIcon(PlayerIconSlot.Platform, _spriteManager.IconSteam64);
+                    icon = _spriteManager.IconSteam64;
                     break;
                 case Platform.OculusQuest:
+                    icon = _spriteManager.IconMeta64;
+                    break;
                 case Platform.OculusPC:
-                    SetIcon(PlayerIconSlot.Platform, _spriteManager.IconOculus64);
+                    icon = _spriteManager.IconOculus64;
+                    break;
+                default:
+                    icon = _spriteManager.IconToaster64;
                     break;
             }
+            SetIcon(PlayerIconSlot.Platform, icon);
         }
 
         private void SetIcon(PlayerIconSlot slot, Sprite sprite)
