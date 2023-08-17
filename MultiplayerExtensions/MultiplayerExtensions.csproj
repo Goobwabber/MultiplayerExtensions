@@ -66,10 +66,6 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\LiteNetLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="MultiplayerCore">
-      <HintPath>$(BeatSaberDir)\Plugins\MultiplayerCore.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="netstandard">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
       <Private>False</Private>
@@ -208,6 +204,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+    <ItemGroup>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
+    <!-- Publicize directly when referencing -->
+    <Reference Include="$(BeatSaberDir)\Plugins\MultiplayerCore.dll" Publicize="true" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets" />

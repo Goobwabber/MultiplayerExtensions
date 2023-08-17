@@ -4,6 +4,7 @@ using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -159,6 +160,7 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
+       
         [AffinityPrefix]
         [AffinityPatch(typeof(GameObjectContext), "InstallInstallers")]
         private void LoveYouCountersPlus(GameObjectContext __instance)
@@ -167,6 +169,7 @@ namespace MultiplayerExtensions.Patchers
             {
                 DiContainer container = __instance.GetProperty<DiContainer, GameObjectContext>("Container");
                 var hud = (CoreGameHUDController)_behavioursToInject.Find(x => x is CoreGameHUDController);
+                container.Unbind<CoreGameHUDController>();
                 container.Bind<CoreGameHUDController>().FromInstance(hud).AsSingle();
                 var multihud = __instance.transform.GetComponentInChildren<CoreGameHUDController>();
                 multihud.gameObject.SetActive(false);
@@ -175,7 +178,7 @@ namespace MultiplayerExtensions.Patchers
             }
         }
 
-        [AffinityPostfix]
+        [AffinityPostfix] 
         [AffinityPatch(typeof(GameObjectContext), "InstallSceneBindings")]
         private void ActivateEnvironment(GameObjectContext __instance)
         {
